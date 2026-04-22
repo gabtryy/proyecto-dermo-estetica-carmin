@@ -52,5 +52,5 @@
 		echo "Controlador no encontrado";
 
 	}
-// LO LOGRE
+// A SUS ORDENES GENERAL GOCHOMAN
 ?>
