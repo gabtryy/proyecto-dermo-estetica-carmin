@@ -41,7 +41,7 @@
 		exit;
 	}
 
-	$archivo = $_SERVER['DOCUMENT_ROOT'] . "/Proyecto_dermoestetica/Controlador/{$controlador}.php";
+	$archivo = __DIR__ . "/Controlador/{$controlador}.php";
 
 	if (file_exists($archivo)){
 
