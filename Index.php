@@ -5,6 +5,14 @@
 	error_reporting(E_ALL);
 
 	session_start();
+
+	$es_admin = false;
+	$es_analista = false;
+	$es_usuario = false;
+	$puede_ver_reportes = false;
+	$puede_gestionar_usuarios = false;
+	$puede_gestionar_categorias = false;
+	$puede_ver_analisis = false;
 	
 	if (isset($_SESSION['id_rol'])) {
 		$es_admin = $_SESSION['id_rol'] == 2;

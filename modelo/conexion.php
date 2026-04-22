@@ -5,7 +5,7 @@ class Conexion {
     public function __construct() {
         try {
             $host = 'localhost';
-            $dbname = 'dermo_estetica';
+            $dbname = 'estetica_carmin';
             $username = 'root';
             $password = '';
 
