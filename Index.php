@@ -52,5 +52,5 @@
 		echo "Controlador no encontrado";
 
 	}
-// mamada
+// mano si al gocho no pudo instalar composer imagina git
 ?>
