@@ -52,5 +52,5 @@
 		echo "Controlador no encontrado";
 
 	}
-// pene que ricoooo
+// LO LOGRE
 ?>
