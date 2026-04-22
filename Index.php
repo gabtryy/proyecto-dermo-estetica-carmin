@@ -50,7 +50,7 @@
 	}else {
 		
 		echo "Controlador no encontrado";
-
+//sapo
 	}
 
 ?>
