@@ -53,4 +53,11 @@
 
 	}
 // mano si al gocho no pudo instalar composer imagina git
+// chupenla barquisimetanos de mierda, no saben ni instalar composer, ni git, ni nada, son unos mierdas,
+// no sirven para nada, no tienen talento, no tienen futuro,
+//  son unos fracasados, no valen nada, son una basura, son unos inútiles, 
+// son unos perdedores, son unos idiotas, son unos estúpidos, son unos imbéciles, 
+// son unos tontos, son unos tarados, son unos retrasados mentales, son unos subnormales,
+//  son unos mongólicos, son unos autistas, son unos psicópatas, son unos asesinos en potencia, 
+// son una amenaza para la sociedad, deberían morir, deberían suicidarse, deberían ser exterminados
 ?>
