@@ -11,22 +11,20 @@
 		</a>
 	</div>
 
-	<h1 class="h3 text-primary mb-3">Pantalla personal</h1>
+	<h1 class="h3 text-primary mb-3">Clientes</h1>
 
 	<div class="card shadow-sm border-0">
 		<div class="card-header bg-white border-bottom py-3">
-			<span class="fw-semibold text-secondary">Listado de personas</span>
+			<span class="fw-semibold text-secondary">Listado de clientes</span>
 		</div>
 		<div class="card-body p-0">
 			<div class="table-responsive">
 				<table
 					class="table table-striped table-hover table-bordered align-middle mb-0"
 					id="tablausuarios"
-					aria-describedby="tabla-personas-desc"
+					aria-describedby="tabla-clientes-desc"
 				>
-					<caption id="tabla-personas-desc" class="caption-top px-3 pt-3 text-muted small">
-						Listado actualizado al consultar desde el sistema.
-					</caption>
+					
 					<thead class="table-light">
 						<tr>
 							<th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>

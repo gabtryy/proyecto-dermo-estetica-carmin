@@ -52,38 +52,57 @@ $(document).ready(function () {
 		bootstrap.Modal.getOrCreateInstance($modal[0]).show();
 	});
 
-	$('#proceso').on('click', function () {
-		var form = document.getElementById('formulario_cliente');
-		if (!form) {
-			return;
-		}
-		var datos = new FormData(form);
-		datos.set('accion', 'incluir');
+	   $('#proceso').on('click', function (e) {
+		   e.preventDefault();
+		   var form = document.getElementById('formulario_cliente');
+		   if (!form) {
+			   return;
+		   }
+		   var datos = new FormData(form);
+		   datos.set('accion', 'incluir');
 
-		$.ajax({
-			url: 'index.php?c=clientes',
-			type: 'POST',
-			data: datos,
-			processData: false,
-			contentType: false,
-			dataType: 'json'
-		}).done(function (resp) {
-			if (!resp || !resp.ok) {
-				alert((resp && resp.mensaje) || 'No se pudo guardar.');
-				return;
-			}
-			alert(resp.mensaje || 'Cliente guardado.');
-			bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1')).hide();
-			form.reset();
-			consultar();
-		}).fail(function (xhr) {
-			var msg = 'Error al guardar cliente.';
-			if (xhr.responseJSON && xhr.responseJSON.mensaje) {
-				msg = xhr.responseJSON.mensaje;
-			}
-			alert(msg);
-		});
-	});
+		   $.ajax({
+			   url: 'index.php?c=clientes',
+			   type: 'POST',
+			   data: datos,
+			   processData: false,
+			   contentType: false,
+			   dataType: 'json'
+		   }).done(function (resp) {
+				console.log('Respuesta AJAX:', resp);
+			   if (!resp || !resp.ok) {
+				   alert((resp && resp.mensaje) || 'No se pudo guardar.');
+				   return;
+			   }
+			   Swal.fire({
+				 icon: 'success',
+				 title: '¡Éxito!',
+				 text: resp.mensaje || 'Cliente guardado correctamente.',
+				 confirmButtonText: 'Aceptar'
+				});
+			   bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1')).hide();
+			   form.reset();
+			   consultar();
+		   }).fail(function (xhr) {
+			   console.log('Respuesta AJAX fallida:', xhr.responseText);
+			   var msg = 'Error al guardar cliente.';
+			   if (xhr.responseJSON && xhr.responseJSON.mensaje) {
+				   msg = xhr.responseJSON.mensaje;
+			   } else if (xhr.responseText) {
+				   // Intentar extraer mensaje de error de la respuesta
+				   try {
+					   var json = JSON.parse(xhr.responseText);
+					   if (json.mensaje) msg = json.mensaje;
+				   } catch (e) {}
+			   }
+			   Swal.fire({
+				   icon: 'error',
+				   title: 'Error',
+				   text: msg,
+				   confirmButtonText: 'Aceptar'
+			   });
+		   });
+	   });
 
 	consultar();
 });

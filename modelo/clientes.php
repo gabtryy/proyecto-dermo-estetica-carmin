@@ -5,11 +5,11 @@ class Clientes extends Conexion
 {
     // Atributos privados
     private $cedula;
-    private $apellidos;
+    private $direccion;
     private $nombres;
     private $fechadenacimiento;
     private $sexo;
-    private $gradodeinstruccion;
+    private $telefono;
 
     // Setters
     public function set_cedula($valor) {
@@ -50,21 +50,30 @@ class Clientes extends Conexion
     public function get_direccion() {
         return $this->direccion;
     }
-    public function insertar(array $data): bool
+    public function insertar(): bool
     {
-        $sql = "INSERT INTO cliente 
-                (cedula_cliente, nombre_cliente, telefono_cliente, direccion_cliente, fecha_nacimiento, genero)
-                VALUES (:cedula, :nombre, :telefono, :direccion, :fecha_nacimiento, :genero)";
-        $stmt = $this->pdo->prepare($sql);
+        try {
+            $sql = "INSERT INTO cliente 
+                    (cedula_cliente, nombre_cliente, telefono_cliente, direccion_cliente, fecha_nacimiento, genero)
+                    VALUES (:cedula, :nombre, :telefono, :direccion, :fecha_nacimiento, :genero)";
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute([
+                ':cedula' => $this->cedula,
+                ':nombre' => $this->nombres,
+                ':telefono' => $this->telefono,
+                ':direccion' => $this->direccion,
+                ':fecha_nacimiento' => $this->fechadenacimiento ?: null,
+                ':genero' => $this->sexo,
+            ]);
+        } catch (\PDOException $e) {
+            // Guardar el error en una propiedad para que el controlador lo pueda leer
+            $this->ultimoError = $e->getMessage();
+            return false;
+        }
+    }
 
-        return $stmt->execute([
-            ':cedula' => $this->cedula,
-            ':nombre' => $this->nombres,
-            ':telefono' => $this->telefono,
-            ':direccion' => $this->direccion,
-            ':fecha_nacimiento' => $this->fechadenacimiento ?: null,
-            ':genero' => $this->sexo,
-        ]);
+    public function getUltimoError() {
+        return $this->ultimoError ?? null;
     }
 
     public function listar(): array
