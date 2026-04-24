@@ -1,4 +1,4 @@
-<?php include __DIR__ . '/layouts/header.php'; ?>
+<?php require_once ('vista/layouts/header.php'); ?>
 <style>
     .btn-cuadrado {
         width: 200px;
@@ -37,10 +37,10 @@
         </a>
     
         
-        <?php if ($puede_gestionar_usuarios): ?>
-        <a href="index.php?c=usuarios&m=index" class="btn btn-dark btn-cuadrado text-decoration-none">
+        <?php if ($puede_gestionar_clientes): ?>
+        <a href="index.php?c=clientes&m=index" class="btn btn-dark btn-cuadrado text-decoration-none">
             <i class="fas fa-users"></i>
-            Gestionar usuarios
+            Gestionar clientes
         </a>
         <?php endif; ?>
         
@@ -68,4 +68,4 @@
    
 </div>
 
-<?php include __DIR__ . '/layouts/footer.php'; ?>
+<?php require_once ('vista/layouts/footer.php'); ?>

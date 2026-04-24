@@ -10,7 +10,7 @@
 	$es_analista = false;
 	$es_usuario = false;
 	$puede_ver_reportes = false;
-	$puede_gestionar_usuarios = false;
+	$puede_gestionar_clientes = false;
 	$puede_gestionar_categorias = false;
 	$puede_ver_analisis = false;
 	
@@ -22,7 +22,7 @@
 		
 		
 		$puede_ver_reportes = $es_admin || $es_analista;
-		$puede_gestionar_usuarios = $es_admin;
+		$puede_gestionar_clientes = $es_admin;
 		$puede_gestionar_categorias = $es_admin;
 		$puede_ver_analisis = $es_analista || $es_admin;
 	
@@ -42,6 +42,7 @@
 	}
 
 	$archivo = __DIR__ . "/Controlador/{$controlador}.php";
+	$pagina = $controlador;
 
 	if (file_exists($archivo)){
 
