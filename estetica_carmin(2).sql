@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 22-04-2026 a las 02:04:23
+-- Tiempo de generación: 24-04-2026 a las 07:04:02
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -57,8 +57,19 @@ CREATE TABLE `cliente` (
   `nombre_cliente` varchar(100) NOT NULL,
   `telefono_cliente` varchar(20) DEFAULT NULL,
   `direccion_cliente` varchar(255) DEFAULT NULL,
-  `fecha_nacimiento` date DEFAULT NULL
+  `fecha_nacimiento` date DEFAULT NULL,
+  `genero` varchar(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `cliente`
+--
+
+INSERT INTO `cliente` (`cedula_cliente`, `nombre_cliente`, `telefono_cliente`, `direccion_cliente`, `fecha_nacimiento`, `genero`) VALUES
+('123', 'hola', '123', 'cuica', '2026-04-30', 'M'),
+('123423123', 'gaaaaaa', '12344444', 'nnnnnn', '2026-04-23', 'M'),
+('1234444', 'nica', '12344444', 'nnnnnn', '2026-04-30', 'M'),
+('1412414', 'afaasf', '1234', 'asfafas', '2026-04-01', 'F');
 
 -- --------------------------------------------------------
 
@@ -164,6 +175,15 @@ CREATE TABLE `rol` (
   `tipo_usuario` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `rol`
+--
+
+INSERT INTO `rol` (`id_rol`, `tipo_usuario`) VALUES
+(1, 'usuario'),
+(2, 'admin'),
+(3, 'analista');
+
 -- --------------------------------------------------------
 
 --
@@ -180,14 +200,22 @@ CREATE TABLE `servicio` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuario`
+-- Estructura de tabla para la tabla `usuarios`
 --
 
-CREATE TABLE `usuario` (
+CREATE TABLE `usuarios` (
   `cedula` varchar(20) NOT NULL,
-  `rol` int(11) DEFAULT NULL,
-  `clave` varchar(255) NOT NULL
+  `id_rol` int(11) DEFAULT NULL,
+  `clave` varchar(255) NOT NULL,
+  `username` varchar(25) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`cedula`, `id_rol`, `clave`, `username`) VALUES
+('30145565', 2, '1234', 'gabriel');
 
 --
 -- Índices para tablas volcadas
@@ -276,11 +304,11 @@ ALTER TABLE `servicio`
   ADD PRIMARY KEY (`id_servicio`);
 
 --
--- Indices de la tabla `usuario`
+-- Indices de la tabla `usuarios`
 --
-ALTER TABLE `usuario`
+ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`cedula`),
-  ADD KEY `rol` (`rol`);
+  ADD KEY `rol` (`id_rol`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -338,7 +366,7 @@ ALTER TABLE `producto`
 -- AUTO_INCREMENT de la tabla `rol`
 --
 ALTER TABLE `rol`
-  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `servicio`
@@ -386,10 +414,10 @@ ALTER TABLE `diagnostico`
   ADD CONSTRAINT `diagnostico_ibfk_3` FOREIGN KEY (`id_pieles`) REFERENCES `pieles` (`id_pieles`);
 
 --
--- Filtros para la tabla `usuario`
+-- Filtros para la tabla `usuarios`
 --
-ALTER TABLE `usuario`
-  ADD CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`rol`) REFERENCES `rol` (`id_rol`);
+ALTER TABLE `usuarios`
+  ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `rol` (`id_rol`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

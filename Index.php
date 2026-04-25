@@ -10,7 +10,7 @@
 	$es_analista = false;
 	$es_usuario = false;
 	$puede_ver_reportes = false;
-	$puede_gestionar_usuarios = false;
+	$puede_gestionar_clientes = false;
 	$puede_gestionar_categorias = false;
 	$puede_ver_analisis = false;
 	
@@ -22,7 +22,7 @@
 		
 		
 		$puede_ver_reportes = $es_admin || $es_analista;
-		$puede_gestionar_usuarios = $es_admin;
+		$puede_gestionar_clientes = $es_admin;
 		$puede_gestionar_categorias = $es_admin;
 		$puede_ver_analisis = $es_analista || $es_admin;
 	
@@ -41,7 +41,8 @@
 		exit;
 	}
 
-	$archivo = $_SERVER['DOCUMENT_ROOT'] . "/Proyecto_dermoestetica/Controlador/{$controlador}.php";
+	$archivo = __DIR__ . "/Controlador/{$controlador}.php";
+	$pagina = $controlador;
 
 	if (file_exists($archivo)){
 
@@ -52,5 +53,17 @@
 		echo "Controlador no encontrado";
 //sapo
 	}
+<<<<<<< HEAD
 
 ?>
+=======
+// mano si al gocho no pudo instalar composer imagina git
+// chupenla barquisimetanos de mierda, no saben ni instalar composer, ni git, ni nada, son unos mierdas,
+// no sirven para nada, no tienen talento, no tienen futuro,
+//  son unos fracasados, no valen nada, son una basura, son unos inútiles, 
+// son unos perdedores, son unos idiotas, son unos estúpidos, son unos imbéciles, 
+// son unos tontos, son unos tarados, son unos retrasados mentales, son unos subnormales,
+//  son unos mongólicos, son unos autistas, son unos psicópatas, son unos asesinos en potencia, 
+// son una amenaza para la sociedad, deberían morir, deberían suicidarse, deberían ser exterminados
+?>
+>>>>>>> ef26c8d7dc3cc162e97b79dfb930391da9f21cf6
