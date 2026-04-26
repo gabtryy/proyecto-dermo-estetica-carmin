@@ -51,8 +51,12 @@
 	}else {
 		
 		echo "Controlador no encontrado";
-
+//sapo
 	}
+<<<<<<< HEAD
+
+?>
+=======
 // mano si al gocho no pudo instalar composer imagina git
 // chupenla barquisimetanos de mierda, no saben ni instalar composer, ni git, ni nada, son unos mierdas,
 // no sirven para nada, no tienen talento, no tienen futuro,
@@ -62,3 +66,4 @@
 //  son unos mongólicos, son unos autistas, son unos psicópatas, son unos asesinos en potencia, 
 // son una amenaza para la sociedad, deberían morir, deberían suicidarse, deberían ser exterminados
 ?>
+>>>>>>> ef26c8d7dc3cc162e97b79dfb930391da9f21cf6
