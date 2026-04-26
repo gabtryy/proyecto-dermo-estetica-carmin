@@ -1,5 +1,3 @@
-
-
 <?php require_once("vista/layouts/header.php"); ?>
 <style>
 	body.app-shell {
@@ -111,7 +109,9 @@
 							<th scope="col" class="text-center text-nowrap">Género</th>
 						</tr>
 					</thead>
-					<tbody id="resultadoconsulta"></tbody>
+					<tbody id="resultadoconsulta">
+					
+					</tbody>
 				</table>
 			</div>
 		</div>
@@ -175,13 +175,15 @@
 							<span class="form-text text-danger" id="ssexo"></span>
 						</div>
 					</div>
-				</form>
+				
 			</div>
 			<div class="modal-footer bg-light">
 				<button type="button" class="btn btn-outline-celeste" data-bs-dismiss="modal">Cerrar</button>
-				<button type="button" class="btn btn-celeste" id="proceso">INCLUIR</button>
+				<button class="btn btn-celeste" type="submit" id="proceso">INCLUIR</button>
 			</div>
+				</form>
 		</div>
+
 	</div>
 </div>
 

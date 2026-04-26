@@ -10,6 +10,7 @@ class Clientes extends Conexion
     private $fechadenacimiento;
     private $sexo;
     private $telefono;
+    private $ultimoError; 
 
     // Setters
     public function set_cedula($valor) {
@@ -90,5 +91,42 @@ class Clientes extends Conexion
         $stmt = $this->pdo->prepare("SELECT 1 FROM cliente WHERE cedula_cliente = :cedula LIMIT 1");
         $stmt->execute([':cedula' => $cedula]);
         return (bool) $stmt->fetchColumn();
+    }
+
+    public function eliminar($cedula): bool
+    {
+        try {
+            $sql = "DELETE FROM cliente WHERE cedula_cliente = :cedula";
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute([':cedula' => $cedula]);
+        } catch (\PDOException $e) {
+            $this->ultimoError = $e->getMessage();
+            return false;
+        }
+    }
+
+    public function modificar(): bool
+    {
+        try {
+            $sql = "UPDATE cliente SET 
+                    nombre_cliente = :nombre,
+                    telefono_cliente = :telefono,
+                    direccion_cliente = :direccion,
+                    fecha_nacimiento = :fecha_nacimiento,
+                    genero = :genero
+                WHERE cedula_cliente = :cedula";
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute([
+                ':nombre' => $this->nombres,
+                ':telefono' => $this->telefono,
+                ':direccion' => $this->direccion,
+                ':fecha_nacimiento' => $this->fechadenacimiento ?: null,
+                ':genero' => $this->sexo,
+                ':cedula' => $this->cedula,
+            ]);
+        } catch (\PDOException $e) {
+            $this->ultimoError = $e->getMessage();
+            return false;
+        }
     }
 }
