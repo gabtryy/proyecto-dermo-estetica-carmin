@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-04-2026 a las 07:04:02
+-- Tiempo de generación: 12-05-2026 a las 21:28:45
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -53,23 +53,14 @@ CREATE TABLE `citas` (
 --
 
 CREATE TABLE `cliente` (
+  `id_cliente` int(12) NOT NULL,
   `cedula_cliente` varchar(20) NOT NULL,
   `nombre_cliente` varchar(100) NOT NULL,
-  `telefono_cliente` varchar(20) DEFAULT NULL,
+  `telefono_cliente` varchar(20) NOT NULL,
   `direccion_cliente` varchar(255) DEFAULT NULL,
   `fecha_nacimiento` date DEFAULT NULL,
   `genero` varchar(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `cliente`
---
-
-INSERT INTO `cliente` (`cedula_cliente`, `nombre_cliente`, `telefono_cliente`, `direccion_cliente`, `fecha_nacimiento`, `genero`) VALUES
-('123', 'hola', '123', 'cuica', '2026-04-30', 'M'),
-('123423123', 'gaaaaaa', '12344444', 'nnnnnn', '2026-04-23', 'M'),
-('1234444', 'nica', '12344444', 'nnnnnn', '2026-04-30', 'M'),
-('1412414', 'afaasf', '1234', 'asfafas', '2026-04-01', 'F');
 
 -- --------------------------------------------------------
 
@@ -132,6 +123,7 @@ CREATE TABLE `diagnostico` (
 --
 
 CREATE TABLE `esteticista` (
+  `id_esteticista` int(12) NOT NULL,
   `cedula_esteticista` varchar(20) NOT NULL,
   `nombre_esteticista` varchar(100) NOT NULL,
   `telefono_esteticista` varchar(20) DEFAULT NULL,
@@ -162,6 +154,31 @@ CREATE TABLE `producto` (
   `marca` varchar(50) DEFAULT NULL,
   `precio_venta` decimal(10,2) NOT NULL,
   `stokc_actual` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `proveedor`
+--
+
+CREATE TABLE `proveedor` (
+  `id_proveedor` int(12) NOT NULL,
+  `rif` varchar(30) NOT NULL,
+  `nombre` varchar(20) NOT NULL,
+  `direccion` varchar(30) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `proveedores_productos`
+--
+
+CREATE TABLE `proveedores_productos` (
+  `id_proveedores_Productos` int(12) NOT NULL,
+  `id_producto` int(12) NOT NULL,
+  `id_proveedores` int(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -239,7 +256,7 @@ ALTER TABLE `citas`
 -- Indices de la tabla `cliente`
 --
 ALTER TABLE `cliente`
-  ADD PRIMARY KEY (`cedula_cliente`);
+  ADD PRIMARY KEY (`id_cliente`);
 
 --
 -- Indices de la tabla `compra`
@@ -277,7 +294,7 @@ ALTER TABLE `diagnostico`
 -- Indices de la tabla `esteticista`
 --
 ALTER TABLE `esteticista`
-  ADD PRIMARY KEY (`cedula_esteticista`);
+  ADD PRIMARY KEY (`id_esteticista`);
 
 --
 -- Indices de la tabla `pieles`
@@ -290,6 +307,18 @@ ALTER TABLE `pieles`
 --
 ALTER TABLE `producto`
   ADD PRIMARY KEY (`id_producto`);
+
+--
+-- Indices de la tabla `proveedor`
+--
+ALTER TABLE `proveedor`
+  ADD PRIMARY KEY (`id_proveedor`);
+
+--
+-- Indices de la tabla `proveedores_productos`
+--
+ALTER TABLE `proveedores_productos`
+  ADD PRIMARY KEY (`id_proveedores_Productos`);
 
 --
 -- Indices de la tabla `rol`
@@ -327,6 +356,12 @@ ALTER TABLE `citas`
   MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `cliente`
+--
+ALTER TABLE `cliente`
+  MODIFY `id_cliente` int(12) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `compra`
 --
 ALTER TABLE `compra`
@@ -351,6 +386,12 @@ ALTER TABLE `diagnostico`
   MODIFY `id_diagnostico` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `esteticista`
+--
+ALTER TABLE `esteticista`
+  MODIFY `id_esteticista` int(12) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `pieles`
 --
 ALTER TABLE `pieles`
@@ -361,6 +402,18 @@ ALTER TABLE `pieles`
 --
 ALTER TABLE `producto`
   MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `proveedor`
+--
+ALTER TABLE `proveedor`
+  MODIFY `id_proveedor` int(12) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `proveedores_productos`
+--
+ALTER TABLE `proveedores_productos`
+  MODIFY `id_proveedores_Productos` int(12) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `rol`
