@@ -95,7 +95,7 @@
         <?php if ($puede_ver_analisis): ?>
         <a href="index.php?c=reportes&m=index" class="btn-cuadrado tile-6 text-decoration-none" role="button">
             <i class="fas fa-chart-line"></i>
-            Reportes
+            diagnostico
         </a>
         <?php endif; ?>
       
