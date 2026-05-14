@@ -11,6 +11,7 @@
 	$es_usuario = false;
 	$puede_ver_reportes = false;
 	$puede_gestionar_clientes = false;
+	$puede_gestionar_esteticista = false;
 	$puede_gestionar_categorias = false;
 	$puede_ver_analisis = false;
 	
@@ -18,9 +19,7 @@
 		$es_admin = $_SESSION['id_rol'] == 2;
 		$es_analista = $_SESSION['id_rol'] == 3;
 		$es_usuario = $_SESSION['id_rol'] == 1;
-		
-		
-		
+		$puede_gestionar_esteticista = $es_admin;
 		$puede_ver_reportes = $es_admin || $es_analista;
 		$puede_gestionar_clientes = $es_admin;
 		$puede_gestionar_categorias = $es_admin;
@@ -51,14 +50,7 @@
 	}else {
 		
 		echo "Controlador no encontrado";
-
+		//sapo
 	}
-// mano si al gocho no pudo instalar composer imagina git
-// chupenla barquisimetanos de mierda, no saben ni instalar composer, ni git, ni nada, son unos mierdas,
-// no sirven para nada, no tienen talento, no tienen futuro,
-//  son unos fracasados, no valen nada, son una basura, son unos inútiles, 
-// son unos perdedores, son unos idiotas, son unos estúpidos, son unos imbéciles, 
-// son unos tontos, son unos tarados, son unos retrasados mentales, son unos subnormales,
-//  son unos mongólicos, son unos autistas, son unos psicópatas, son unos asesinos en potencia, 
-// son una amenaza para la sociedad, deberían morir, deberían suicidarse, deberían ser exterminados
+
 ?>

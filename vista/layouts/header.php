@@ -11,66 +11,75 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --app-accent: #5a7a2a;
-            --app-accent-soft: rgba(90, 122, 42, 0.35);
-            --app-navbar: #1a1d21;
+           --green-1: #42d6d6;
+        --green-2: #119797;
+        --green-3: #22a59a;
+        --green-4: #3dd9ee;
+        --tile-top: #4ad5df;
+        --tile-bottom: #66d4cb;
+        --tile-text: #133322;
+            --app-accent: var(--green-1);
+            --app-accent-soft: rgba(66, 214, 116, 0.18);
+            --app-navbar: var(--green-1);
         }
         body.app-shell {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background: linear-gradient(180deg,rgb(129, 198, 255) 48%, #ebece9 100%);
-            color: #212529;
+            background: linear-gradient(180deg, var(--green-4) 0%, #F7FFF7 100%);
+            color: #21322a;
         }
         .app-navbar {
-            background: var(--app-navbar) !important;
-            box-shadow: 0 1px 0 var(--app-accent-soft), 0 8px 24px rgba(0, 0, 0, 0.12);
+            background: linear-gradient(90deg, var(--green-1), var(--green-2)) !important;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.06), 0 8px 24px rgba(0, 0, 0, 0.08);
             padding-top: 0.55rem;
             padding-bottom: 0.55rem;
         }
         .app-navbar .navbar-brand {
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.02em;
-            color: #fff !important;
+            color: var(--tile-text) !important;
         }
         .app-navbar .nav-link {
-            color: rgba(255, 255, 255, 0.72) !important;
-            font-weight: 500;
+            color: rgba(19, 51, 34, 0.95) !important;
+            font-weight: 600;
             padding: 0.45rem 0.75rem !important;
             border-radius: 0.375rem;
-            transition: color 0.15s ease, background-color 0.15s ease;
+            transition: color 0.15s ease, background-color 0.15s ease, transform 0.12s ease;
         }
         .app-navbar .nav-link:hover,
         .app-navbar .nav-link:focus {
-            color: #fff !important;
-            background-color: rgba(255, 255, 255, 0.08);
+            color: rgba(19, 51, 34, 1) !important;
+            background-color: rgba(255, 255, 255, 0.06);
+            transform: translateY(-1px);
         }
         .app-navbar .nav-link.active {
-            color: #fff !important;
+            color: rgba(19, 51, 34, 1) !important;
             background-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
         .app-navbar .nav-link i {
             opacity: 0.9;
         }
         .app-navbar .user-pill {
             font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.75);
+            color: rgba(19, 51, 34, 0.8);
         }
         .app-navbar .user-pill strong {
-            color: #fff;
+            color: var(--tile-text);
             font-weight: 600;
         }
         .app-navbar .btn-logout {
-            --bs-btn-color: #fff;
-            --bs-btn-border-color: rgba(255, 255, 255, 0.35);
-            --bs-btn-hover-bg: rgba(255, 255, 255, 0.12);
-            --bs-btn-hover-border-color: rgba(255, 255, 255, 0.55);
-            --bs-btn-active-bg: rgba(255, 255, 255, 0.18);
+            --bs-btn-color: var(--tile-text);
+            --bs-btn-border-color: rgba(19, 51, 34, 0.12);
+            --bs-btn-hover-bg: rgba(0, 0, 0, 0.04);
+            --bs-btn-hover-border-color: rgba(19, 51, 34, 0.2);
+            --bs-btn-active-bg: rgba(0, 0, 0, 0.06);
             font-weight: 500;
             padding: 0.35rem 0.85rem;
         }
         .app-navbar .navbar-toggler {
-            border-color: rgba(255, 255, 255, 0.35);
+            border-color: rgba(0, 0, 0, 0.08);
         }
         .app-main-wrap {
             flex: 1 0 auto;
@@ -100,6 +109,11 @@
                     <?php if ($puede_gestionar_clientes): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="index.php?c=clientes&amp;m=index"><i class="fas fa-user-friends me-1"></i>Clientes</a>
+                    </li>
+                    <?php endif; ?>
+                    <?php if ($puede_gestionar_esteticista): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?c=esteticistas&amp;m=index"><i class="fas fa-user-tie me-1"></i>Esteticistas</a>
                     </li>
                     <?php endif; ?>
                     <?php if ($es_admin): ?>
