@@ -29,28 +29,28 @@ function renderTabla(lista) {
     var $tbody = $('#resultadoconsulta');
     $tbody.empty();
 
-    if (!lista.length) {
-        $tbody.append('<tr><td colspan="5" class="text-center text-muted">Sin registros</td></tr>');
+    if (!lista.length) {
+        $tbody.append('<tr><td colspan="4" class="text-center text-muted">Sin registros</td></tr>');
         return;
     }
 
     lista.forEach(function (item) {
-        var fila = ''
+            var fila = ''
             + '<tr>'
             + '<td class="text-nowrap">'
             +   '<button class="btn btn-sm btn-outline-celeste me-1 btn-editar" title="Modificar" data-id_servicio="' + (item.id_servicio || '') + '"><i class="fas fa-edit"></i></button>'
             +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id_servicio="' + (item.id_servicio || '') + '"><i class="fas fa-trash-alt"></i></button>'
             + '</td>'
-            + '<td>' + (item.id_servicio || '') + '</td>'
-            + '<td>' + (item.nombre_servicio || '') + '</td>'
-            + '<td>' + (item.precio || '') + '</td>'
-            + '<td>' + (item.descripcion || '') + '</td>'
+            + '<td>' + (item.nombre_servicio || '') + '</td>'
+            + '<td>' + (item.precio || '') + '</td>'
+            + '<td>' + (item.descripcion || '') + '</td>'
             + '</tr>';
         $tbody.append(fila);
     });
 }
 
 $(document).ready(function () {
+    var currentEditId = null;
     
     // Delegación para botón eliminar
     $('#resultadoconsulta').on('click', '.btn-eliminar', function () {
@@ -95,11 +95,11 @@ $('#resultadoconsulta').on('click', '.btn-editar', function () {
 
     // Buscar la fila y extraer los datos
     var $fila = $(this).closest('tr');
-    var nombre_servicio = $fila.find('td:eq(2)').text().trim();
-    var precio = $fila.find('td:eq(3)').text().trim();
-    var descripcion = $fila.find('td:eq(4)').text().trim();
-    // Llenar el formulario
-    $('#id_servicio').val(id_servicio).prop('readonly', true);
+    var nombre_servicio = $fila.find('td:eq(1)').text().trim();
+    var precio = $fila.find('td:eq(2)').text().trim();
+    var descripcion = $fila.find('td:eq(3)').text().trim();
+    // Guardar id en variable (no en el formulario)
+    currentEditId = id_servicio;
     $('#nombre_servicio').val(nombre_servicio);
     $('#precio').val(precio);
     $('#descripcion').val(descripcion);
@@ -128,6 +128,10 @@ $('#resultadoconsulta').on('click', '.btn-editar', function () {
             e.preventDefault();
             var form = this;
             var datos = new FormData(form);
+            // Si es modificación, anexar el id que guardamos al abrir el modal
+            if ($('#accion').val() === 'modificar' && currentEditId) {
+                datos.append('id_servicio', currentEditId);
+            }
 
             
             var vacio = true;
@@ -164,6 +168,7 @@ $('#resultadoconsulta').on('click', '.btn-editar', function () {
                     });
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1')).hide();
                     form.reset();
+                    currentEditId = null;
                     consultar();
                 },
                 fail: function (xhr) {
