@@ -4,16 +4,13 @@ require_once 'modelo/conexion.php';
 class Servicio extends Conexion
 {
     // Atributos privados
-    private $id_servicio;
     private $nombre_servicio;
     private $precio;
     private $descripcion;
     private $ultimoError;
   
     // Setters
-    public function set_id_servicio($valor) {
-        $this->id_servicio = $valor;
-    }
+
     public function set_nombre_servicio($valor) {
         $this->nombre_servicio = $valor;
     }
@@ -25,9 +22,6 @@ class Servicio extends Conexion
     }
  
     // Getters
-    public function get_id_servicio() {
-        return $this->id_servicio;
-    }
     public function get_nombre_servicio() {
         return $this->nombre_servicio;
     }
@@ -41,11 +35,10 @@ class Servicio extends Conexion
     {
         try {
             $sql = "INSERT INTO servicio 
-                    (id_servicio, nombre_servicio, precio, descripcion)
-                    VALUES (:id_servicio, :nombre_servicio, :precio, :descripcion)";
+                    (nombre_servicio, precio, descripcion)
+                    VALUES (:nombre_servicio, :precio, :descripcion)";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([
-                ':id_servicio' => $this->id_servicio,
                 ':nombre_servicio' => $this->nombre_servicio,
                 ':precio' => $this->precio,
                 ':descripcion' => $this->descripcion,
@@ -83,7 +76,7 @@ class Servicio extends Conexion
         }
     }
 
-    public function modificar(): bool
+    public function modificar($id_servicio): bool
     {
         try {
             $sql = "UPDATE servicio SET 
@@ -96,7 +89,7 @@ class Servicio extends Conexion
                 ':nombre_servicio' => $this->nombre_servicio,
                 ':precio' => $this->precio,
                 ':descripcion' => $this->descripcion,
-                ':id_servicio' => $this->id_servicio,
+                ':id_servicio' => $id_servicio,
             ]);
         } catch (\PDOException $e) {
             $this->ultimoError = $e->getMessage();

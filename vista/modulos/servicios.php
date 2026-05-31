@@ -101,7 +101,6 @@
 					<thead>
 						<tr>
 							<th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
-							<th scope="col">ID Servicio</th>
 							<th scope="col">Nombre Servicio</th>
 							<th scope="col">Precio</th>
 							<th scope="col">Descripción</th>
@@ -129,11 +128,7 @@
 				<form method="post" id="formulario_servicio" autocomplete="off">
 					<input type="hidden" name="accion" id="accion" value="">
 					<div class="row g-3">
-						<div class="col-md-4">
-							<label class="form-label" for="id_servicio">ID Servicio</label>
-							<input class="form-control" type="text" id="id_servicio" name="id_servicio" autocomplete="off">
-							<span class="form-text text-danger" id="sid_servicio"></span>
-						</div>
+						
 						<div class="col-md-8">
 							<label class="form-label" for="nombre_servicio">Nombre Servicio</label>
 							<input class="form-control" type="text" id="nombre_servicio" name="nombre_servicio" autocomplete="off">
