@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../modelo/Servicio.php';
+require_once("modelo/".$pagina.".php"); 
 $modelo = new Servicio();
 
 $accion = $_POST['accion'] ?? '';
