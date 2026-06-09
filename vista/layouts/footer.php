@@ -4,10 +4,8 @@
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-    
-    <?php $scriptPage = $pagina ?? ''; ?>
-    <?php if ($scriptPage === 'clientes'): ?>
+    <?php $controladorJS = $pagina ?? ($_GET['c'] ?? ''); ?>
+    <?php if ($controladorJS === 'clientes'): ?>
         <script src="js/cliente.js"></script>
     <?php elseif ($scriptPage === 'esteticistas'): ?>
         <script src="js/esteticista.js"></script>

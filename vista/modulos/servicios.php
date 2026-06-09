@@ -130,9 +130,9 @@
 					<div class="row g-3">
 						
 						<div class="col-md-8">
-							<label class="form-label" for="nombre_servicio">Nombre Servicio</label>
-							<input class="form-control" type="text" id="nombre_servicio" name="nombre_servicio" autocomplete="off">
-							<span class="form-text text-danger" id="snombre_servicio"></span>
+							<label class="form-label" for="nombreServicio">Nombre Servicio</label>
+							<input class="form-control" type="text" id="nombreServicio" name="nombreServicio" autocomplete="off">
+							<span class="form-text text-danger" id="nombreServicioError"></span>
 						</div>
 					</div>
 					<div class="row g-3">
