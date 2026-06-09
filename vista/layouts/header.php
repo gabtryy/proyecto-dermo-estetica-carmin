@@ -116,7 +116,7 @@
                 <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-2 ms-lg-2">
                     <?php if (isset($_SESSION['username'])): ?>
                         <span class="user-pill px-lg-2">
-                            Bienvenido, <strong><?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                Bienvenido, <strong><?= htmlspecialchars($_SESSION['cedula'], ENT_QUOTES, 'UTF-8') ?></strong>
                         </span>
                     <?php endif; ?>
                     <a href="index.php?c=login&amp;m=logout" class="btn btn-outline-light btn-sm btn-logout">

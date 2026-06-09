@@ -38,10 +38,10 @@ function renderTabla(lista) {
             var fila = ''
             + '<tr>'
             + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-outline-celeste me-1 btn-editar" title="Modificar" data-id_servicio="' + (item.id_servicio || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id_servicio="' + (item.id_servicio || '') + '"><i class="fas fa-trash-alt"></i></button>'
+            +   '<button class="btn btn-sm btn-outline-celeste me-1 btn-editar" title="Modificar" data-id-servicio="' + (item.idServicio || '') + '"><i class="fas fa-edit"></i></button>'
+            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id-servicio="' + (item.idServicio || '') + '"><i class="fas fa-trash-alt"></i></button>'
             + '</td>'
-            + '<td>' + (item.nombre_servicio || '') + '</td>'
+            + '<td>' + (item.nombreServicio || '') + '</td>'
             + '<td>' + (item.precio || '') + '</td>'
             + '<td>' + (item.descripcion || '') + '</td>'
             + '</tr>';
@@ -54,8 +54,8 @@ $(document).ready(function () {
     
     // Delegación para botón eliminar
     $('#resultadoconsulta').on('click', '.btn-eliminar', function () {
-        var id_servicio = $(this).data('id_servicio');
-        if (!id_servicio) return;
+        var idServicio = $(this).data('idServicio');
+        if (!idServicio) return;
 
         Swal.fire({
             title: '¿Eliminar servicio?',
@@ -68,7 +68,7 @@ $(document).ready(function () {
             if (result.isConfirmed) {
                 var datos = new FormData();
                 datos.append('accion', 'eliminar');
-                datos.append('id_servicio', id_servicio);
+                datos.append('idServicio', idServicio  );
 
                 enviaAjax({
                     datos: datos,
@@ -90,19 +90,19 @@ $(document).ready(function () {
 
     // Delegación para botón editar
 $('#resultadoconsulta').on('click', '.btn-editar', function () {
-    var id_servicio = $(this).data('id_servicio');
-    if (!id_servicio) return;
+    var idServicio = $(this).data('idServicio');
+    if (!idServicio ) return;
 
-    // Buscar la fila y extraer los datos
-    var $fila = $(this).closest('tr');
+    // Buscar la fila y extraer los datos
+    var $fila = $(this).closest('tr');
     var nombre_servicio = $fila.find('td:eq(1)').text().trim();
     var precio = $fila.find('td:eq(2)').text().trim();
     var descripcion = $fila.find('td:eq(3)').text().trim();
     // Guardar id en variable (no en el formulario)
-    currentEditId = id_servicio;
-    $('#nombre_servicio').val(nombre_servicio);
-    $('#precio').val(precio);
-    $('#descripcion').val(descripcion);
+    currentEditId = idServicio;
+    $('#nombreServicio').val(nombre_servicio);
+    $('#precio').val(precio);
+    $('#descripcion').val(descripcion);
     $('#proceso').text('MODIFICAR');
     $('#accion').val('modificar');
     var $modal = $('#modal1');
@@ -130,7 +130,7 @@ $('#resultadoconsulta').on('click', '.btn-editar', function () {
             var datos = new FormData(form);
             // Si es modificación, anexar el id que guardamos al abrir el modal
             if ($('#accion').val() === 'modificar' && currentEditId) {
-                datos.append('id_servicio', currentEditId);
+                datos.append('idServicio', currentEditId);
             }
 
             
