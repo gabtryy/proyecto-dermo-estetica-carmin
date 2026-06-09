@@ -23,11 +23,12 @@ switch ($metodo) {
 
         $u = new Usuario();
         $usuarioEncontrado = $u->buscarPorCredenciales($usuario);
-        
-        if ($usuarioEncontrado && $clave == $usuarioEncontrado['clave']) {
+
+        if ($usuarioEncontrado && password_verify($clave, $usuarioEncontrado['clave'])) {
             $_SESSION['cedula'] = $usuarioEncontrado['cedula'];
-            $_SESSION['username'] = $usuarioEncontrado['username'];
-            $_SESSION['id_rol'] = $usuarioEncontrado['id_rol'];
+            // Si no hay campo 'username' en la tabla, usar 'cedula' como identificador visible
+            $_SESSION['username'] = $usuarioEncontrado['username'] ?? $usuarioEncontrado['cedula'];
+            $_SESSION['id_rol'] = $usuarioEncontrado['id_rol'] ?? null;
             header("Location: index.php?c=login&m=home");
             exit;
         } else {

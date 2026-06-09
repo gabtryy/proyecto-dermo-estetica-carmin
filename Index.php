@@ -6,6 +6,14 @@
 
 	session_start();
 
+	// Modo de prueba: omitir login si se solicita con ?skip_login=1
+	// Uso: accede a cualquier URL con &skip_login=1 para crear sesión temporal.
+	if (isset($_GET['skip_login']) && $_GET['skip_login'] === '1') {
+		$_SESSION['cedula'] = 'TEST-0000';
+		$_SESSION['username'] = 'tester';
+		$_SESSION['id_rol'] = 2; // rol con permisos (ajustar si necesario)
+	}
+
 	$es_admin = false;
 	$es_analista = false;
 	$es_usuario = false;
@@ -30,6 +38,12 @@
 
 	$controlador = $_GET['c'] ?? 'login';
 	$metodo = $_GET['m'] ?? 'login';
+
+	// Si se solicita omitir login y no se indicó controlador, abrir directamente módulo servicios
+	if (isset($_GET['skip_login']) && $_GET['skip_login'] === '1' && (!isset($_GET['c']) || empty($_GET['c']))) {
+		$controlador = 'servicios';
+		$metodo = 'consultar';
+	}
 
 	if (!isset($_SESSION['cedula']) && $controlador !== 'login') {
 		header("Location: index.php?c=login&m=login");

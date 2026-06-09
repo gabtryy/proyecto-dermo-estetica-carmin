@@ -1,5 +1,5 @@
 <?php
-require_once 'modelo/conexion.php';
+require_once __DIR__ . '/conexion.php';
 
 class Usuario extends Conexion {
 
@@ -10,23 +10,46 @@ class Usuario extends Conexion {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function registrar($cedula, $rol, $nombre, $telefono, $correo, $clave) {
-        
-            
+    /**
+     * Registrar un usuario.
+     * Adaptado a la estructura actual de la tabla `usuario` (cedula, id_rol, clave).
+     * Recibe: $usuario (se usará como `cedula`), $clave (texto plano) y $correo opcional.
+     */
+    public function registrar(...$args) {
+        // Soporta dos formas:
+        // - Admin: registrar($cedula, $rol, $nombre, $telefono, $correo, $clave)
+        // - Público: registrar($usuarioCedula, $clave, $correo = null)
+        try {
+            if (count($args) === 6) {
+                [$cedula, $rol, $nombre, $telefono, $correo, $clave] = $args;
+            } else {
+                $cedula = $args[0] ?? null;
+                $clave = $args[1] ?? null;
+                $correo = $args[2] ?? null;
+                $rol = 1; // rol por defecto
+            }
 
-            $sql = "INSERT INTO usuario (cedula, id_rol, username, telefono, correo, clave) VALUES (?, ?, ?, ?, ?, ?)";
+            if (empty($cedula) || empty($clave)) {
+                return false;
+            }
+
+            $claveHash = password_hash($clave, PASSWORD_DEFAULT);
+
+            $sql = "INSERT INTO usuario (cedula, id_rol, clave) VALUES (?, ?, ?)";
             $stmt = $this->pdo->prepare($sql);
-
-          
-            return $stmt->execute([$cedula, $rol, $nombre, $telefono, $correo, $clave]);
-   
+            return $stmt->execute([$cedula, $rol, $claveHash]);
+        } catch (PDOException $e) {
+            error_log("Error al registrar usuario: " . $e->getMessage());
+            return false;
+        }
     }
 
+    /** Buscar por credenciales: ahora busca por `cedula`. */
     public function buscarPorCredenciales($usuario) {
         try {
-            $sql = "SELECT * FROM usuarios WHERE username = :username";
+            $sql = "SELECT * FROM usuario WHERE cedula = :usuario LIMIT 1";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute(['username' => $usuario]);
+            $stmt->execute(['usuario' => $usuario]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Error al buscar usuario: " . $e->getMessage());
@@ -41,47 +64,45 @@ class Usuario extends Conexion {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Buscar usuario por ID
-    public function buscarPorId($id) {
-    $sql = "SELECT * FROM usuarios WHERE id = :id";
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute(['id' => $id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC); // <-- IMPORTANTE
-}
+    // Buscar usuario por cedula
+    public function buscarPorId($cedula) {
+        $sql = "SELECT * FROM usuario WHERE cedula = :cedula";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['cedula' => $cedula]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
-
-
-
-    // Actualizar usuario
-    public function actualizar($id, $usuario, $clave = null) {
+    // Actualizar usuario (clave opcional)
+    public function actualizar($cedula, $usuario = null, $clave = null) {
         try {
             if ($clave) {
-                $sql = "UPDATE usuarios SET usuario = :usuario, clave = :clave WHERE id = :id";
+                $sql = "UPDATE usuario SET clave = :clave WHERE cedula = :cedula";
                 $stmt = $this->pdo->prepare($sql);
                 $claveHash = password_hash($clave, PASSWORD_DEFAULT);
                 $stmt->bindParam(':clave', $claveHash);
             } else {
-                $sql = "UPDATE usuarios SET usuario = :usuario WHERE id = :id";
-                $stmt = $this->pdo->prepare($sql);
+                // Si sólo se quiere actualizar otros campos y existen, implementar aquí
+                return false;
             }
 
-            $stmt->bindParam(':usuario', $usuario);
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':cedula', $cedula);
             return $stmt->execute();
         } catch (PDOException $e) {
+            error_log("Error actualizar usuario: " . $e->getMessage());
             return false;
         }
     }
 
-    // Eliminar usuario
+    // Eliminar usuario por cedula
     public function eliminar($cedula) {
-        
+        try {
             $sql = "DELETE FROM usuario WHERE cedula = ?";
             $stmt = $this->pdo->prepare($sql);
-            
             return $stmt->execute([$cedula]);
-       
-          
-       
+        } catch (PDOException $e) {
+            error_log("Error eliminar usuario: " . $e->getMessage());
+            return false;
+        }
     }
 }
+

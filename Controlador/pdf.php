@@ -47,8 +47,8 @@ switch ($metodo) {
         $pdf->Cell(0, 8, to_iso('Reporte de Gastos'), 0, 1, 'C');
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(0, 6, 'Generado el: ' . date('d/m/Y H:i:s'), 0, 1, 'C');
-        if (isset($_SESSION['username'])) {
-            $pdf->Cell(0, 6, to_iso('Usuario: ' . $_SESSION['username']), 0, 1, 'C');
+        if (isset($_SESSION['cedula'])) {
+            $pdf->Cell(0, 6, to_iso('Usuario: ' . $_SESSION['cedula']), 0, 1, 'C');
         }
         $pdf->Ln(4);
 
