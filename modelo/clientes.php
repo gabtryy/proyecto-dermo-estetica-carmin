@@ -3,24 +3,18 @@ require_once 'modelo/conexion.php';
 
 class Clientes extends Conexion
 {
-    // Atributos privados
+    // Atributos privados actualizados según la nueva tabla
     private $cedula;
-    private $direccion;
     private $nombres;
     private $fechadenacimiento;
-    private $sexo;
-    private $telefono;
+    private $estado;
+    private $municipio;
+    private $parroquia;
     private $ultimoError; 
 
     // Setters
     public function set_cedula($valor) {
         $this->cedula = $valor;
-    }
-    public function set_telefono($valor) {
-        $this->telefono = $valor;
-    }
-    public function set_direccion($valor) {
-        $this->direccion = $valor;
     }
     public function set_nombres($valor) {
         $this->nombres = $valor;
@@ -28,8 +22,14 @@ class Clientes extends Conexion
     public function set_fechadenacimiento($valor) {
         $this->fechadenacimiento = $valor;
     }
-    public function set_sexo($valor) {
-        $this->sexo = $valor;
+    public function set_estado($valor) {
+        $this->estado = $valor;
+    }
+    public function set_municipio($valor) {
+        $this->municipio = $valor;
+    }
+    public function set_parroquia($valor) {
+        $this->parroquia = $valor;
     }
 
     // Getters
@@ -42,29 +42,30 @@ class Clientes extends Conexion
     public function get_fechadenacimiento() {
         return $this->fechadenacimiento;
     }
-    public function get_sexo() {
-        return $this->sexo;
+    public function get_estado() {
+        return $this->estado;
     }
-    public function get_telefono() {
-        return $this->telefono;
+    public function get_municipio() {
+        return $this->municipio;
     }
-    public function get_direccion() {
-        return $this->direccion;
+    public function get_parroquia() {
+        return $this->parroquia;
     }
+
     public function insertar(): bool
     {
         try {
             $sql = "INSERT INTO cliente 
-                    (cedula_cliente, nombre_cliente, telefono_cliente, direccion_cliente, fecha_nacimiento, genero)
-                    VALUES (:cedula, :nombre, :telefono, :direccion, :fecha_nacimiento, :genero)";
+                    (cedulaCliente, nombreCliente, fechaNacimiento, estadoDirCliente, municipioDirCliente, parroquiaDirCliente)
+                    VALUES (:cedula, :nombre, :fecha_nacimiento, :estado, :municipio, :parroquia)";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([
                 ':cedula' => $this->cedula,
                 ':nombre' => $this->nombres,
-                ':telefono' => $this->telefono,
-                ':direccion' => $this->direccion,
                 ':fecha_nacimiento' => $this->fechadenacimiento ?: null,
-                ':genero' => $this->sexo,
+                ':estado' => $this->estado,
+                ':municipio' => $this->municipio,
+                ':parroquia' => $this->parroquia,
             ]);
         } catch (\PDOException $e) {
             // Guardar el error en una propiedad para que el controlador lo pueda leer
@@ -79,16 +80,16 @@ class Clientes extends Conexion
 
     public function listar(): array
     {
-        $sql = "SELECT cedula_cliente, nombre_cliente, telefono_cliente, direccion_cliente, fecha_nacimiento, genero
+        $sql = "SELECT cedulaCliente, nombreCliente, fechaNacimiento, estadoDirCliente, municipioDirCliente, parroquiaDirCliente
                 FROM cliente
-                ORDER BY nombre_cliente ASC";
+                ORDER BY nombreCliente ASC";
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function existeCedula(string $cedula): bool
     {
-        $stmt = $this->pdo->prepare("SELECT 1 FROM cliente WHERE cedula_cliente = :cedula LIMIT 1");
+        $stmt = $this->pdo->prepare("SELECT 1 FROM cliente WHERE cedulaCliente = :cedula LIMIT 1");
         $stmt->execute([':cedula' => $cedula]);
         return (bool) $stmt->fetchColumn();
     }
@@ -96,7 +97,7 @@ class Clientes extends Conexion
     public function eliminar($cedula): bool
     {
         try {
-            $sql = "DELETE FROM cliente WHERE cedula_cliente = :cedula";
+            $sql = "DELETE FROM cliente WHERE cedulaCliente = :cedula";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([':cedula' => $cedula]);
         } catch (\PDOException $e) {
@@ -109,19 +110,19 @@ class Clientes extends Conexion
     {
         try {
             $sql = "UPDATE cliente SET 
-                    nombre_cliente = :nombre,
-                    telefono_cliente = :telefono,
-                    direccion_cliente = :direccion,
-                    fecha_nacimiento = :fecha_nacimiento,
-                    genero = :genero
-                WHERE cedula_cliente = :cedula";
+                    nombreCliente = :nombre,
+                    fechaNacimiento = :fecha_nacimiento,
+                    estadoDirCliente = :estado,
+                    municipioDirCliente = :municipio,
+                    parroquiaDirCliente = :parroquia
+                WHERE cedulaCliente = :cedula";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([
                 ':nombre' => $this->nombres,
-                ':telefono' => $this->telefono,
-                ':direccion' => $this->direccion,
                 ':fecha_nacimiento' => $this->fechadenacimiento ?: null,
-                ':genero' => $this->sexo,
+                ':estado' => $this->estado,
+                ':municipio' => $this->municipio,
+                ':parroquia' => $this->parroquia,
                 ':cedula' => $this->cedula,
             ]);
         } catch (\PDOException $e) {
@@ -130,3 +131,4 @@ class Clientes extends Conexion
         }
     }
 }
+?>
