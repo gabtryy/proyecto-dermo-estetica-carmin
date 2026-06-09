@@ -7,9 +7,9 @@
     <?php $controladorJS = $pagina ?? ($_GET['c'] ?? ''); ?>
     <?php if ($controladorJS === 'clientes'): ?>
         <script src="js/cliente.js"></script>
-    <?php elseif ($scriptPage === 'esteticistas'): ?>
+    <?php elseif ($controladorJS === 'esteticistas'): ?>
         <script src="js/esteticista.js"></script>
-    <?php elseif ($scriptPage === 'servicios'): ?>
+    <?php elseif ($controladorJS === 'servicios'): ?>
         <script src="js/servicio.js"></script>
     <?php endif; ?>>
   

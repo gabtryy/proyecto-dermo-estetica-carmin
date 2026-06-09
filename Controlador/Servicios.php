@@ -1,12 +1,7 @@
 <?php
 
-<<<<<<< HEAD
-require_once("modelo/".$pagina.".php"); 
-$modelo = new Servicio();
-=======
-// 1. VALIDACIÓN PREVIA DEL MODELO (Verificar el archivo antes de llamarlo)
-$archivoModelo = __DIR__ . '/../modelo/Servicio.php';
->>>>>>> rama-leomar
+// 1. Validación de la petición AJAX
+$archivoModelo = __DIR__ . '/../modelo/' . $controlador . '.php';
 
 if (is_file($archivoModelo)) {
     require_once $archivoModelo;
