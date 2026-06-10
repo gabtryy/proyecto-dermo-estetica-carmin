@@ -16,9 +16,9 @@
 	$puede_ver_analisis = false;
 	
 	if (isset($_SESSION['id_rol'])) {
-		$es_admin = $_SESSION['id_rol'] == 2;
-		$es_analista = $_SESSION['id_rol'] == 3;
-		$es_usuario = $_SESSION['id_rol'] == 1;
+		$es_admin = $_SESSION['id_rol'] == 1;
+		$es_analista = $_SESSION['id_rol'] == 2;
+		$es_usuario = $_SESSION['id_rol'] == 3;
 		$puede_gestionar_esteticista = $es_admin;
 		$puede_ver_reportes = $es_admin || $es_analista;
 		$puede_gestionar_clientes = $es_admin;

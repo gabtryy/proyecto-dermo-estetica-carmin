@@ -24,7 +24,7 @@ class Usuario extends Conexion {
 
     public function buscarPorCredenciales($usuario) {
         try {
-            $sql = "SELECT * FROM usuarios WHERE username = :username";
+            $sql = "SELECT * FROM usuario WHERE username = :username";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute(['username' => $usuario]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -43,7 +43,7 @@ class Usuario extends Conexion {
 
     // Buscar usuario por ID
     public function buscarPorId($id) {
-    $sql = "SELECT * FROM usuarios WHERE id = :id";
+    $sql = "SELECT * FROM usuario WHERE id = :id";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute(['id' => $id]);
     return $stmt->fetch(PDO::FETCH_ASSOC); // <-- IMPORTANTE
