@@ -18,17 +18,14 @@ if ($accion !== '') {
 			]);
 			exit;
 		case 'incluir':
-		
-			$datos = [
-				'nombre_servicio' => trim($_POST['nombre_servicio'] ?? ''),
-				'precio' => trim($_POST['precio'] ?? ''),
-				'descripcion' => trim($_POST['descripcion'] ?? ''),
-			];
-			
+			$nombreServicio = trim($_POST['nombreServicio'] ?? $_POST['nombre_servicio'] ?? '');
+			$precio = trim($_POST['precio'] ?? '');
+			$descripcion = trim($_POST['descripcion'] ?? '');
+
 			try {
-				$modelo->set_nombre_servicio($datos['nombre_servicio']);
-				$modelo->set_precio($datos['precio']);
-				$modelo->set_descripcion($datos['descripcion']);
+				$modelo->set_nombreServicio($nombreServicio);
+				$modelo->set_precio($precio);
+				$modelo->set_descripcion($descripcion);
 
 				if ($modelo->insertar()) {
 					http_response_code(200);
@@ -46,14 +43,14 @@ if ($accion !== '') {
 				exit;
 			}
 		case 'eliminar':
-			$id_servicio = trim($_POST['id_servicio'] ?? '');
-			if (!$id_servicio) {
+			$idServicio = trim($_POST['idServicio'] ?? $_POST['id_servicio'] ?? '');
+			if (!$idServicio) {
 				http_response_code(400);
 				echo json_encode(['ok' => false, 'mensaje' => 'ID de servicio no proporcionado.']);
 				exit;
 			}
 			try {
-				if ($modelo->eliminar($id_servicio)) {
+				if ($modelo->eliminar($idServicio)) {
 					http_response_code(200);
 					echo json_encode(['ok' => true, 'mensaje' => 'Servicio eliminado correctamente.']);
 				} else {
@@ -67,24 +64,22 @@ if ($accion !== '') {
 			}
 			exit;
 		case 'modificar':
-			$datos = [
-				'nombre_servicio' => trim($_POST['nombre_servicio'] ?? ''),
-				'precio' => trim($_POST['precio'] ?? ''),
-				'descripcion' => trim($_POST['descripcion'] ?? ''),
-			];
+			$nombreServicio = trim($_POST['nombreServicio'] ?? $_POST['nombre_servicio'] ?? '');
+			$precio = trim($_POST['precio'] ?? '');
+			$descripcion = trim($_POST['descripcion'] ?? '');
 			try {
-				$modelo->set_nombre_servicio($datos['nombre_servicio']);
-				$modelo->set_precio($datos['precio']);
-				$modelo->set_descripcion($datos['descripcion']);
+				$modelo->set_nombreServicio($nombreServicio);
+				$modelo->set_precio($precio);
+				$modelo->set_descripcion($descripcion);
 
-				$id_servicio = trim($_POST['id_servicio'] ?? '');
-				if (!$id_servicio) {
+				$idServicio = trim($_POST['idServicio'] ?? $_POST['id_servicio'] ?? '');
+				if (!$idServicio) {
 					http_response_code(400);
 					echo json_encode(['ok' => false, 'mensaje' => 'ID de servicio no proporcionado.']);
 					exit;
 				}
 
-				if ($modelo->modificar($id_servicio)) {
+				if ($modelo->modificar($idServicio)) {
 					http_response_code(200);
 					echo json_encode(['ok' => true, 'mensaje' => 'Servicio modificado correctamente.']);
 					exit;
