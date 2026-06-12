@@ -1,29 +1,34 @@
 <?php
-require_once 'modelo/conexion.php';
+require_once __DIR__ . '/conexion.php';
 
 class Servicio extends Conexion
 {
     // Atributos privados
-    private $nombre_servicio;
+    private $idServicio;
+    private $nombreServicio;
     private $precio;
     private $descripcion;
-    private $ultimoError;
   
     // Setters
 
-    public function set_nombre_servicio($valor) {
-        $this->nombre_servicio = $valor;
+    public function set_nombre_servicio($nombreServicio) {
+        $this->nombreServicio = $nombreServicio;
     }
-    public function set_precio($valor) {
-        $this->precio = $valor;
+
+    // Método compatible con controlador (camelCase)
+    public function set_nombreServicio($nombreServicio) {
+        $this->nombreServicio = $nombreServicio;
     }
-    public function set_descripcion($valor) {
-        $this->descripcion = $valor;
+    public function set_precio($precio) {
+        $this->precio = $precio;
+    }
+    public function set_descripcion($descripcion) {
+        $this->descripcion = $descripcion;
     }
  
     // Getters
-    public function get_nombre_servicio() {
-        return $this->nombre_servicio;
+    public function get_nombreServicio() {
+        return $this->nombreServicio;
     }
     public function get_precio() {
         return $this->precio;
@@ -35,11 +40,11 @@ class Servicio extends Conexion
     {
         try {
             $sql = "INSERT INTO servicio 
-                    (nombre_servicio, precio, descripcion)
-                    VALUES (:nombre_servicio, :precio, :descripcion)";
+                    (nombreServicio, precio, descripcion)
+                    VALUES (:nombreServicio, :precio, :descripcion)";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([
-                ':nombre_servicio' => $this->nombre_servicio,
+                ':nombreServicio' => $this->nombreServicio,
                 ':precio' => $this->precio,
                 ':descripcion' => $this->descripcion,
             ]);
@@ -56,40 +61,40 @@ class Servicio extends Conexion
 
     public function listar(): array
     {
-        $sql = "SELECT id_servicio, nombre_servicio, precio, descripcion
+        $sql = "SELECT idServicio, nombreServicio, precio, descripcion
                 FROM servicio
-                ORDER BY nombre_servicio ASC";
+                ORDER BY nombreServicio ASC";
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
 
-    public function eliminar($id_servicio): bool
+    public function eliminar($idServicio): bool
     {
         try {
-            $sql = "DELETE FROM servicio WHERE id_servicio = :id_servicio       ";
+            $sql = "DELETE FROM servicio WHERE idServicio = :idServicio";
             $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([':id_servicio' => $id_servicio]);
+            return $stmt->execute([':idServicio' => $idServicio]);
         } catch (\PDOException $e) {
             $this->ultimoError = $e->getMessage();
             return false;
         }
     }
 
-    public function modificar($id_servicio): bool
+    public function modificar($idServicio): bool
     {
         try {
             $sql = "UPDATE servicio SET 
-                    nombre_servicio = :nombre_servicio,
+                    nombreServicio = :nombreServicio,
                     precio = :precio,
                     descripcion = :descripcion
-                WHERE id_servicio = :id_servicio";
+                WHERE idServicio = :idServicio";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([
-                ':nombre_servicio' => $this->nombre_servicio,
+                ':nombreServicio' => $this->nombreServicio,
                 ':precio' => $this->precio,
                 ':descripcion' => $this->descripcion,
-                ':id_servicio' => $id_servicio,
+                ':idServicio' => $idServicio,
             ]);
         } catch (\PDOException $e) {
             $this->ultimoError = $e->getMessage();

@@ -54,7 +54,8 @@ $(document).ready(function () {
     
     // Delegación para botón eliminar
     $('#resultadoconsulta').on('click', '.btn-eliminar', function () {
-        var idServicio = $(this).data('idServicio');
+        var idServicio = $(this).data('idServicio') || $(this).attr('data-id-servicio');
+        console.log('btn-eliminar clicked, idServicio=', idServicio);
         if (!idServicio) return;
 
         Swal.fire({
@@ -90,7 +91,8 @@ $(document).ready(function () {
 
     // Delegación para botón editar
 $('#resultadoconsulta').on('click', '.btn-editar', function () {
-    var idServicio = $(this).data('idServicio');
+    var idServicio = $(this).data('idServicio') || $(this).attr('data-id-servicio');
+    console.log('btn-editar clicked, idServicio=', idServicio);
     if (!idServicio ) return;
 
     // Buscar la fila y extraer los datos

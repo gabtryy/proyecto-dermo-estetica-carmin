@@ -20,6 +20,8 @@ if ($accion !== '') {
         header('Content-Type: application/json; charset=utf-8');
     }
 
+    
+
     // Variable unificada para la respuesta AJAX que va al servidor/cliente
     $respuesta = [
         'ok' => false,
@@ -85,9 +87,9 @@ if ($accion !== '') {
             break;
     }
 
-    // UN SOLO AJAX DESDE EL SERVIDOR: Envía la respuesta unificada para modificar, eliminar e incluir
-            echo json_encode($respuesta);
-    exit;
+        // UN SOLO AJAX DESDE EL SERVIDOR: Envía la respuesta unificada para modificar, eliminar e incluir
+        echo json_encode($respuesta);
+        exit;
 }
 
 // 2. ASPECTO DE ESTRUCTURA Y RUTAS DE LA VISTA
