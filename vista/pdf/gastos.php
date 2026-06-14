@@ -10,9 +10,6 @@
     <div class="header">
         <h1>Reporte de Gastos</h1>
         <p>Generado el: <?php echo date('d/m/Y H:i:s'); ?></p>
-        <?php if (isset($_SESSION['cedula'])): ?>
-        <p>Usuario: <?php echo htmlspecialchars($_SESSION['cedula']); ?></p>
-        <?php endif; ?>
     </div>
 
     <!-- Presupuestos Disponibles -->

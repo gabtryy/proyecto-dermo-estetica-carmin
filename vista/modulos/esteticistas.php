@@ -72,7 +72,7 @@
         <button type="button" class="btn btn-celeste shadow-sm" id="incluir">
             <i class="fas fa-user-plus me-1"></i>INCLUIR
         </button>
-        <a href="index.php?c=login&amp;m=home" class="btn btn-outline-celeste">
+        <a href="index.php" class="btn btn-outline-celeste">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
         </a>
     </div>

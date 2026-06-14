@@ -1,5 +1,5 @@
 // Función centralizada para enviar AJAX (mismo patrón que cliente.js)
-function enviaAjaxEst({datos, done, fail, always, url = 'index.php?c=esteticistas', type = 'POST', dataType = 'json'}) {
+function enviaAjaxEst({datos, done, fail, always, url = 'index.php?pagina=esteticistas', type = 'POST', dataType = 'json'}) {
     $.ajax({
         url: url,
         type: type,

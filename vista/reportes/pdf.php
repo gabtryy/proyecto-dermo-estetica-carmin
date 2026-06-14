@@ -139,9 +139,6 @@
     <div class="header">
         <h1>Reporte de Gastos y Presupuestos</h1>
         <p>Generado el: <?php echo date('d/m/Y H:i:s'); ?></p>
-        <?php if (isset($_SESSION['cedula'])): ?>
-        <p>Usuario: <?php echo htmlspecialchars($_SESSION['cedula']); ?></p>
-        <?php endif; ?>
     </div>
 
     <!-- Resumen General -->
@@ -191,8 +188,8 @@
     </div>
     <?php endif; ?>
 
-    <!-- Gastos por Usuario (solo para administradores) -->
-    <?php if (!empty($gastos_por_usuario) && ($_SESSION['id_rol'] == 2 || $_SESSION['id_rol'] == 3)): ?>
+    <!-- Gastos por Usuario -->
+    <?php if (!empty($gastos_por_usuario)): ?>
     <div class="section">
         <h2>Gastos por Usuario</h2>
         <table>
@@ -231,10 +228,8 @@
                     <th>Fecha</th>
                     <th>Categoría</th>
                     <th>Presupuesto</th>
-                    <?php if ($_SESSION['id_rol'] == 2 || $_SESSION['id_rol'] == 3): ?>
                     <th>Usuario</th>
                     <th>Email</th>
-                    <?php endif; ?>
                 </tr>
             </thead>
             <tbody>
@@ -250,10 +245,8 @@
                         </span>
                     </td>
                     <td><?php echo htmlspecialchars($gasto['nombre_presupuesto']); ?></td>
-                    <?php if ($_SESSION['id_rol'] == 2 || $_SESSION['id_rol'] == 3): ?>
                     <td><?php echo htmlspecialchars($gasto['username']); ?></td>
                     <td><?php echo htmlspecialchars($gasto['email']); ?></td>
-                    <?php endif; ?>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

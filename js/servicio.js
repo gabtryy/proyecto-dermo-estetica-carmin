@@ -1,5 +1,5 @@
 // Función centralizada para enviar AJAX
-function enviaAjax({datos, done, fail, always, url = 'index.php?c=servicios', type = 'POST', dataType = 'json'}) {
+function enviaAjax({datos, done, fail, always, url = 'index.php?pagina=servicios', type = 'POST', dataType = 'json'}) {
     $.ajax({
         url: url,
         type: type,

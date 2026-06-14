@@ -102,7 +102,7 @@ include 'layouts/header.php';
                         </div>
                         <?php endif; ?>
 
-                        <?php if (!empty($gastos_por_usuario) && ($_SESSION['id_rol'] == 2 || $_SESSION['id_rol'] == 3)): ?>
+                        <?php if (!empty($gastos_por_usuario)): ?>
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
@@ -151,10 +151,8 @@ include 'layouts/header.php';
                                             <th>Fecha</th>
                                             <th>Categoría</th>
                                             <th>Presupuesto</th>
-                                            <?php if ($_SESSION['id_rol'] == 2 || $_SESSION['id_rol'] == 3): ?>
                                             <th>Usuario</th>
                                             <th>Email</th>
-                                            <?php endif; ?>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -171,15 +169,13 @@ include 'layouts/header.php';
                                                     </span>
                                                 </td>
                                                 <td><?php echo htmlspecialchars($gasto['nombre_presupuesto']); ?></td>
-                                                <?php if ($_SESSION['id_rol'] == 2 || $_SESSION['id_rol'] == 3): ?>
                                                 <td><?php echo htmlspecialchars($gasto['username']); ?></td>
                                                 <td><?php echo htmlspecialchars($gasto['email']); ?></td>
-                                                <?php endif; ?>
                                             </tr>
                                             <?php endforeach; ?>
                                         <?php else: ?>
                                             <tr>
-                                                <td colspan="<?php echo ($_SESSION['id_rol'] == 2 || $_SESSION['id_rol'] == 3) ? '8' : '6'; ?>" class="text-center">
+                                                <td colspan="8" class="text-center">
                                                     <div class="alert alert-info">
                                                         <i class="fas fa-info-circle"></i> No se encontraron gastos para mostrar.
                                                     </div>
