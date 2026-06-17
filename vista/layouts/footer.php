@@ -11,6 +11,8 @@
         <script src="js/esteticista.js"></script>
     <?php elseif ($controladorJS === 'servicios'): ?>
         <script src="js/servicio.js"></script>
+    <?php elseif ($controladorJS === 'productos'): ?>
+        <script src="js/productos.js"></script> 
     <?php endif; ?>
   
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
