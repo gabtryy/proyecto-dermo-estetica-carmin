@@ -1,32 +1,37 @@
 <?php
-require_once __DIR__ . '/conexion.php';
 
-class Servicio extends Conexion
-{
+require_once('modelo/conexion.php');
+
+
+class Servicio extends Conexion {
+    
     // Atributos privados
     private $idServicio;
     private $nombreServicio;
     private $precio;
     private $descripcion;
-  
-    // Setters
+    
 
-    public function set_nombre_servicio($nombreServicio) {
-        $this->nombreServicio = $nombreServicio;
+    function set_idServicio($valor) {
+        $this->idServicio = $valor;
     }
 
-    // Método compatible con controlador (camelCase)
-    public function set_nombreServicio($nombreServicio) {
-        $this->nombreServicio = $nombreServicio;
+    function set_nombreServicio($valor) {
+        $this->nombreServicio = $valor;
     }
-    public function set_precio($precio) {
-        $this->precio = $precio;
+    
+    function set_precio($valor) {
+        $this->precio = $valor;
     }
-    public function set_descripcion($descripcion) {
-        $this->descripcion = $descripcion;
+    
+    function set_descripcion($valor) {
+        $this->descripcion = $valor;
     }
  
-    // Getters
+  
+    public function get_idServicio() {
+        return $this->idServicio;
+    }
     public function get_nombreServicio() {
         return $this->nombreServicio;
     }
@@ -36,69 +41,97 @@ class Servicio extends Conexion
     public function get_descripcion() {
         return $this->descripcion;
     }
-    public function insertar(): bool
+
+   
+    public function insertar(): array 
     {
         try {
-            $sql = "INSERT INTO servicio 
-                    (nombreServicio, precio, descripcion)
+            $sql = "INSERT INTO servicio (nombreServicio, precio, descripcion)
                     VALUES (:nombreServicio, :precio, :descripcion)";
             $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([
+            $stmt->execute([
                 ':nombreServicio' => $this->nombreServicio,
-                ':precio' => $this->precio,
-                ':descripcion' => $this->descripcion,
+                ':precio'         => $this->precio,
+                ':descripcion'    => $this->descripcion,
             ]);
-        } catch (\PDOException $e) {
-            // Guardar el error en una propiedad para que el controlador lo pueda leer
-            $this->ultimoError = $e->getMessage();
-            return false;
+
+            return [
+                'resultado' => 'exito',
+                'mensaje'   => 'Servicio registrado con éxito.'
+            ];
+        } catch (Exception $e) {
+            return [
+                'resultado' => 'error',
+                'mensaje'   => $e->getMessage()
+            ];
         }
+        
     }
 
-    public function getUltimoError() {
-        return $this->ultimoError ?? null;
-    }
-
+  
     public function listar(): array
     {
-        $sql = "SELECT idServicio, nombreServicio, precio, descripcion
-                FROM servicio
-                ORDER BY nombreServicio ASC";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $sql = "SELECT idServicio, nombreServicio, precio, descripcion
+                    FROM servicio
+                    ORDER BY nombreServicio ASC";
+            $stmt = $this->pdo->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return [];
+        }
+        
     }
 
-
-    public function eliminar($idServicio): bool
+    public function eliminar(): array
     {
         try {
             $sql = "DELETE FROM servicio WHERE idServicio = :idServicio";
             $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([':idServicio' => $idServicio]);
-        } catch (\PDOException $e) {
-            $this->ultimoError = $e->getMessage();
-            return false;
+            $stmt->execute([':idServicio' => $this->idServicio]);
+
+            return [
+                'resultado' => 'exito',
+                'mensaje'   => 'Servicio eliminado correctamente.'
+            ];
+        } catch (Exception $e) {
+            return [
+                'resultado' => 'error',
+                'mensaje'   => $e->getMessage()
+            ];
         }
+        
     }
 
-    public function modificar($idServicio): bool
+    
+    public function modificar(): array
     {
         try {
             $sql = "UPDATE servicio SET 
-                    nombreServicio = :nombreServicio,
-                    precio = :precio,
-                    descripcion = :descripcion
-                WHERE idServicio = :idServicio";
+                        nombreServicio = :nombreServicio,
+                        precio = :precio,
+                        descripcion = :descripcion
+                    WHERE idServicio = :idServicio";
+
             $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([
+            $stmt->execute([
                 ':nombreServicio' => $this->nombreServicio,
-                ':precio' => $this->precio,
-                ':descripcion' => $this->descripcion,
-                ':idServicio' => $idServicio,
+                ':precio'         => $this->precio,
+                ':descripcion'    => $this->descripcion,
+                ':idServicio'     => $this->idServicio,
             ]);
-        } catch (\PDOException $e) {
-            $this->ultimoError = $e->getMessage();
-            return false;
+
+            return [
+                'resultado' => 'exito',
+                'mensaje'   => 'Servicio modificado correctamente.'
+            ];
+        } catch (Exception $e) {
+            return [
+                'resultado' => 'error',
+                'mensaje'   => $e->getMessage()
+            ];
         }
+        
     }
 }
+?>

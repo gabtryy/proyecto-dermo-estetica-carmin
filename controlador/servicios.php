@@ -1,106 +1,110 @@
 <?php
 
-require_once("modelo/".$pagina.".php"); 
+
+if (!is_file("modelo/conexion.php")){
+    echo "Falta definir la clase Servicio";
+    exit;
+} else {
+    require_once("modelo/conexion.php"); 
+}
+
+$ruta_modelo = "modelo/servicios.php";
+if (is_file($ruta_modelo)) {
+    require_once($ruta_modelo);
+} else {
+    if (!empty($_POST['accion'])) {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(500);
+        echo json_encode(['ok' => false, 'mensaje' => 'Error Crítico: El modelo de servicios no existe.']);
+        exit;
+    } else {
+        die("Error Crítico: El archivo del modelo ($ruta_modelo) no se encuentra.");
+    }
+}
+
 $modelo = new Servicio();
+
 
 $accion = $_POST['accion'] ?? '';
 
 if ($accion !== '') {
-	if (!headers_sent()) {
-		header('Content-Type: application/json; charset=utf-8');
-	}
 
-	switch ($accion) {
-		case 'consultar':
-			echo json_encode([
-				'ok' => true,
-				'data' => $modelo->listar(),
-			]);
-			exit;
-		case 'incluir':
-			$nombreServicio = trim($_POST['nombreServicio'] ?? $_POST['nombre_servicio'] ?? '');
-			$precio = trim($_POST['precio'] ?? '');
-			$descripcion = trim($_POST['descripcion'] ?? '');
+    header('Content-Type: application/json');
 
-			try {
-				$modelo->set_nombreServicio($nombreServicio);
-				$modelo->set_precio($precio);
-				$modelo->set_descripcion($descripcion);
+    switch ($accion) {
+        case 'consultar':
+          
+            $datos = $modelo->listar();
+            
+            if (is_array($datos)) {
+                echo json_encode([
+                    'ok' => true,
+                    'data' => $datos
+                ]);
+            } else {
+                echo json_encode([
+                    'ok' => false,
+                    'mensaje' => 'No se pudieron extraer los servicios registrados.',
+                    'data' => []
+                ]);
+            }
+            break;
 
-				if ($modelo->insertar()) {
-					http_response_code(200);
-					echo json_encode(['ok' => true, 'mensaje' => 'Servicio guardado correctamente.']);
-					exit;
-				} else {
-					$error = $modelo->getUltimoError();
-					http_response_code(500);
-					echo json_encode(['ok' => false, 'mensaje' => 'Error en la base de datos: ' . $error]);
-					exit;
-				}
-			} catch (Throwable $e) {
-				http_response_code(500);
-				echo json_encode(['ok' => false, 'mensaje' => 'No se pudo guardar el servicio.']);
-				exit;
-			}
-		case 'eliminar':
-			$idServicio = trim($_POST['idServicio'] ?? $_POST['id_servicio'] ?? '');
-			if (!$idServicio) {
-				http_response_code(400);
-				echo json_encode(['ok' => false, 'mensaje' => 'ID de servicio no proporcionado.']);
-				exit;
-			}
-			try {
-				if ($modelo->eliminar($idServicio)) {
-					http_response_code(200);
-					echo json_encode(['ok' => true, 'mensaje' => 'Servicio eliminado correctamente.']);
-				} else {
-					$error = $modelo->getUltimoError();
-					http_response_code(500);
-					echo json_encode(['ok' => false, 'mensaje' => 'No se pudo eliminar: ' . $error]);
-				}
-			} catch (Throwable $e) {
-				http_response_code(500);
-				echo json_encode(['ok' => false, 'mensaje' => 'Error al eliminar el servicio.']);
-			}
-			exit;
-		case 'modificar':
-			$nombreServicio = trim($_POST['nombreServicio'] ?? $_POST['nombre_servicio'] ?? '');
-			$precio = trim($_POST['precio'] ?? '');
-			$descripcion = trim($_POST['descripcion'] ?? '');
-			try {
-				$modelo->set_nombreServicio($nombreServicio);
-				$modelo->set_precio($precio);
-				$modelo->set_descripcion($descripcion);
+        case 'incluir':
+            $modelo->set_nombreServicio(trim($_POST['nombreServicio'] ?? ''));
+            $modelo->set_precio(trim($_POST['precio'] ?? ''));
+            $modelo->set_descripcion(trim($_POST['descripcion'] ?? ''));
 
-				$idServicio = trim($_POST['idServicio'] ?? $_POST['id_servicio'] ?? '');
-				if (!$idServicio) {
-					http_response_code(400);
-					echo json_encode(['ok' => false, 'mensaje' => 'ID de servicio no proporcionado.']);
-					exit;
-				}
+         
+            $res = $modelo->insertar(); 
+            
+            if ($res['resultado'] === 'exito') {
+                echo json_encode(['ok' => true, 'mensaje' => 'Servicio registrado con éxito.']);
+            } else {
+                echo json_encode(['ok' => false, 'mensaje' => 'Error al registrar: ' . $res['mensaje']]);
+            }
+            break;
 
-				if ($modelo->modificar($idServicio)) {
-					http_response_code(200);
-					echo json_encode(['ok' => true, 'mensaje' => 'Servicio modificado correctamente.']);
-					exit;
-				} else {
-					$error = $modelo->getUltimoError();
-					http_response_code(500);
-					echo json_encode(['ok' => false, 'mensaje' => 'Error en la base de datos: ' . $error]);
-					exit;
-				}
-			} catch (Throwable $e) {
-				http_response_code(500);
-				echo json_encode(['ok' => false, 'mensaje' => 'No se pudo modificar el servicio.']);
-				exit;
-			}
-		default:
-			http_response_code(400);
-			echo json_encode(['ok' => false, 'mensaje' => 'Acción no válida.']);
-			exit;
-	}
+        case 'modificar':
+            $modelo->set_idServicio(trim($_POST['idServicio'] ?? ''));
+            $modelo->set_nombreServicio(trim($_POST['nombreServicio'] ?? ''));
+            $modelo->set_precio(trim($_POST['precio'] ?? ''));
+            $modelo->set_descripcion(trim($_POST['descripcion'] ?? ''));
+
+            $res = $modelo->modificar(); 
+
+            if ($res['resultado'] === 'exito') {
+                echo json_encode(['ok' => true, 'mensaje' => 'Servicio modificado correctamente.']);
+            } else {
+                echo json_encode(['ok' => false, 'mensaje' => 'Error al modificar: ' . $res['mensaje']]);
+            }
+            break;
+
+        case 'eliminar':
+            $modelo->set_idServicio(trim($_POST['idServicio'] ?? ''));
+            
+            $res = $modelo->eliminar(); 
+
+            if ($res['resultado'] === 'exito') {
+                echo json_encode(['ok' => true, 'mensaje' => 'Servicio eliminado correctamente.']);
+            } else {
+                echo json_encode(['ok' => false, 'mensaje' => 'Error al eliminar: ' . $res['mensaje']]);
+            }
+            break;
+
+        default:
+            echo json_encode(['ok' => false, 'mensaje' => 'Acción no reconocida de manera interna.']);
+            break;
+    }
+    
+ 
+    exit;
 }
 
-if (is_file("vista/modulos/".$pagina.".php")) {
-	require_once("vista/modulos/".$pagina.".php");
+if (is_file("vista/modulos/servicios.php")){
+    require_once("vista/modulos/servicios.php"); 
 }
+else{
+    echo "Página en construcción";
+}
+?>
