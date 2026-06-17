@@ -6,15 +6,9 @@ $ruta_modelo = "modelo/".$pagina.".php";
 if (is_file($ruta_modelo)) {
     require_once($ruta_modelo);
 } else {
-    // Si es una petición AJAX (detectada por POST), devolvemos un JSON. Si no, un mensaje en pantalla.
-    if (!empty($_POST['accion'])) {
-        header('Content-Type: application/json; charset=utf-8');
-        http_response_code(404);
-        echo json_encode(['ok' => false, 'mensaje' => 'Error Crítico: El modelo no existe.']);
-        exit;
-    } else {
-        die("Error Crítico: El archivo del modelo ($ruta_modelo) no se encuentra.");
-    }
+    
+    echo "Falta definir la clase ".$pagina;
+	exit;
 }
 
 $modelo = new Clientes();
