@@ -1,20 +1,23 @@
 <?php
 
-
+// Validar primero que exista el núcleo de la base de datos
 if (!is_file("modelo/conexion.php")){
-    echo "Falta definir la clase Servicio";
+    echo "Error Crítico: Falta definir la clase de conexión.";
     exit;
 } else {
     require_once("modelo/conexion.php"); 
 }
 
+// 1. VALIDACIÓN EXIGIDA POR EL PROFESOR: Verificar si el archivo existe antes de requerirlo
 $ruta_modelo = "modelo/servicios.php";
+
 if (is_file($ruta_modelo)) {
     require_once($ruta_modelo);
 } else {
+  
     if (!empty($_POST['accion'])) {
         header('Content-Type: application/json; charset=utf-8');
-        http_response_code(500);
+        http_response_code(404); // Usamos 404 (No Encontrado) como exige el profesor
         echo json_encode(['ok' => false, 'mensaje' => 'Error Crítico: El modelo de servicios no existe.']);
         exit;
     } else {
