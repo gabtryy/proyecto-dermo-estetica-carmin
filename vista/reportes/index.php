@@ -198,7 +198,7 @@ include 'layouts/header.php';
 $(document).ready(function() {
     $('#tablaGastos').DataTable({
         "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+            "url": "vendor/datatables/i18n/Spanish.json"
         },
         "order": [[ 3, "desc" ]], // Ordenar por fecha descendente
         "pageLength": 25,
