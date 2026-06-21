@@ -1,130 +1,83 @@
 <?php
-  
-// 1. VALIDACIÓN EXIGIDA POR EL PROFESOR: Verificar si el archivo existe antes de requerirlo
-$ruta_modelo = "modelo/".$pagina.".php";
 
-if (is_file($ruta_modelo)) {
-    require_once($ruta_modelo);
-} else {
-    
+// llamada al archivo que contiene la clase
+// usuarios, en ella estará el código que me permitirá
+// guardar, consultar y modificar dentro de mi base de datos.
+
+if (!is_file("modelo/".$pagina.".php")) {
     echo "Falta definir la clase ".$pagina;
-	exit;
+    exit;
 }
 
-$modelo = new Clientes();
+require_once("modelo/".$pagina.".php");
 
-$accion = $_POST['accion'] ?? '';
+if (is_file("vista/modulos/".$pagina.".php")) {
+    $modelo = new Clientes();
 
-if ($accion !== '') {
-    if (!headers_sent()) {
-        header('Content-Type: application/json; charset=utf-8');
-    }
+    if (!empty($_POST)) {
+        $accion = $_POST['accion'] ?? '';
 
-    switch ($accion) {
-        case 'consultar':
+        if ($accion === 'consultar') {
             echo json_encode([
                 'ok' => true,
                 'data' => $modelo->listar(),
             ]);
             exit;
-            
-        case 'incluir':
-            $datos = [
-                'cedula' => trim($_POST['cedula'] ?? ''),
-                'nombres' => trim($_POST['nombres'] ?? ''),
-                'fechadenacimiento' => trim($_POST['fechadenacimiento'] ?? ''),
-                'estado' => trim($_POST['estado'] ?? ''),
-                'municipio' => trim($_POST['municipio'] ?? ''),
-                'parroquia' => trim($_POST['parroquia'] ?? ''),
-            ];
-            
-            try {
-                $modelo->set_cedula($datos['cedula']);
-                $modelo->set_nombres($datos['nombres']);
-                $modelo->set_fechadenacimiento($datos['fechadenacimiento']);
-                $modelo->set_estado($datos['estado']);
-                $modelo->set_municipio($datos['municipio']);
-                $modelo->set_parroquia($datos['parroquia']);
+        }
 
-                if ($modelo->insertar()) {
-                    http_response_code(200);
-                    echo json_encode(['ok' => true, 'mensaje' => 'Cliente guardado correctamente.']);
-                    exit;
-                } else {
-                    $error = $modelo->getUltimoError();
-                    http_response_code(500);
-                    echo json_encode(['ok' => false, 'mensaje' => 'Error en la base de datos: ' . $error]);
-                    exit;
-                }
-            } catch (Throwable $e) {
-                http_response_code(500);
-                echo json_encode(['ok' => false, 'mensaje' => 'No se pudo guardar el cliente.']);
-                exit;
-            }
-            
-        case 'eliminar':
-            $cedula = trim($_POST['cedula'] ?? '');
-            if (!$cedula) {
-                http_response_code(400);
-                echo json_encode(['ok' => false, 'mensaje' => 'Cédula no proporcionada.']);
-                exit;
-            }
-            try {
-                if ($modelo->eliminar($cedula)) {
-                    http_response_code(200);
-                    echo json_encode(['ok' => true, 'mensaje' => 'Cliente eliminado correctamente.']);
-                } else {
-                    $error = $modelo->getUltimoError();
-                    http_response_code(500);
-                    echo json_encode(['ok' => false, 'mensaje' => 'No se pudo eliminar: ' . $error]);
-                }
-            } catch (Throwable $e) {
-                http_response_code(500);
-                echo json_encode(['ok' => false, 'mensaje' => 'Error al eliminar el cliente.']);
+        if ($accion === 'eliminar') {
+            $modelo->set_cedula(trim($_POST['cedula'] ?? ''));
+            $resp = $modelo->eliminar($modelo->get_cedula());
+
+            if ($resp === 'eliminado') {
+                echo json_encode(['ok' => true, 'mensaje' => 'Cliente eliminado correctamente.']);
+            } elseif ($resp === 'no existe') {
+                echo json_encode(['ok' => false, 'mensaje' => 'Cliente no encontrado.']);
+            } else {
+                $msg = (strpos($resp, 'error:') === 0) ? trim(substr($resp, 6)) : 'No se pudo eliminar el cliente.';
+                echo json_encode(['ok' => false, 'mensaje' => $msg]);
             }
             exit;
-            
-        case 'modificar':
-            $datos = [
-                'cedula' => trim($_POST['cedula'] ?? ''),
-                'nombres' => trim($_POST['nombres'] ?? ''),
-                'fechadenacimiento' => trim($_POST['fechadenacimiento'] ?? ''),
-                'estado' => trim($_POST['estado'] ?? ''),
-                'municipio' => trim($_POST['municipio'] ?? ''),
-                'parroquia' => trim($_POST['parroquia'] ?? ''),
-            ];
-            try {
-                $modelo->set_cedula($datos['cedula']);
-                $modelo->set_nombres($datos['nombres']);
-                $modelo->set_fechadenacimiento($datos['fechadenacimiento']);
-                $modelo->set_estado($datos['estado']);
-                $modelo->set_municipio($datos['municipio']);
-                $modelo->set_parroquia($datos['parroquia']);
+        }
 
-                if ($modelo->modificar()) {
-                    http_response_code(200);
-                    echo json_encode(['ok' => true, 'mensaje' => 'Cliente modificado correctamente.']);
-                    exit;
-                } else {
-                    $error = $modelo->getUltimoError();
-                    http_response_code(500);
-                    echo json_encode(['ok' => false, 'mensaje' => 'Error en la base de datos: ' . $error]);
-                    exit;
-                }
-            } catch (Throwable $e) {
-                http_response_code(500);
-                echo json_encode(['ok' => false, 'mensaje' => 'No se pudo modificar el cliente.']);
-                exit;
+        $modelo->set_cedula(trim($_POST['cedula'] ?? ''));
+        $modelo->set_nombres(trim($_POST['nombres'] ?? ''));
+        $modelo->set_fechadenacimiento(trim($_POST['fechadenacimiento'] ?? ''));
+        $modelo->set_estado(trim($_POST['estado'] ?? ''));
+        $modelo->set_municipio(trim($_POST['municipio'] ?? ''));
+        $modelo->set_parroquia(trim($_POST['parroquia'] ?? ''));
+
+        if ($accion === 'incluir') {
+            $resp = $modelo->insertar();
+            if ($resp === 'insertado') {
+                echo json_encode(['ok' => true, 'mensaje' => 'Cliente guardado correctamente.']);
+            } elseif ($resp === 'duplicado') {
+                echo json_encode(['ok' => false, 'mensaje' => 'El cliente ya existe (cédula duplicada).']);
+            } else {
+                $msg = (strpos($resp, 'error:') === 0) ? trim(substr($resp, 6)) : 'No se pudo guardar el cliente.';
+                echo json_encode(['ok' => false, 'mensaje' => $msg]);
             }
-            
-        default:
-            http_response_code(400);
-            echo json_encode(['ok' => false, 'mensaje' => 'Acción no válida.']);
             exit;
+        }
+
+        if ($accion === 'modificar') {
+            $resp = $modelo->modificar();
+            if ($resp === 'modificado') {
+                echo json_encode(['ok' => true, 'mensaje' => 'Cliente modificado correctamente.']);
+            } elseif ($resp === 'no existe') {
+                echo json_encode(['ok' => false, 'mensaje' => 'Cliente no encontrado.']);
+            } else {
+                $msg = (strpos($resp, 'error:') === 0) ? trim(substr($resp, 6)) : 'No se pudo modificar el cliente.';
+                echo json_encode(['ok' => false, 'mensaje' => $msg]);
+            }
+            exit;
+        }
+
+        echo json_encode(['ok' => false, 'mensaje' => 'Acción no válida.']);
+        exit;
     }
-}
 
-// 2. Validación de la vista
-if (is_file("vista/modulos/".$pagina.".php")) {
     require_once("vista/modulos/".$pagina.".php");
+} else {
+    echo "pagina en construccion";
 }

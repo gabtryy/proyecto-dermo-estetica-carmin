@@ -10,7 +10,7 @@ class Clientes extends Conexion
     private $estado;
     private $municipio;
     private $parroquia;
-    private $ultimoError; 
+     
 
     // Setters
     public function set_cedula($valor) {
@@ -52,14 +52,19 @@ class Clientes extends Conexion
         return $this->parroquia;
     }
 
-    public function insertar(): bool
+    public function insertar(): string
     {
         try {
             $sql = "INSERT INTO cliente 
                     (cedulaCliente, nombreCliente, fechaNacimiento, estadoDirCliente, municipioDirCliente, parroquiaDirCliente)
                     VALUES (:cedula, :nombre, :fecha_nacimiento, :estado, :municipio, :parroquia)";
             $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([
+            // verificar duplicado por cédula
+            if ($this->existeCedula($this->cedula)) {
+                return 'duplicado';
+            }
+
+            $ok = $stmt->execute([
                 ':cedula' => $this->cedula,
                 ':nombre' => $this->nombres,
                 ':fecha_nacimiento' => $this->fechadenacimiento ?: null,
@@ -67,16 +72,13 @@ class Clientes extends Conexion
                 ':municipio' => $this->municipio,
                 ':parroquia' => $this->parroquia,
             ]);
+
+            return $ok ? 'insertado' : 'error: insert fallido';
         } catch (\PDOException $e) {
-            // Guardar el error en una propiedad para que el controlador lo pueda leer
-            $this->ultimoError = $e->getMessage();
-            return false;
+            return 'error: '.$e->getMessage();
         }
     }
 
-    public function getUltimoError() {
-        return $this->ultimoError ?? null;
-    }
 
     public function listar(): array
     {
@@ -94,19 +96,24 @@ class Clientes extends Conexion
         return (bool) $stmt->fetchColumn();
     }
 
-    public function eliminar($cedula): bool
+    public function eliminar($cedula): string
     {
         try {
             $sql = "DELETE FROM cliente WHERE cedulaCliente = :cedula";
             $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([':cedula' => $cedula]);
+            // verificar existencia
+            if (!$this->existeCedula($cedula)) {
+                return 'no existe';
+            }
+
+            $ok = $stmt->execute([':cedula' => $cedula]);
+            return $ok ? 'eliminado' : 'error: delete fallido';
         } catch (\PDOException $e) {
-            $this->ultimoError = $e->getMessage();
-            return false;
+            return 'error: '.$e->getMessage();
         }
     }
 
-    public function modificar(): bool
+    public function modificar(): string
     {
         try {
             $sql = "UPDATE cliente SET 
@@ -117,7 +124,12 @@ class Clientes extends Conexion
                     parroquiaDirCliente = :parroquia
                 WHERE cedulaCliente = :cedula";
             $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([
+            // verificar existencia
+            if (!$this->existeCedula($this->cedula)) {
+                return 'no existe';
+            }
+
+            $ok = $stmt->execute([
                 ':nombre' => $this->nombres,
                 ':fecha_nacimiento' => $this->fechadenacimiento ?: null,
                 ':estado' => $this->estado,
@@ -125,10 +137,13 @@ class Clientes extends Conexion
                 ':parroquia' => $this->parroquia,
                 ':cedula' => $this->cedula,
             ]);
+
+            return $ok ? 'modificado' : 'error: update fallido';
         } catch (\PDOException $e) {
-            $this->ultimoError = $e->getMessage();
-            return false;
+            return 'error: '.$e->getMessage();
         }
     }
 }
+
 ?>
+
