@@ -1,104 +1,185 @@
 <?php
-
+$paginaActual = $pagina ?? 'home';
+$modulosSidebar = [
+    ['pagina' => 'home',         'icono' => 'fa-house',           'label' => 'Inicio'],
+    ['pagina' => 'servicios',    'icono' => 'fa-spa',             'label' => 'Servicios'],
+    ['pagina' => 'productos',    'icono' => 'fa-pump-soap',       'label' => 'Productos'],
+    ['pagina' => 'proveedores',    'icono' => 'fa-truck',       'label' => 'Proveedores'],
+    ['pagina' => 'clientes',     'icono' => 'fa-user-friends',    'label' => 'Clientes'],
+    ['pagina' => 'esteticistas', 'icono' => 'fa-user-tie',        'label' => 'Esteticistas'],
+    ['pagina' => 'citas',        'icono' => 'fa-calendar-check',  'label' => 'Citas'],
+    ['pagina' => 'reportes',     'icono' => 'fa-chart-line',      'label' => 'Diagnóstico'],
+];
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title><?= htmlspecialchars($pagina, ENT_QUOTES, 'UTF-8') ?></title>
+    <title><?= htmlspecialchars($paginaActual, ENT_QUOTES, 'UTF-8') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="vendor/datatables/css/dataTables.bootstrap5.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-           --green-1: #42d6d6;
-        --green-2: #119797;
-        --green-3: #22a59a;
-        --green-4: #3dd9ee;
-        --tile-top: #4ad5df;
-        --tile-bottom: #66d4cb;
-        --tile-text: #133322;
-            --app-accent: var(--green-1);
-            --app-accent-soft: rgba(66, 214, 116, 0.18);
-            --app-navbar: var(--green-1);
+            --purple: #6b2d86;
+            --purple-soft: #f4ecff;
+            --purple-strong: #38174d;
+            --purple-muted: #7d559d;
         }
-        body.app-shell {
+        body {
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(180deg, var(--green-4) 0%, #F7FFF7 100%);
-            color: #21322a;
+            background: linear-gradient(180deg, #faf2ff 0%, #f4ecff 100%);
+            color: #2e1a45;
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
-        .app-navbar {
-            background: linear-gradient(90deg, var(--green-1), var(--green-2)) !important;
-            box-shadow: 0 2px 0 rgba(0,0,0,0.06), 0 8px 24px rgba(0, 0, 0, 0.08);
-            padding-top: 0.55rem;
-            padding-bottom: 0.55rem;
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: #ffffff;
+            border-right: 1px solid rgba(107, 45, 134, 0.16);
+            box-shadow: 4px 0 30px rgba(107, 45, 134, 0.08);
         }
-        .app-navbar .navbar-brand {
-            font-weight: 700;
+        .sidebar .sidebar-brand {
+            color: var(--purple-strong);
+            font-size: 1.15rem;
             letter-spacing: 0.02em;
-            color: var(--tile-text) !important;
         }
-        .app-navbar .nav-link {
-            color: rgba(19, 51, 34, 0.95) !important;
+        .sidebar .btn-outline-purple {
+            color: var(--purple-strong);
+            border-color: var(--purple-soft);
+            background-color: transparent;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+        }
+        .sidebar .btn-outline-purple:hover,
+        .sidebar .btn-outline-purple:focus {
+            color: #ffffff;
+            background-color: var(--purple);
+            border-color: var(--purple);
+            box-shadow: 0 12px 24px rgba(107, 45, 134, 0.12);
+        }
+        .sidebar .btn-outline-purple.active {
+            color: #ffffff;
+            background-color: var(--purple-strong);
+            border-color: var(--purple-strong);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        .sidebar hr {
+            border-color: rgba(107, 45, 134, 0.12);
+        }
+        .sidebar .nav-item {
+            margin-bottom: 0.65rem;
+        }
+        .sidebar .btn {
+            text-align: left;
+            justify-content: flex-start;
+            border-radius: 1rem;
+            padding: 0.95rem 1.1rem;
+        }
+        .sidebar .btn i {
+            width: 1.25rem;
+        }
+        .sidebar .btn:focus {
+            box-shadow: 0 0 0 0.2rem rgba(107, 45, 134, 0.16);
+        }
+        .page-header {
+            background: #ffffff;
+            border-radius: 1.2rem;
+            box-shadow: 0 18px 45px rgba(107, 45, 134, 0.08);
+            border: 1px solid rgba(107, 45, 134, 0.08);
+        }
+        .page-title {
+            color: var(--purple-strong);
+        }
+        .page-subtitle {
+            color: var(--purple-muted);
+        }
+        .stat-icon {
+            width: 72px;
+            height: 72px;
+            min-width: 72px;
+            border-radius: 1rem;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--purple), var(--purple-strong));
+            color: #ffffff;
+        }
+        .btn-purple {
+            color: #ffffff;
+            background-color: var(--purple);
+            border-color: var(--purple);
+        }
+        .btn-purple:hover,
+        .btn-purple:focus {
+            color: #ffffff;
+            background-color: var(--purple-strong);
+            border-color: var(--purple-strong);
+        }
+        .text-purple-strong {
+            color: var(--purple-strong) !important;
+        }
+        .container-fluid {
+            position: relative;
+        }
+        .navbar-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.125rem; /* 18px */
             font-weight: 600;
-            padding: 0.45rem 0.75rem !important;
-            border-radius: 0.375rem;
-            transition: color 0.15s ease, background-color 0.15s ease, transform 0.12s ease;
-        }
-        .app-navbar .nav-link:hover,
-        .app-navbar .nav-link:focus {
-            color: rgba(19, 51, 34, 1) !important;
-            background-color: rgba(255, 255, 255, 0.06);
-            transform: translateY(-1px);
-        }
-        .app-navbar .nav-link.active {
-            color: rgba(19, 51, 34, 1) !important;
-            background-color: rgba(255, 255, 255, 0.12);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .app-navbar .nav-link i {
-            opacity: 0.9;
-        }
-        .app-navbar .navbar-toggler {
-            border-color: rgba(0, 0, 0, 0.08);
-        }
-        .app-main-wrap {
-            flex: 1 0 auto;
+            color: var(--purple-strong);
+            text-align: center;
+            white-space: nowrap;
         }
     </style>
 </head>
-<body class="app-shell">
-    <nav class="navbar navbar-expand-lg navbar-dark app-navbar">
-        <div class="container-fluid px-3 px-lg-4">
-            <a class="navbar-brand" href="index.php">Dermo Estética</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#appMainNav" aria-controls="appMainNav" aria-expanded="false" aria-label="Menú">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="appMainNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?pagina=servicios"><i class="fas fa-spa me-1"></i>Servicios</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?pagina=productos"><i class="fas fa-pump-soap me-1"></i>Productos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?pagina=reportes"><i class="fas fa-chart-line me-1"></i>Reportes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?pagina=clientes"><i class="fas fa-user-friends me-1"></i>Clientes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?pagina=esteticistas"><i class="fas fa-user-tie me-1"></i>Esteticistas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?pagina=citas"><i class="fas fa-calendar-check me-1"></i>Citas</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+<body>
+<div class="d-flex">
+    <nav class="sidebar d-flex flex-column flex-shrink-0 p-3 bg-white">
+        <a href="index.php" class="sidebar-brand d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
+            <span class="fs-5 fw-bold">Dermo Estética</span>
+        </a>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <?php foreach ($modulosSidebar as $modulo): ?>
+                <?php
+                $activo = ($paginaActual === $modulo['pagina']) ? ' active' : '';
+                $href = ($modulo['pagina'] === 'home')
+                    ? 'index.php'
+                    : 'index.php?pagina=' . urlencode($modulo['pagina']);
+                ?>
+                <li class="nav-item mb-1">
+                    <a class="btn btn-outline-purple w-100 text-start <?= $activo ?>" href="<?= htmlspecialchars($href, ENT_QUOTES, 'UTF-8') ?>"<?php if ($activo): ?> aria-current="page"<?php endif; ?>>
+                        <i class="fas <?= htmlspecialchars($modulo['icono'], ENT_QUOTES, 'UTF-8') ?> me-2"></i>
+                        <?= htmlspecialchars($modulo['label'], ENT_QUOTES, 'UTF-8') ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
     </nav>
-    <div class="container app-main-wrap py-4">
+    <div class="flex-grow-1">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded-3 mb-4">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand fw-semibold text-purple-strong d-lg-none" href="#">Dermo Estética</a>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Mostrar navegación">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-center d-none d-lg-block">Sistema de Gestión Dermo Estética Carmin</div>
+                <div class="collapse navbar-collapse " id="topNavbar" >
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                      
+                        <li class="nav-item">
+                            <a class="nav-link active d-lg-none" aria-current="page" href="#">Sistema de Gestión Dermo Estética Carmin</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center gap-2">
+
+                        <button class="btn btn-purple btn-sm" type="button"><i class="fas fa-user me-1"></i>admin</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <main class="container-fluid py-4">
+

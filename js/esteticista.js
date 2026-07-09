@@ -57,7 +57,7 @@ function renderTablaEst(lista) {
         var fila = ''
             + '<tr>'
             + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-outline-celeste me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedula_esteticista || '') + '" data-especialidad-id="' + (item.id_especialidad || '') + '"><i class="fas fa-edit"></i></button>'
+            +   '<button class="btn btn-sm btn-outline-primary me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedula_esteticista || '') + '" data-especialidad-id="' + (item.id_especialidad || '') + '"><i class="fas fa-edit"></i></button>'
             +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedula_esteticista || '') + '"><i class="fas fa-trash-alt"></i></button>'
             + '</td>'
             + '<td>' + (item.cedula_esteticista || '') + '</td>'

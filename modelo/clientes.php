@@ -89,6 +89,12 @@ class Clientes extends Conexion
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function contar(): int
+    {
+        $stmt = $this->pdo->query("SELECT COUNT(*) FROM cliente");
+        return (int) $stmt->fetchColumn();
+    }
+
     public function existeCedula(string $cedula): bool
     {
         $stmt = $this->pdo->prepare("SELECT 1 FROM cliente WHERE cedulaCliente = :cedula LIMIT 1");

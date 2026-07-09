@@ -94,16 +94,16 @@ function renderTabla(lista) {
     lista.forEach(function (item) {
         var fila = ''
             + '<tr>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-outline-celeste me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            + '</td>'
             + '<td>' + (item.cedulaCliente || '') + '</td>'
             + '<td>' + (item.nombreCliente || '') + '</td>'
             + '<td>' + (item.fechaNacimiento || '') + '</td>'
             + '<td>' + (item.estadoDirCliente || '') + '</td>'
             + '<td>' + (item.municipioDirCliente || '') + '</td>'
             + '<td>' + (item.parroquiaDirCliente || '') + '</td>'
+            + '<td class="text-nowrap">'
+            +   '<button class="btn btn-sm btn-outline-primary me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
+            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-trash-alt"></i></button>'
+            + '</td>'
             + '</tr>';
         $tbody.append(fila);
     });
