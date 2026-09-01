@@ -46,6 +46,7 @@ if (is_file("vista/modulos/".$pagina.".php")) {
         $modelo->set_estado(trim($_POST['estado'] ?? ''));
         $modelo->set_municipio(trim($_POST['municipio'] ?? ''));
         $modelo->set_parroquia(trim($_POST['parroquia'] ?? ''));
+        $modelo->set_telefono(trim($_POST['telefono'] ?? ''));
 
         if ($accion === 'incluir') {
             $resp = $modelo->insertar();

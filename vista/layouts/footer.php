@@ -15,6 +15,8 @@
         <script src="js/esteticista.js"></script>
     <?php elseif ($controladorJS === 'servicios'): ?>
         <script src="js/servicio.js"></script>
+    <?php elseif ($controladorJS === 'citas'): ?>
+        <script src="js/citas.js"></script>
     <?php elseif ($controladorJS === 'productos'): ?>
         <script src="js/productos.js"></script>
     <?php endif; ?>

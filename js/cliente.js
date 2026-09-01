@@ -87,22 +87,27 @@ function renderTabla(lista) {
     $tbody.empty();
 
     if (!lista.length) {
-        $tbody.append('<tr><td colspan="7" class="text-center text-muted">Sin registros</td></tr>');
+        $tbody.append('<tr><td colspan="6" class="text-center text-muted">Sin registros</td></tr>');
         return;
     }
 
     lista.forEach(function (item) {
+        var direccion = [item.estadoDirCliente, item.municipioDirCliente, item.parroquiaDirCliente]
+            .filter(function (valor) { return valor !== null && valor !== undefined && valor !== ''; })
+            .join(' / ');
+        var telefono = item.telefonoCliente || item.telefono || '';
+
         var fila = ''
             + '<tr>'
             + '<td>' + (item.cedulaCliente || '') + '</td>'
             + '<td>' + (item.nombreCliente || '') + '</td>'
             + '<td>' + (item.fechaNacimiento || '') + '</td>'
-            + '<td>' + (item.estadoDirCliente || '') + '</td>'
-            + '<td>' + (item.municipioDirCliente || '') + '</td>'
-            + '<td>' + (item.parroquiaDirCliente || '') + '</td>'
+            + '<td>' + direccion + '</td>'
+            + '<td>' + telefono + '</td>'
             + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-outline-primary me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
+            +   '<button class="btn btn-sm btn-warning me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
             +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-trash-alt"></i></button>'
+            +   '<button class="btn btn-sm btn-info ms-1 btn-detalle" title="Detalle" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-info-circle"></i></button>'
             + '</td>'
             + '</tr>';
         $tbody.append(fila);
@@ -239,11 +244,13 @@ $(document).ready(function () {
         if (!cedula) return;
 
         var $fila = $(this).closest('tr');
-        var nombre = $fila.find('td').eq(2).text();
-        var fechaNacimiento = $fila.find('td').eq(3).text();
-        var estado = $fila.find('td').eq(4).text();
-        var municipio = $fila.find('td').eq(5).text();
-        var parroquia = $fila.find('td').eq(6).text();
+        var nombre = $fila.find('td').eq(1).text();
+        var fechaNacimiento = $fila.find('td').eq(2).text();
+        var direccion = ($fila.find('td').eq(3).text() || '').split(' / ');
+        var estado = direccion[0] || '';
+        var municipio = direccion[1] || '';
+        var parroquia = direccion[2] || '';
+        var telefono = $fila.find('td').eq(4).text();
 
         $('#cedula').val(cedula).prop('readonly', true);
         $('#nombres').val(nombre);
@@ -251,6 +258,7 @@ $(document).ready(function () {
         $('#estado').val(estado);
         $('#municipio').val(municipio);
         $('#parroquia').val(parroquia);
+        $('#telefono').val(telefono);
 
         $('#proceso').text('MODIFICAR');
         $('#accion').val('modificar');
@@ -276,6 +284,7 @@ $(document).ready(function () {
             datos.append('estado', $('#estado').val());
             datos.append('municipio', $('#municipio').val());
             datos.append('parroquia', $('#parroquia').val());
+            datos.append('telefono', $('#telefono').val());
             enviaAjax(datos);
         } else if (texto === 'ELIMINAR') {
             if (validarkeyup(/^[0-9]{7,8}$/, $('#cedula'), $('#scedula'), 'El formato debe ser 9999999') == 0) {

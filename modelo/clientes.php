@@ -10,6 +10,7 @@ class Clientes extends Conexion
     private $estado;
     private $municipio;
     private $parroquia;
+    private $telefono;
      
 
     // Setters
@@ -31,6 +32,9 @@ class Clientes extends Conexion
     public function set_parroquia($valor) {
         $this->parroquia = $valor;
     }
+    public function set_telefono($valor) {
+        $this->telefono = $valor;
+    }
 
     // Getters
     public function get_cedula() {
@@ -51,19 +55,24 @@ class Clientes extends Conexion
     public function get_parroquia() {
         return $this->parroquia;
     }
+    public function get_telefono() {
+        return $this->telefono;
+    }
 
     public function insertar(): string
     {
         try {
-            $sql = "INSERT INTO cliente 
-                    (cedulaCliente, nombreCliente, fechaNacimiento, estadoDirCliente, municipioDirCliente, parroquiaDirCliente)
-                    VALUES (:cedula, :nombre, :fecha_nacimiento, :estado, :municipio, :parroquia)";
-            $stmt = $this->pdo->prepare($sql);
             // verificar duplicado por cédula
             if ($this->existeCedula($this->cedula)) {
                 return 'duplicado';
             }
 
+            $this->pdo->beginTransaction();
+
+            $sql = "INSERT INTO cliente 
+                    (cedulaCliente, nombreCliente, fechaNacimiento, estadoDirCliente, municipioDirCliente, parroquiaDirCliente)
+                    VALUES (:cedula, :nombre, :fecha_nacimiento, :estado, :municipio, :parroquia)";
+            $stmt = $this->pdo->prepare($sql);
             $ok = $stmt->execute([
                 ':cedula' => $this->cedula,
                 ':nombre' => $this->nombres,
@@ -73,8 +82,27 @@ class Clientes extends Conexion
                 ':parroquia' => $this->parroquia,
             ]);
 
-            return $ok ? 'insertado' : 'error: insert fallido';
+            if (!$ok) {
+                $this->pdo->rollBack();
+                return 'error: insert fallido';
+            }
+
+            if ($this->telefono && trim($this->telefono) !== '') {
+                $sql2 = "INSERT INTO telefonocliente (cedulaCliente, numTelefonoCliente) VALUES (:cedula, :telefono)";
+                $stmt2 = $this->pdo->prepare($sql2);
+                $ok2 = $stmt2->execute([':cedula' => $this->cedula, ':telefono' => $this->telefono]);
+                if (!$ok2) {
+                    $this->pdo->rollBack();
+                    return 'error: insert telefono fallido';
+                }
+            }
+
+            $this->pdo->commit();
+            return 'insertado';
         } catch (\PDOException $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
             return 'error: '.$e->getMessage();
         }
     }
@@ -82,9 +110,15 @@ class Clientes extends Conexion
 
     public function listar(): array
     {
-        $sql = "SELECT cedulaCliente, nombreCliente, fechaNacimiento, estadoDirCliente, municipioDirCliente, parroquiaDirCliente
-                FROM cliente
-                ORDER BY nombreCliente ASC";
+        $sql = "SELECT c.cedulaCliente,
+                       c.nombreCliente,
+                       c.fechaNacimiento,
+                       c.estadoDirCliente,
+                       c.municipioDirCliente,
+                       c.parroquiaDirCliente,
+                       (SELECT t.numTelefonoCliente FROM telefonocliente t WHERE t.cedulaCliente = c.cedulaCliente LIMIT 1) AS telefonoCliente
+                FROM cliente c
+                ORDER BY c.nombreCliente ASC";
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

@@ -30,7 +30,7 @@ $modulosSidebar = [
         }
         body {
             min-height: 100vh;
-            background: linear-gradient(180deg, #faf2ff 0%, #f4ecff 100%);
+            background: linear-gradient(180deg, #faf2ff 0%, #8f6dbe 100%);
             color: #2e1a45;
             font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
@@ -115,6 +115,10 @@ $modulosSidebar = [
             color: #ffffff;
             background-color: var(--purple-strong);
             border-color: var(--purple-strong);
+        }
+        .bg-purple {
+            background-color: var(--purple) !important;
+            color: #ffffff !important;
         }
         .text-purple-strong {
             color: var(--purple-strong) !important;

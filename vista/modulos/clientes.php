@@ -13,7 +13,7 @@
     <h1 class="h3 mb-3">Clientes</h1>
 
     <div class="card shadow-sm border-0">
-        <div class="card-header border-bottom py-3">
+        <div class="card-header bg-purple text-white border-bottom py-3">
             <span class="fw-semibold">Listado de clientes</span>
         </div>
         <div class="card-body p-0">
@@ -23,14 +23,13 @@
                     id="tablausuarios"
                     aria-describedby="tabla-clientes-desc"
                 >
-                    <thead>
+                    <thead class="table-purple text-white">
                         <tr>
                             <th scope="col">Cédula</th>
                             <th scope="col">Nombre</th>
                             <th scope="col" class="text-nowrap">Fecha nac.</th>
-                            <th scope="col">Estado</th>
-                            <th scope="col">Municipio</th>
-                            <th scope="col">Parroquia</th>
+                            <th scope="col">Dirección</th>
+                            <th scope="col">Teléfono</th>
                             <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>
@@ -46,41 +45,41 @@
 <div class="modal fade" id="modal1" tabindex="-1" aria-labelledby="modal1Label" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header text-bg-info">
+            <div class="modal-header bg-purple">
                 <h2 class="modal-title fs-5" id="modal1Label">Añadir cliente</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <form method="post" id="formulario_cliente" autocomplete="off">
                     <input type="hidden" name="accion" id="accion" value="">
                     
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label" for="cedula">Cédula</label>
                             <input class="form-control" type="text" id="cedula" name="cedula" autocomplete="off">
                             <span class="form-text text-danger" id="scedula"></span>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <label class="form-label" for="nombres">Nombre completo</label>
                             <input class="form-control" type="text" id="nombres" name="nombres" autocomplete="off">
                             <span class="form-text text-danger" id="snombres"></span>
                         </div>
                     </div>
                     
-                    <div class="row g-3 mt-0">
-                        <div class="col-md-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
                             <label class="form-label" for="fechadenacimiento">Fecha de nacimiento</label>
                             <input class="form-control" type="date" id="fechadenacimiento" name="fechadenacimiento">
                             <span class="form-text text-danger" id="sfechadenacimiento"></span>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <label class="form-label" for="estado">Estado</label>
                             <input class="form-control" type="text" id="estado" name="estado" autocomplete="off">
                             <span class="form-text text-danger" id="sestado"></span>
                         </div>
                     </div>
                     
-                    <div class="row g-3 mt-0">
+                    <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label" for="municipio">Municipio</label>
                             <input class="form-control" type="text" id="municipio" name="municipio" autocomplete="off">
@@ -90,6 +89,13 @@
                             <label class="form-label" for="parroquia">Parroquia</label>
                             <input class="form-control" type="text" id="parroquia" name="parroquia" autocomplete="off">
                             <span class="form-text text-danger" id="sparroquia"></span>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="telefono">Teléfono</label>
+                            <input class="form-control" type="tel" id="telefono" name="telefono" autocomplete="off">
+                            <span class="form-text text-danger" id="stelefono"></span>
                         </div>
                     </div>
                 
