@@ -37,13 +37,12 @@ if (!empty($_POST)) {
 
     if ($accion === 'incluir') {
         $servicios = $_POST['servicios'] ?? ($_POST['servicios[]'] ?? []);
-        $respuesta = $modelo->insertar([
-            'cedulaCliente' => trim($_POST['cedulaCliente'] ?? ''),
-            'cedulaEsteticista' => trim($_POST['cedulaEsteticista'] ?? ''),
-            'fecha_cita' => trim($_POST['fecha_cita'] ?? ''),
-            'hora' => trim($_POST['hora'] ?? ''),
-            'servicios' => is_array($servicios) ? $servicios : [$servicios],
-        ]);
+        $modelo->set_cedulaCliente(trim($_POST['cedulaCliente'] ?? ''));
+        $modelo->set_cedulaEsteticista(trim($_POST['cedulaEsteticista'] ?? ''));
+        $modelo->set_fechaCita(trim($_POST['fecha_cita'] ?? ''));
+        $modelo->set_hora(trim($_POST['hora'] ?? ''));
+        $modelo->set_servicios(is_array($servicios) ? $servicios : [$servicios]);
+        $respuesta = $modelo->insertar();
 
         if ($respuesta['ok']) {
             echo json_encode(['ok' => true, 'mensaje' => $respuesta['mensaje']]);
@@ -51,6 +50,32 @@ if (!empty($_POST)) {
             http_response_code(400);
             echo json_encode(['ok' => false, 'mensaje' => $respuesta['mensaje']]);
         }
+        exit;
+    }
+
+    if ($accion === 'modificar') {
+        $servicios = $_POST['servicios'] ?? ($_POST['servicios[]'] ?? []);
+        $modelo->set_idCita($_POST['idCita'] ?? 0);
+        $modelo->set_cedulaCliente(trim($_POST['cedulaCliente'] ?? ''));
+        $modelo->set_cedulaEsteticista(trim($_POST['cedulaEsteticista'] ?? ''));
+        $modelo->set_fechaCita(trim($_POST['fecha_cita'] ?? ''));
+        $modelo->set_hora(trim($_POST['hora'] ?? ''));
+        $modelo->set_servicios(is_array($servicios) ? $servicios : [$servicios]);
+        $respuesta = $modelo->modificar();
+        if (!$respuesta['ok']) {
+            http_response_code(400);
+        }
+        echo json_encode($respuesta);
+        exit;
+    }
+
+    if ($accion === 'eliminar') {
+        $modelo->set_idCita((int) ($_POST['idCita'] ?? 0));
+        $respuesta = $modelo->eliminar();
+        if (!$respuesta['ok']) {
+            http_response_code(400);
+        }
+        echo json_encode($respuesta);
         exit;
     }
 

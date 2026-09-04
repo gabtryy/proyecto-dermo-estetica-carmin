@@ -89,12 +89,37 @@
                             <th scope="col">Fecha</th>
                             <th scope="col">Hora</th>
                             <th scope="col">Servicios</th>
+                            <th scope="col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="resultadoconsulta">
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-editar-cita" tabindex="-1" aria-labelledby="modal-editar-cita-label" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-purple text-white">
+                <h2 class="modal-title fs-5" id="modal-editar-cita-label">Modificar cita</h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="formulario_editar_cita" autocomplete="off">
+                <div class="modal-body">
+                    <input type="hidden" name="idCita" id="editar-id-cita">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label" for="editar-cliente">Cliente</label><select class="form-select" name="cedulaCliente" id="editar-cliente" required></select></div>
+                        <div class="col-md-6"><label class="form-label" for="editar-esteticista">Esteticista</label><select class="form-select" name="cedulaEsteticista" id="editar-esteticista" required></select></div>
+                        <div class="col-md-6"><label class="form-label" for="editar-fecha">Fecha</label><input class="form-control" type="date" name="fecha_cita" id="editar-fecha" required></div>
+                        <div class="col-md-6"><label class="form-label" for="editar-hora">Hora</label><input class="form-control" type="time" name="hora" id="editar-hora" required></div>
+                    </div>
+                    <div class="mt-4"><label class="form-label fw-semibold">Servicios</label><div id="editar-lista-servicios" class="row g-2"></div></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-outline-purple" data-bs-dismiss="modal">Cerrar</button><button type="submit" class="btn btn-purple"><i class="fas fa-save me-1"></i>Guardar cambios</button></div>
+            </form>
         </div>
     </div>
 </div>
