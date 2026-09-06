@@ -8,7 +8,7 @@ $modulosSidebar = [
     ['pagina' => 'clientes',     'icono' => 'fa-user-friends',    'label' => 'Clientes'],
     ['pagina' => 'esteticistas', 'icono' => 'fa-user-tie',        'label' => 'Esteticistas'],
     ['pagina' => 'citas',        'icono' => 'fa-calendar-check',  'label' => 'Citas'],
-    ['pagina' => 'reportes',     'icono' => 'fa-chart-line',      'label' => 'Diagnóstico'],
+    ['pagina' => 'diagnostico', 'icono' => 'fa-face-smile',       'label' => 'Diagnóstico'],
 ];
 ?>
 <!DOCTYPE html>

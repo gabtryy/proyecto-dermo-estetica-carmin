@@ -19,6 +19,8 @@
         <script src="js/citas.js"></script>
     <?php elseif ($controladorJS === 'productos'): ?>
         <script src="js/productos.js"></script>
+    <?php elseif ($controladorJS === 'diagnostico'): ?>
+        <script src="js/diagnostico.js"></script>
     <?php endif; ?>
 </body>
 </html>

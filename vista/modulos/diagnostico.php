@@ -1,0 +1,117 @@
+<?php require_once("vista/layouts/header.php"); ?>
+
+<style>
+    .diagnostico-card {
+        max-width: 1050px;
+        margin: 0 auto;
+    }
+
+    .rostro-panel {
+        position: relative;
+        width: min(100%, 560px);
+        aspect-ratio: 1 / 1;
+        margin: 0 auto;
+        border-radius: 0.75rem;
+        background-color: #fcecff;
+        background-image: url("img/rostro-diagnostico.png");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 78% 78%;
+        border: 1px solid #ead5d2;
+        box-shadow: 0 18px 35px rgba(107, 45, 134, 0.1);
+    }
+
+    .rostro-label {
+        position: absolute;
+        z-index: 2;
+        transform: translate(-50%, -50%);
+        width: min(28%, 150px);
+    }
+
+    .rostro-label label {
+        display: block;
+        margin-bottom: 0.3rem;
+        color: #38174d;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .rostro-label input {
+        width: 100%;
+        font-size: 0.8rem;
+    }
+
+    .rostro-frente { top: 19%; left: 50%; }
+    .rostro-mejilla-izquierda { top: 50%; left: 20%; }
+    .rostro-mejilla-derecha { top: 50%; left: 80%; }
+    .rostro-menton { top: 80%; left: 50%; }
+
+    @media (max-width: 575.98px) {
+        .rostro-panel { width: 100%; }
+        .rostro-label { width: 34%; }
+        .rostro-label label { font-size: 0.7rem; }
+        .rostro-label input { padding: 0.35rem 0.5rem; font-size: 0.7rem; }
+    }
+</style>
+
+<div class="container-fluid py-2 px-0 px-lg-3">
+    <div class="page-header p-4 mb-4">
+        <h1 class="h3 page-title mb-1">Diagnóstico facial</h1>
+        <p class="page-subtitle mb-0">Selecciona el cliente, el tipo de piel y la condición observada en cada zona.</p>
+    </div>
+
+    <div class="card diagnostico-card border-0 shadow-sm">
+        <div class="card-header bg-purple text-white py-3">
+            <span class="fw-semibold"><i class="fas fa-clipboard-check me-2"></i>Evaluación por zonas</span>
+        </div>
+        <div class="card-body p-3 p-md-5">
+            <form id="formulario_diagnostico" method="post" autocomplete="off">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="cedulaCliente">Cliente</label>
+                        <select class="form-select" id="cedulaCliente" name="cedulaCliente" required>
+                            <option value="">Seleccione un cliente</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="idPiel">Tipo de piel</label>
+                        <select class="form-select" id="idPiel" name="idPiel" required>
+                            <option value="">Seleccione el tipo de piel</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="rostro-panel" aria-label="Mapa del rostro para seleccionar el diagnóstico por zona">
+                    <div class="rostro-label rostro-frente">
+                        <label for="frente">Frente</label>
+                        <input type="text" class="form-control" id="frente" name="frente">
+                    </div>
+
+                    <div class="rostro-label rostro-mejilla-izquierda">
+                        <label for="mejilla_izquierda">Mejilla izquierda</label>
+                        <input type="text" class="form-control" id="mejilla_izquierda" name="mejilla_izquierda">
+                    </div>
+
+                    <div class="rostro-label rostro-mejilla-derecha">
+                        <label for="mejilla_derecha">Mejilla derecha</label>
+                        <input type="text" class="form-control" id="mejilla_derecha" name="mejilla_derecha">
+                    </div>
+
+                    <div class="rostro-label rostro-menton">
+                        <label for="menton">Mentón</label>
+                        <input type="text" class="form-control" id="menton" name="menton">
+                    </div>
+
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="reset" class="btn btn-outline-purple">Limpiar</button>
+                    <button type="submit" class="btn btn-purple"><i class="fas fa-save me-1"></i>Guardar diagnóstico</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php require_once("vista/layouts/footer.php"); ?>
