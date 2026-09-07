@@ -37,6 +37,12 @@ if ($accion !== '') {
                 'cantidadActual' => trim($_POST['cantidadActual'] ?? ''),
                 'tipoProducto' => trim($_POST['tipoProducto'] ?? ''),
             ];
+
+            if (!in_array($datos['tipoProducto'], ['venta', 'insumo'], true)) {
+                http_response_code(400);
+                echo json_encode(['ok' => false, 'mensaje' => 'El tipo de producto debe ser Venta o Insumo.']);
+                exit;
+            }
             
             try {
                 $modelo->set_nombre($datos['nombreProducto']);
@@ -105,6 +111,12 @@ if ($accion !== '') {
                 'tipoProducto' => trim($_POST['tipoProducto'] ?? ''),
                 'parroquia' => trim($_POST['parroquia'] ?? ''),
             ];
+
+            if (!in_array($datos['tipoProducto'], ['venta', 'insumo'], true)) {
+                http_response_code(400);
+                echo json_encode(['ok' => false, 'mensaje' => 'El tipo de producto debe ser Venta o Insumo.']);
+                exit;
+            }
             try {
                 $modelo->set_id($datos['idProducto']);
                 $modelo->set_nombre($datos['nombreProducto']);
