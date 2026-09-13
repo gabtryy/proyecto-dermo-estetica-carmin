@@ -15,12 +15,16 @@
         <script src="js/esteticista.js"></script>
     <?php elseif ($controladorJS === 'servicios'): ?>
         <script src="js/servicio.js"></script>
+    <?php elseif ($controladorJS === 'proveedores'): ?>
+        <script src="js/proveedor.js"></script>
+    <?php elseif ($controladorJS === 'antecedentes'): ?>
+        <script src="js/antecedentes.js"></script>
     <?php elseif ($controladorJS === 'citas'): ?>
         <script src="js/citas.js"></script>
     <?php elseif ($controladorJS === 'productos'): ?>
         <script src="js/productos.js"></script>
     <?php elseif ($controladorJS === 'diagnostico'): ?>
-        <script src="js/diagnostico.js"></script>
+        <script src="js/diagnostico.js?v=2"></script>
     <?php endif; ?>
 </body>
 </html>

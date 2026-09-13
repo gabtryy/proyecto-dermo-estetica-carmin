@@ -4,11 +4,12 @@ $modulosSidebar = [
     ['pagina' => 'home',         'icono' => 'fa-house',           'label' => 'Inicio'],
     ['pagina' => 'servicios',    'icono' => 'fa-spa',             'label' => 'Servicios'],
     ['pagina' => 'productos',    'icono' => 'fa-pump-soap',       'label' => 'Productos'],
-    ['pagina' => 'proveedores',    'icono' => 'fa-truck',       'label' => 'Proveedores'],
+    ['pagina' => 'proveedores',  'icono' => 'fa-truck',           'label' => 'Proveedores'],
+    ['pagina' => 'antecedentes', 'icono' => 'fa-notes-medical',   'label' => 'Antecedentes'],
     ['pagina' => 'clientes',     'icono' => 'fa-user-friends',    'label' => 'Clientes'],
     ['pagina' => 'esteticistas', 'icono' => 'fa-user-tie',        'label' => 'Esteticistas'],
     ['pagina' => 'citas',        'icono' => 'fa-calendar-check',  'label' => 'Citas'],
-    ['pagina' => 'diagnostico', 'icono' => 'fa-face-smile',       'label' => 'Diagnóstico'],
+    ['pagina' => 'diagnostico',  'icono' => 'fa-face-smile',      'label' => 'Diagnóstico'],
 ];
 ?>
 <!DOCTYPE html>

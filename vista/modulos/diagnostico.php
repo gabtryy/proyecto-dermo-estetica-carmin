@@ -12,13 +12,12 @@
         aspect-ratio: 1 / 1;
         margin: 0 auto;
         border-radius: 0.75rem;
-        background-color: #fcecff;
         background-image: url("img/rostro-diagnostico.png");
         background-position: center;
         background-repeat: no-repeat;
-        background-size: 78% 78%;
-        border: 1px solid #ead5d2;
-        box-shadow: 0 18px 35px rgba(107, 45, 134, 0.1);
+        background-size: contain;
+        border: none;
+        box-shadow: none;
     }
 
     .rostro-label {
@@ -42,10 +41,11 @@
         font-size: 0.8rem;
     }
 
-    .rostro-frente { top: 19%; left: 50%; }
-    .rostro-mejilla-izquierda { top: 50%; left: 20%; }
-    .rostro-mejilla-derecha { top: 50%; left: 80%; }
-    .rostro-menton { top: 80%; left: 50%; }
+    .rostro-frente { top: 30%; left: 50%; }
+    .rostro-mejilla-izquierda { top: 65%; left: 20%; }
+    .rostro-mejilla-derecha { top: 65%; left: 80%; }
+    .rostro-naris { top: 58%; left: 50%; }
+    .rostro-menton { top: 90%; left: 50%; }
 
     @media (max-width: 575.98px) {
         .rostro-panel { width: 100%; }
@@ -98,6 +98,11 @@
                         <input type="text" class="form-control" id="mejilla_derecha" name="mejilla_derecha">
                     </div>
 
+                    <div class="rostro-label rostro-naris">
+                        <label for="naris">Naris</label>
+                        <input type="text" class="form-control" id="naris" name="naris">
+                    </div>
+
                     <div class="rostro-label rostro-menton">
                         <label for="menton">Mentón</label>
                         <input type="text" class="form-control" id="menton" name="menton">
@@ -110,6 +115,31 @@
                     <button type="submit" class="btn btn-purple"><i class="fas fa-save me-1"></i>Guardar diagnóstico</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-purple text-white border-bottom py-3">
+            <span class="fw-semibold">Listado de diagnósticos</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered align-middle mb-0" id="tabla-diagnosticos">
+                    <thead class="table-purple text-white">
+                        <tr>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Tipo de piel</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Frente</th>
+                            <th scope="col">Nariz</th>
+                            <th scope="col">Mejilla izq.</th>
+                            <th scope="col">Mejilla der.</th>
+                            <th scope="col">Mentón</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultado-diagnosticos"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

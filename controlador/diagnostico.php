@@ -20,12 +20,21 @@ if ($accion !== '') {
 		exit;
 	}
 
+	if ($accion === 'consultar') {
+		echo json_encode([
+			'ok' => true,
+			'data' => $modelo->listar()
+		]);
+		exit;
+	}
+
 	if ($accion === 'incluir') {
 		$modelo->set_cedulaCliente(trim($_POST['cedulaCliente'] ?? ''));
 		$modelo->set_idPiel(trim($_POST['idPiel'] ?? ''));
 		$modelo->set_frente(trim($_POST['frente'] ?? ''));
-		$modelo->set_mejillaIzquierda(trim($_POST['mejilla_izquierda'] ?? ''));
-		$modelo->set_mejillaDerecha(trim($_POST['mejilla_derecha'] ?? ''));
+		$modelo->set_nariz(trim($_POST['naris'] ?? $_POST['nariz'] ?? ''));
+		$modelo->set_mejillaIzquierda(trim($_POST['mejilla_izquierda'] ?? $_POST['mejilla_izq'] ?? ''));
+		$modelo->set_mejillaDerecha(trim($_POST['mejilla_derecha'] ?? $_POST['mejilla_der'] ?? ''));
 		$modelo->set_menton(trim($_POST['menton'] ?? ''));
 
 		$respuesta = $modelo->insertar();

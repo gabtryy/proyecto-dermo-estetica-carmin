@@ -63,6 +63,7 @@ function guardarDiagnostico(formulario) {
         if (respuesta && respuesta.ok) {
             Swal.fire('Éxito', respuesta.mensaje || 'Diagnóstico guardado correctamente.', 'success');
             formulario.reset();
+            cargarDiagnosticos();
         } else {
             Swal.fire('Error', respuesta.mensaje || 'No se pudo guardar el diagnóstico.', 'error');
         }
@@ -71,9 +72,46 @@ function guardarDiagnostico(formulario) {
     });
 }
 
+function cargarDiagnosticos() {
+    $.ajax({
+        url: 'index.php?pagina=diagnostico',
+        type: 'POST',
+        data: { accion: 'consultar' },
+        dataType: 'json'
+    }).done(function (respuesta) {
+        var $tbody = $('#resultado-diagnosticos');
+        var diagnosticos = respuesta && respuesta.ok ? (respuesta.data || []) : [];
+
+        $tbody.empty();
+
+        if (!diagnosticos.length) {
+            $tbody.append('<tr><td colspan="8" class="text-center text-muted">No hay diagnósticos registrados.</td></tr>');
+            return;
+        }
+
+        diagnosticos.forEach(function (diagnostico) {
+            $tbody.append(
+                '<tr>' +
+                    '<td>' + escaparHtml(diagnostico.nombreCliente || 'Sin cliente') + '</td>' +
+                    '<td>' + escaparHtml(diagnostico.nom_Piel || 'Sin tipo') + '</td>' +
+                    '<td>' + escaparHtml(diagnostico.fecha_diagnostico || 'Sin fecha') + '</td>' +
+                    '<td>' + escaparHtml(diagnostico.frente || 'sin detalle') + '</td>' +
+                    '<td>' + escaparHtml(diagnostico.nariz || 'sin detalle') + '</td>' +
+                    '<td>' + escaparHtml(diagnostico.mejilla_izq || 'sin detalle') + '</td>' +
+                    '<td>' + escaparHtml(diagnostico.mejilla_der || 'sin detalle') + '</td>' +
+                    '<td>' + escaparHtml(diagnostico.menton || 'sin detalle') + '</td>' +
+                '</tr>'
+            );
+        });
+    }).fail(function () {
+        Swal.fire('Error', 'No se pudieron cargar los diagnósticos.', 'error');
+    });
+}
+
 $(document).ready(function () {
     cargarClientes();
     cargarTiposDePiel();
+    cargarDiagnosticos();
 
     $('#formulario_diagnostico').on('submit', function (e) {
         e.preventDefault();

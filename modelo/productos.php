@@ -103,11 +103,7 @@ class Productos extends Conexion
         return $this->ultimoError ?? null;
     }
 
-    // Exponer el objeto PDO para casos donde prefiramos ejecutar consultas directamente
-    public function getPdo()
-    {
-        return $this->pdo;
-    }
+
 
     public function listar(): array
     {
