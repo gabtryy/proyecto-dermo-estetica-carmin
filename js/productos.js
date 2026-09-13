@@ -92,8 +92,6 @@ function validarkeyup(er, $etiqueta, $etiquetamensaje, mensaje) {
 }
 
 function validarenvio() {
-    let regexTexto = /^[A-Za-z\b\s\u00f1\u00d1\u00E0-\u00FC]{3,50}$/;
-
     if (validarkeyup(/^[A-Za-z0-9\s\u00f1\u00d1\u00C0-\u017F\-\_\.\,\'\"()\&\/ºª%#\+\?\¡\!\:\;\@]{3,150}$/, $("#nombreProducto"), $("#snombreProducto"), "Solo caracteres válidos entre 3 y 150 caracteres") == 0) {
         Swal.fire('Atención', 'Nombre del producto: Solo caracteres válidos entre 3 y 150 caracteres', 'warning');
         return false;
@@ -106,8 +104,9 @@ function validarenvio() {
     } else if (validarkeyup(/^[1-9][0-9]?$|^100$/, $("#cantidadActual"), $("#scantidadActual"), "Ingrese una cantidad válida entre 1 y 100") == 0) {
         Swal.fire('Atención', 'Cantidad actual: Ingrese una cantidad válida entre 1 y 100', 'warning');
         return false;
-    } else if (validarkeyup(/^[A-Za-z\b\s\u00f1\u00d1\u00E0-\u00FC]{3,50}$/, $("#tipoProducto"), $("#stipoProducto"), "Solo letras entre 3 y 50 caracteres") == 0) {
-        Swal.fire('Atención', 'Tipo de producto: Solo letras entre 3 y 50 caracteres', 'warning');
+    } else if (!["venta", "insumo"].includes($("#tipoProducto").val())) {
+        $("#stipoProducto").text("Seleccione Venta o Insumo").css("color", "red");
+        Swal.fire('Atención', 'Tipo de producto: Seleccione Venta o Insumo', 'warning');
         return false;
     } 
     return true;
@@ -167,8 +166,13 @@ $(document).ready(function () {
     $("#cantidadActual").on("keypress", function (e) { validarkeypress(/^[0-9]*$/, e); });
     $("#cantidadActual").on("keyup", function () { validarkeyup(/^[1-9][0-9]?$|^100$/, $(this), $("#scantidadActual"), "Ingrese una cantidad válida entre 1 y 100"); });
 
-    $("#tipoProducto").on("keypress", function (e) { validarkeypress(/^[A-Za-z\b\s\u00f1\u00d1\u00E0-\u00FC]*$/, e); });
-    $("#tipoProducto").on("keyup", function () { validarkeyup(/^[A-Za-z\b\s\u00f1\u00d1\u00E0-\u00FC]{3,50}$/, $(this), $("#stipoProducto"), "Solo letras entre 3 y 50 caracteres"); });
+    $("#tipoProducto").on("change", function () {
+        if (["venta", "insumo"].includes($(this).val())) {
+            $("#stipoProducto").text("");
+        } else {
+            $("#stipoProducto").text("Seleccione Venta o Insumo").css("color", "red");
+        }
+    });
 
     $('#incluir').on('click', function () {
         console.log('productos.js: incluir clicked');

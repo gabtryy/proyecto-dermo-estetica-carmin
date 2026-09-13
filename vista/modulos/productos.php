@@ -93,7 +93,11 @@
                     <div class="row g-3 mt-0">
                         <div class="col-md-6">
                             <label class="form-label" for="tipoProducto">Tipo de producto</label>
-                            <input class="form-control" type="text" id="tipoProducto" name="tipoProducto" autocomplete="off">
+                            <select class="form-select" id="tipoProducto" name="tipoProducto">
+                                <option value="">Seleccione el tipo de producto</option>
+                                <option value="venta">Venta</option>
+                                <option value="insumo">Insumo</option>
+                            </select>
                             <span class="form-text text-danger" id="stipoProducto"></span>
                         </div>
                     </div>
