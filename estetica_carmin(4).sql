@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-06-2026 a las 02:29:05
+-- Tiempo de generación: 14-09-2026 a las 23:46:11
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -40,7 +40,12 @@ CREATE TABLE `antecedentes` (
 
 INSERT INTO `antecedentes` (`id_antecedente`, `cedulaCliente`, `id_tipo_antecedente`, `descripcion_antecedente`) VALUES
 (1, 23456789, 1, 'Alergia severa al ácido salicílico.'),
-(2, 34567890, 2, 'Uso de isotretinoína oral finalizado hace 6 meses.');
+(2, 34567890, 2, 'Uso de isotretinoína oral finalizado hace 6 meses.'),
+(4, 15333444, 3, 'Hipertensión controlada.'),
+(5, 17555666, 4, 'Microdermabrasión realizada en otro centro hace 2 meses.'),
+(10, 14222333, 4, ''),
+(11, 14222333, 3, ''),
+(12, 14222333, 2, '');
 
 -- --------------------------------------------------------
 
@@ -63,7 +68,10 @@ CREATE TABLE `citas` (
 
 INSERT INTO `citas` (`idCita`, `cedulaEsteticista`, `cedulaCliente`, `hora_cita`, `fecha_cita`, `estado_cita`) VALUES
 (1, 87654321, 23456789, '10:00:00', '2026-06-22', 'Confirmada'),
-(2, 98765432, 34567890, '14:30:00', '2026-06-23', 'Pendiente');
+(2, 98765432, 34567890, '14:30:00', '2026-06-23', 'Pendiente'),
+(5, 98765432, 34567890, '08:00:00', '2026-08-19', NULL),
+(6, 87654321, 12334442, '10:43:00', '2026-08-19', NULL),
+(8, 98765432, 17555666, '19:27:00', '2026-09-25', 'pendiente');
 
 -- --------------------------------------------------------
 
@@ -85,6 +93,11 @@ CREATE TABLE `cliente` (
 --
 
 INSERT INTO `cliente` (`cedulaCliente`, `nombreCliente`, `fechaNacimiento`, `estadoDirCliente`, `municipioDirCliente`, `parroquiaDirCliente`) VALUES
+(12334442, 'erly jalam', '2026-07-21', 'pppp', 'dsdad', 'sdasda'),
+(14222333, 'Gabriel Pérez', '2001-05-14', 'Distrito Capital', 'Libertador', 'El Recreo'),
+(15333444, 'José Silva', '1998-11-23', 'Miranda', 'Chacao', 'Chacao'),
+(16444555, 'Leomar Bastidas', '1996-03-30', 'Aragua', 'Girardot', 'Joaquín Crespo'),
+(17555666, 'Edixon Torrealba', '2000-08-12', 'Distrito Capital', 'Libertador', 'Altagracia'),
 (23456789, 'Laura Valentina Gómez', '1995-08-19', 'Distrito Capital', 'Libertador', 'Altagracia'),
 (34567890, 'Andrés Ignacio Pérez', '1990-03-05', 'Miranda', 'Chacao', 'Chacao');
 
@@ -125,7 +138,17 @@ CREATE TABLE `detalle_citas` (
 
 INSERT INTO `detalle_citas` (`idServicio`, `idCita`) VALUES
 (1, 1),
-(2, 2);
+(1, 5),
+(1, 6),
+(1, 8),
+(2, 2),
+(2, 5),
+(2, 6),
+(3, 5),
+(3, 6),
+(3, 8),
+(4, 5),
+(4, 6);
 
 -- --------------------------------------------------------
 
@@ -138,16 +161,29 @@ CREATE TABLE `diagnostico` (
   `cedulaCliente` int(11) NOT NULL,
   `idPiel` int(11) NOT NULL,
   `fecha_diagnostico` date NOT NULL,
-  `descripcion_diagnostico` text DEFAULT NULL
+  `frente` varchar(255) DEFAULT NULL,
+  `nariz` varchar(255) DEFAULT NULL,
+  `mejilla_izq` varchar(255) DEFAULT NULL,
+  `mejilla_der` varchar(255) DEFAULT NULL,
+  `menton` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `diagnostico`
 --
 
-INSERT INTO `diagnostico` (`idDiagnostico`, `cedulaCliente`, `idPiel`, `fecha_diagnostico`, `descripcion_diagnostico`) VALUES
-(1, 23456789, 2, '2026-03-10', 'Presenta exceso de sebo en la zona T y poros abiertos.'),
-(2, 34567890, 4, '2026-04-15', 'Piel reactiva con rojeces en mejillas.');
+INSERT INTO `diagnostico` (`idDiagnostico`, `cedulaCliente`, `idPiel`, `fecha_diagnostico`, `frente`, `nariz`, `mejilla_izq`, `mejilla_der`, `menton`) VALUES
+(1, 23456789, 2, '2026-03-10', NULL, NULL, NULL, NULL, NULL),
+(2, 34567890, 4, '2026-04-15', NULL, NULL, NULL, NULL, NULL),
+(3, 14222333, 3, '2026-05-10', NULL, NULL, NULL, NULL, NULL),
+(4, 15333444, 5, '2026-05-15', NULL, NULL, NULL, NULL, NULL),
+(5, 16444555, 1, '2026-06-01', NULL, NULL, NULL, NULL, NULL),
+(6, 17555666, 6, '2026-06-05', NULL, NULL, NULL, NULL, NULL),
+(7, 34567890, 2, '2026-09-06', NULL, NULL, NULL, NULL, NULL),
+(8, 12334442, 6, '2026-09-10', 'sdfsdf', 'sdfsdf', 'fdsfd', 'sdfsdf', ''),
+(9, 14222333, 2, '2026-09-10', 'dasda9osinds', 'sin detalle', 'dasdasd', 'sin detalle', 'sin detalle'),
+(10, 34567890, 2, '2026-09-10', 'dasdas', 'asdasd', 'asdasd', 'sin detalle', 'sin detalle'),
+(11, 12334442, 2, '2026-09-10', 'weqweq', 'eqweqwe', 'weqweq', 'sin detalle', 'sin detalle');
 
 -- --------------------------------------------------------
 
@@ -167,7 +203,9 @@ CREATE TABLE `especialidad` (
 
 INSERT INTO `especialidad` (`idEspecialidad`, `nombreEspecialidad`, `descripcionEspecialidad`) VALUES
 (1, 'Dermatología Cosmética', 'Cuidado estético y tratamientos de afecciones superficiales.'),
-(2, 'Tratamientos Faciales Avanzados', 'Especialista en limpiezas profundas, peeling e hidratación.');
+(2, 'Tratamientos Faciales Avanzados', 'Especialista en limpiezas profundas, peeling e hidratación.'),
+(3, 'Cosmiatría Corporal', 'Tratamientos reductores, reafirmantes y de renovación dérmica corporal.'),
+(4, 'Aparatología Estética', 'Manejo de tecnologías como microdermabrasión, radiofrecuencia y fototerapia.');
 
 -- --------------------------------------------------------
 
@@ -188,6 +226,7 @@ CREATE TABLE `esteticista` (
 --
 
 INSERT INTO `esteticista` (`cedulaEsteticista`, `nombreEsteticista`, `correoElectronico`, `idEspecialidad`, `fechaNacimiento`) VALUES
+(76543210, 'Dra. Carla Bermúdez', 'carla.bermudez@carmin.com', 3, '1991-07-10'),
 (87654321, 'Dra. Elena Rostova', 'elena.rostova@carmin.com', 1, '1988-05-14'),
 (98765432, 'Carlos Mendoza', 'carlos.mendoza@carmin.com', 2, '1992-11-22');
 
@@ -209,7 +248,8 @@ CREATE TABLE `metodo_pago` (
 INSERT INTO `metodo_pago` (`idMetodoPago`, `nom_MetodoPago`) VALUES
 (1, 'Pago Móvil'),
 (2, 'Efectivo (USD)'),
-(3, 'Zelle');
+(3, 'Zelle'),
+(4, 'Transferencia Bancaria');
 
 -- --------------------------------------------------------
 
@@ -230,7 +270,9 @@ INSERT INTO `piel` (`idPiel`, `nom_Piel`) VALUES
 (1, 'Seca'),
 (2, 'Grasa'),
 (3, 'Mixta'),
-(4, 'Sensible');
+(4, 'Sensible'),
+(5, 'Acneica'),
+(6, 'Madura');
 
 -- --------------------------------------------------------
 
@@ -254,7 +296,9 @@ CREATE TABLE `producto` (
 
 INSERT INTO `producto` (`idProducto`, `nombreProducto`, `marca`, `precioProducto`, `idProveedor`, `cantidadActual`, `tipoProducto`) VALUES
 (1, 'Gel Limpiador Purificante 200ml', 'Bioderma', 25.50, 1, 40, 'Limpiador'),
-(2, 'Sérum de Ácido Hialurónico', 'La Roche-Posay', 38.00, 1, 25, 'Suero');
+(2, 'Sérum de Ácido Hialurónico', 'La Roche-Posay', 38.00, 3, 25, 'Suero'),
+(3, 'Protector Solar FPS 50+ toque seco', 'Isdin', 32.00, 3, 50, 'Protección Solar'),
+(4, 'Crema Hidratante Intensiva', 'CeraVe', 22.50, 3, 30, 'Hidratante');
 
 -- --------------------------------------------------------
 
@@ -268,16 +312,19 @@ CREATE TABLE `proveedor` (
   `nombreProveedor` varchar(100) NOT NULL,
   `estadoDirProveedor` varchar(100) DEFAULT NULL,
   `municipioDirProveedor` varchar(100) DEFAULT NULL,
-  `parroquiaDirProveedor` varchar(100) DEFAULT NULL
+  `parroquiaDirProveedor` varchar(100) DEFAULT NULL,
+  `telefono` varchar(12) NOT NULL,
+  `correo` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `proveedor`
 --
 
-INSERT INTO `proveedor` (`idProveedor`, `rif`, `nombreProveedor`, `estadoDirProveedor`, `municipioDirProveedor`, `parroquiaDirProveedor`) VALUES
-(1, 'J-12345678-9', 'DermoCosméticos Avanzados C.A.', 'Aragua', 'Girardot', 'Joaquín Crespo'),
-(2, 'J-98765432-1', 'Laboratorios Piel Sana S.A.', 'Distrito Capital', 'El Recreo', 'El Recreo');
+INSERT INTO `proveedor` (`idProveedor`, `rif`, `nombreProveedor`, `estadoDirProveedor`, `municipioDirProveedor`, `parroquiaDirProveedor`, `telefono`, `correo`) VALUES
+(1, 'J-12345678-9', 'DermoCosméticos Avanzados C.A.', 'Aragua', 'Girardot', 'Joaquín Crespo', '', ''),
+(2, 'J-98765432-1', 'Laboratorios Piel Sana S.A.', 'Distrito Capital', 'El Recreo', 'El Recreo', '', ''),
+(3, 'J-45678901-2', 'Distribuidora BellaPiel C.A.', 'Miranda', 'Sucre', 'Petare', '', '');
 
 -- --------------------------------------------------------
 
@@ -318,7 +365,9 @@ CREATE TABLE `servicio` (
 
 INSERT INTO `servicio` (`idServicio`, `nombreServicio`, `precio`, `descripcion`) VALUES
 (1, 'Limpieza Facial Profunda', 45.00, 'Extracción de impurezas y mascarilla hidratante.'),
-(2, 'Peeling Químico Renovador', 65.00, 'Aplicación de ácidos controlados para renovación celular.');
+(2, 'Peeling Químico Renovador', 65.00, 'Aplicación de ácidos controlados para renovación celular.'),
+(3, 'Hidratación Profunda con Colágeno', 55.00, 'Protocolo intensivo para pieles deshidratadas utilizando velo de colágeno puro.'),
+(4, 'Tratamiento Fototerapéutico Anti-Acné', 70.00, 'Uso de luz LED azul combinada con activos reguladores del sebo.');
 
 -- --------------------------------------------------------
 
@@ -338,7 +387,12 @@ CREATE TABLE `telefonocliente` (
 
 INSERT INTO `telefonocliente` (`idTelefonoCliente`, `cedulaCliente`, `numTelefonoCliente`) VALUES
 (1, 23456789, '+584165554433'),
-(2, 34567890, '+584241110022');
+(2, 34567890, '+584241110022'),
+(3, 14222333, '+584125556677'),
+(4, 15333444, '+584248889900'),
+(5, 16444555, '+584161112233'),
+(6, 17555666, '+584144445566'),
+(7, 12334442, '001040247');
 
 -- --------------------------------------------------------
 
@@ -358,7 +412,8 @@ CREATE TABLE `telefonoesteticista` (
 
 INSERT INTO `telefonoesteticista` (`idTelefonoEsteticista`, `cedulaEsteticista`, `numTelefonoEsteticista`) VALUES
 (1, 87654321, '+584121112233'),
-(2, 98765432, '+584149998877');
+(2, 98765432, '+584149998877'),
+(3, 76543210, '+584127778899');
 
 -- --------------------------------------------------------
 
@@ -378,7 +433,8 @@ CREATE TABLE `telefonoproveedor` (
 
 INSERT INTO `telefonoproveedor` (`idTelefonoProveedor`, `idProveedor`, `numTelefonoProveedor`) VALUES
 (1, 1, '+582432223344'),
-(2, 2, '+582129991122');
+(2, 2, '+582129991122'),
+(3, 3, '+582122345678');
 
 -- --------------------------------------------------------
 
@@ -397,7 +453,9 @@ CREATE TABLE `tipo_antecedente` (
 
 INSERT INTO `tipo_antecedente` (`id_tipo_antecedente`, `nom_tipo_antecedente`) VALUES
 (1, 'Alergias'),
-(2, 'Tratamientos Previos');
+(2, 'Tratamientos Previos'),
+(3, 'Condiciones Médicas'),
+(4, 'Cirugías o Procedimientos Recientes');
 
 -- --------------------------------------------------------
 
@@ -417,7 +475,12 @@ CREATE TABLE `usuario` (
 
 INSERT INTO `usuario` (`cedula`, `rol`, `clave`) VALUES
 (12345678, 1, 'admin123_secure'),
+(14222333, 3, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+(15333444, 3, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+(16444555, 3, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+(17555666, 3, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
 (23456789, 3, 'cliente_secret'),
+(76543210, 2, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
 (87654321, 2, 'esteticista_pass');
 
 -- --------------------------------------------------------
@@ -592,49 +655,49 @@ ALTER TABLE `venta`
 -- AUTO_INCREMENT de la tabla `antecedentes`
 --
 ALTER TABLE `antecedentes`
-  MODIFY `id_antecedente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_antecedente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `citas`
 --
 ALTER TABLE `citas`
-  MODIFY `idCita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idCita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `diagnostico`
 --
 ALTER TABLE `diagnostico`
-  MODIFY `idDiagnostico` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idDiagnostico` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `especialidad`
 --
 ALTER TABLE `especialidad`
-  MODIFY `idEspecialidad` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idEspecialidad` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `metodo_pago`
 --
 ALTER TABLE `metodo_pago`
-  MODIFY `idMetodoPago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `idMetodoPago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `piel`
 --
 ALTER TABLE `piel`
-  MODIFY `idPiel` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `idPiel` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `producto`
 --
 ALTER TABLE `producto`
-  MODIFY `idProducto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idProducto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedor`
 --
 ALTER TABLE `proveedor`
-  MODIFY `idProveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idProveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `rol`
@@ -646,31 +709,31 @@ ALTER TABLE `rol`
 -- AUTO_INCREMENT de la tabla `servicio`
 --
 ALTER TABLE `servicio`
-  MODIFY `idServicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idServicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `telefonocliente`
 --
 ALTER TABLE `telefonocliente`
-  MODIFY `idTelefonoCliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idTelefonoCliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `telefonoesteticista`
 --
 ALTER TABLE `telefonoesteticista`
-  MODIFY `idTelefonoEsteticista` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idTelefonoEsteticista` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `telefonoproveedor`
 --
 ALTER TABLE `telefonoproveedor`
-  MODIFY `idTelefonoProveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idTelefonoProveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `tipo_antecedente`
 --
 ALTER TABLE `tipo_antecedente`
-  MODIFY `id_tipo_antecedente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_tipo_antecedente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Restricciones para tablas volcadas
