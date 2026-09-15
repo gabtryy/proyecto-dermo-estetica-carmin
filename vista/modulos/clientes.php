@@ -29,7 +29,12 @@
                             <th scope="col">Nombre</th>
                             <th scope="col" class="text-nowrap">Fecha nac.</th>
                             <th scope="col">Dirección</th>
-                            <th scope="col">Teléfono</th>
+                            $('#resultadoconsulta').on('click', '.btn-editar', function () {
+                                ...
+                                $('#proceso').text('MODIFICAR');
+                                $('#accion').val('modificar');
+                                ...
+                            });                            <th scope="col">Teléfono</th>
                             <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>

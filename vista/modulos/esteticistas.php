@@ -30,6 +30,7 @@
                             <th scope="col">Nombre</th>
                             <th scope="col">Teléfono</th>
                             <th scope="col">Correo</th>
+                            <th scope="col">Fecha de nacimiento</th>
                             <th scope="col">Especialidad</th>
                         </tr>
                     </thead>
@@ -79,9 +80,16 @@
                         </div>
                     </div>
                     <div class="row g-3 mt-0">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
+                            <label class="form-label" for="fechaNacimiento">Fecha de nacimiento</label>
+                            <input class="form-control" type="date" id="fechaNacimiento" name="fechaNacimiento">
+                            <span class="form-text text-danger" id="sfechaNacimiento"></span>
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label" for="especialidad">Especialidad</label>
-                            <input class="form-control" type="text" id="especialidad" name="especialidad" autocomplete="off">
+                            <select class="form-select" id="especialidad" name="especialidad">
+                                <option value="">-- Seleccione --</option>
+                            </select>
                             <span class="form-text text-danger" id="sespecialidad"></span>
                         </div>
                     </div>
