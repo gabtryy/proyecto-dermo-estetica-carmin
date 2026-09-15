@@ -11,6 +11,11 @@
  
 $pagina = "home"; 
 
+if (empty($_GET['pagina'])) {
+   require_once 'vista/login.php';
+   exit;
+}
+
 
 //condicional que lee la solicitud
 //de cambio de pagina  
