@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-09-2026 a las 23:46:11
+-- Tiempo de generación: 18-09-2026 a las 12:41:47
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -50,6 +50,17 @@ INSERT INTO `antecedentes` (`id_antecedente`, `cedulaCliente`, `id_tipo_antecede
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `categoria`
+--
+
+CREATE TABLE `categoria` (
+  `id_categoria` int(11) NOT NULL,
+  `nombre_categoria` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `citas`
 --
 
@@ -71,7 +82,8 @@ INSERT INTO `citas` (`idCita`, `cedulaEsteticista`, `cedulaCliente`, `hora_cita`
 (2, 98765432, 34567890, '14:30:00', '2026-06-23', 'Pendiente'),
 (5, 98765432, 34567890, '08:00:00', '2026-08-19', NULL),
 (6, 87654321, 12334442, '10:43:00', '2026-08-19', NULL),
-(8, 98765432, 17555666, '19:27:00', '2026-09-25', 'pendiente');
+(8, 98765432, 17555666, '19:27:00', '2026-09-25', 'pendiente'),
+(9, 76543210, 17555666, '22:32:00', '2026-09-22', 'pendiente');
 
 -- --------------------------------------------------------
 
@@ -93,13 +105,14 @@ CREATE TABLE `cliente` (
 --
 
 INSERT INTO `cliente` (`cedulaCliente`, `nombreCliente`, `fechaNacimiento`, `estadoDirCliente`, `municipioDirCliente`, `parroquiaDirCliente`) VALUES
-(12334442, 'erly jalam', '2026-07-21', 'pppp', 'dsdad', 'sdasda'),
+(12334442, 'erly jalam', '2026-07-21', 'pppp', 'dsdadweqwe', 'sdasda'),
 (14222333, 'Gabriel Pérez', '2001-05-14', 'Distrito Capital', 'Libertador', 'El Recreo'),
 (15333444, 'José Silva', '1998-11-23', 'Miranda', 'Chacao', 'Chacao'),
 (16444555, 'Leomar Bastidas', '1996-03-30', 'Aragua', 'Girardot', 'Joaquín Crespo'),
 (17555666, 'Edixon Torrealba', '2000-08-12', 'Distrito Capital', 'Libertador', 'Altagracia'),
 (23456789, 'Laura Valentina Gómez', '1995-08-19', 'Distrito Capital', 'Libertador', 'Altagracia'),
-(34567890, 'Andrés Ignacio Pérez', '1990-03-05', 'Miranda', 'Chacao', 'Chacao');
+(31231232, 'asdasd', '2026-09-15', 'asdasd', 'sadasda', 'adsasd'),
+(34567890, 'Asdndrés Ignacio Pérez', '1990-03-05', 'Miranda', 'Chacao', 'Chacao');
 
 -- --------------------------------------------------------
 
@@ -141,14 +154,30 @@ INSERT INTO `detalle_citas` (`idServicio`, `idCita`) VALUES
 (1, 5),
 (1, 6),
 (1, 8),
+(1, 9),
 (2, 2),
 (2, 5),
 (2, 6),
+(2, 9),
 (3, 5),
 (3, 6),
 (3, 8),
+(3, 9),
 (4, 5),
 (4, 6);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detalle_venta`
+--
+
+CREATE TABLE `detalle_venta` (
+  `idVenta` int(11) NOT NULL,
+  `idProducto` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `precioUnitario` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -226,6 +255,7 @@ CREATE TABLE `esteticista` (
 --
 
 INSERT INTO `esteticista` (`cedulaEsteticista`, `nombreEsteticista`, `correoElectronico`, `idEspecialidad`, `fechaNacimiento`) VALUES
+(32131231, 'sdadasd', 'gabiel@gmail.com', 1, '0000-00-00'),
 (76543210, 'Dra. Carla Bermúdez', 'carla.bermudez@carmin.com', 3, '1991-07-10'),
 (87654321, 'Dra. Elena Rostova', 'elena.rostova@carmin.com', 1, '1988-05-14'),
 (98765432, 'Carlos Mendoza', 'carlos.mendoza@carmin.com', 2, '1992-11-22');
@@ -247,9 +277,47 @@ CREATE TABLE `metodo_pago` (
 
 INSERT INTO `metodo_pago` (`idMetodoPago`, `nom_MetodoPago`) VALUES
 (1, 'Pago Móvil'),
-(2, 'Efectivo (USD)'),
+(2, 'Efectivo'),
 (3, 'Zelle'),
 (4, 'Transferencia Bancaria');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `moneda`
+--
+
+CREATE TABLE `moneda` (
+  `id_moneda` int(11) NOT NULL,
+  `nombre_moneda` varchar(50) NOT NULL,
+  `simbolo` varchar(5) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `moneda`
+--
+
+INSERT INTO `moneda` (`id_moneda`, `nombre_moneda`, `simbolo`) VALUES
+(1, 'Dólar', '$'),
+(2, 'Bolívar', 'Bs'),
+(3, 'Euro', '€');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pago_venta`
+--
+
+CREATE TABLE `pago_venta` (
+  `id_pago` int(11) NOT NULL,
+  `idVenta` int(11) NOT NULL,
+  `idMetodoPago` int(11) NOT NULL,
+  `id_moneda` int(11) NOT NULL,
+  `monto_pagado` decimal(10,2) NOT NULL,
+  `tasa_cobrada` decimal(10,4) NOT NULL,
+  `fecha_pago` datetime NOT NULL,
+  `referencia` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -284,21 +352,22 @@ CREATE TABLE `producto` (
   `idProducto` int(11) NOT NULL,
   `nombreProducto` varchar(100) NOT NULL,
   `marca` varchar(50) DEFAULT NULL,
+  `precioCosto` decimal(12,0) NOT NULL,
   `precioProducto` decimal(10,2) NOT NULL,
   `idProveedor` int(11) NOT NULL,
   `cantidadActual` int(11) NOT NULL,
-  `tipoProducto` varchar(50) DEFAULT NULL
+  `id_tipo` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `producto`
 --
 
-INSERT INTO `producto` (`idProducto`, `nombreProducto`, `marca`, `precioProducto`, `idProveedor`, `cantidadActual`, `tipoProducto`) VALUES
-(1, 'Gel Limpiador Purificante 200ml', 'Bioderma', 25.50, 1, 40, 'Limpiador'),
-(2, 'Sérum de Ácido Hialurónico', 'La Roche-Posay', 38.00, 3, 25, 'Suero'),
-(3, 'Protector Solar FPS 50+ toque seco', 'Isdin', 32.00, 3, 50, 'Protección Solar'),
-(4, 'Crema Hidratante Intensiva', 'CeraVe', 22.50, 3, 30, 'Hidratante');
+INSERT INTO `producto` (`idProducto`, `nombreProducto`, `marca`, `precioCosto`, `precioProducto`, `idProveedor`, `cantidadActual`, `id_tipo`) VALUES
+(1, 'Gel Limpiador Purificante 200ml', 'Bioderma', 0, 25.50, 1, 40, NULL),
+(2, 'Sérum de Ácido Hialurónico', 'La Roche-Posay', 0, 38.00, 3, 25, NULL),
+(3, 'Protector Solar FPS 50+ toque seco', 'Isdin', 0, 32.00, 3, 50, NULL),
+(4, 'Crema Hidratante Intensiva', 'CeraVe', 0, 22.50, 3, 30, NULL);
 
 -- --------------------------------------------------------
 
@@ -372,6 +441,19 @@ INSERT INTO `servicio` (`idServicio`, `nombreServicio`, `precio`, `descripcion`)
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tasa_moneda`
+--
+
+CREATE TABLE `tasa_moneda` (
+  `id_tasa` int(11) NOT NULL,
+  `id_moneda` int(11) NOT NULL,
+  `fecha_tasa` date NOT NULL,
+  `monto_tasa` decimal(10,4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `telefonocliente`
 --
 
@@ -392,7 +474,8 @@ INSERT INTO `telefonocliente` (`idTelefonoCliente`, `cedulaCliente`, `numTelefon
 (4, 15333444, '+584248889900'),
 (5, 16444555, '+584161112233'),
 (6, 17555666, '+584144445566'),
-(7, 12334442, '001040247');
+(7, 12334442, '001040247'),
+(8, 31231232, '+584241110022');
 
 -- --------------------------------------------------------
 
@@ -413,7 +496,8 @@ CREATE TABLE `telefonoesteticista` (
 INSERT INTO `telefonoesteticista` (`idTelefonoEsteticista`, `cedulaEsteticista`, `numTelefonoEsteticista`) VALUES
 (1, 87654321, '+584121112233'),
 (2, 98765432, '+584149998877'),
-(3, 76543210, '+584127778899');
+(3, 76543210, '+584127778899'),
+(4, 32131231, '1312312');
 
 -- --------------------------------------------------------
 
@@ -460,6 +544,18 @@ INSERT INTO `tipo_antecedente` (`id_tipo_antecedente`, `nom_tipo_antecedente`) V
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tipo_producto`
+--
+
+CREATE TABLE `tipo_producto` (
+  `id_tipo` int(11) NOT NULL,
+  `id_categoria` int(11) NOT NULL,
+  `nombre_tipo` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `usuario`
 --
 
@@ -490,21 +586,10 @@ INSERT INTO `usuario` (`cedula`, `rol`, `clave`) VALUES
 --
 
 CREATE TABLE `venta` (
+  `idVenta` int(11) NOT NULL,
   `cedulaCliente` int(11) NOT NULL,
-  `idProducto` int(11) NOT NULL,
-  `idMetodoPago` int(11) NOT NULL,
-  `fechaCompra` date NOT NULL,
-  `cantidad` int(11) NOT NULL,
-  `totalVenta` decimal(10,2) NOT NULL
+  `fechaCompra` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `venta`
---
-
-INSERT INTO `venta` (`cedulaCliente`, `idProducto`, `idMetodoPago`, `fechaCompra`, `cantidad`, `totalVenta`) VALUES
-(23456789, 1, 1, '2026-06-18', 1, 25.50),
-(34567890, 2, 3, '2026-06-19', 1, 38.00);
 
 --
 -- Índices para tablas volcadas
@@ -517,6 +602,12 @@ ALTER TABLE `antecedentes`
   ADD PRIMARY KEY (`id_antecedente`),
   ADD KEY `cedulaCliente` (`cedulaCliente`),
   ADD KEY `id_tipo_antecedente` (`id_tipo_antecedente`);
+
+--
+-- Indices de la tabla `categoria`
+--
+ALTER TABLE `categoria`
+  ADD PRIMARY KEY (`id_categoria`);
 
 --
 -- Indices de la tabla `citas`
@@ -547,6 +638,13 @@ ALTER TABLE `detalle_citas`
   ADD KEY `idCita` (`idCita`);
 
 --
+-- Indices de la tabla `detalle_venta`
+--
+ALTER TABLE `detalle_venta`
+  ADD PRIMARY KEY (`idVenta`,`idProducto`),
+  ADD KEY `idProducto` (`idProducto`);
+
+--
 -- Indices de la tabla `diagnostico`
 --
 ALTER TABLE `diagnostico`
@@ -574,6 +672,21 @@ ALTER TABLE `metodo_pago`
   ADD PRIMARY KEY (`idMetodoPago`);
 
 --
+-- Indices de la tabla `moneda`
+--
+ALTER TABLE `moneda`
+  ADD PRIMARY KEY (`id_moneda`);
+
+--
+-- Indices de la tabla `pago_venta`
+--
+ALTER TABLE `pago_venta`
+  ADD PRIMARY KEY (`id_pago`),
+  ADD KEY `idVenta` (`idVenta`),
+  ADD KEY `idMetodoPago` (`idMetodoPago`),
+  ADD KEY `id_moneda` (`id_moneda`);
+
+--
 -- Indices de la tabla `piel`
 --
 ALTER TABLE `piel`
@@ -584,7 +697,8 @@ ALTER TABLE `piel`
 --
 ALTER TABLE `producto`
   ADD PRIMARY KEY (`idProducto`),
-  ADD KEY `idProveedor` (`idProveedor`);
+  ADD KEY `idProveedor` (`idProveedor`),
+  ADD KEY `fk_producto_tipo` (`id_tipo`);
 
 --
 -- Indices de la tabla `proveedor`
@@ -604,6 +718,13 @@ ALTER TABLE `rol`
 --
 ALTER TABLE `servicio`
   ADD PRIMARY KEY (`idServicio`);
+
+--
+-- Indices de la tabla `tasa_moneda`
+--
+ALTER TABLE `tasa_moneda`
+  ADD PRIMARY KEY (`id_tasa`),
+  ADD KEY `id_moneda` (`id_moneda`);
 
 --
 -- Indices de la tabla `telefonocliente`
@@ -633,6 +754,13 @@ ALTER TABLE `tipo_antecedente`
   ADD PRIMARY KEY (`id_tipo_antecedente`);
 
 --
+-- Indices de la tabla `tipo_producto`
+--
+ALTER TABLE `tipo_producto`
+  ADD PRIMARY KEY (`id_tipo`),
+  ADD KEY `id_categoria` (`id_categoria`);
+
+--
 -- Indices de la tabla `usuario`
 --
 ALTER TABLE `usuario`
@@ -643,9 +771,8 @@ ALTER TABLE `usuario`
 -- Indices de la tabla `venta`
 --
 ALTER TABLE `venta`
-  ADD PRIMARY KEY (`cedulaCliente`,`idProducto`),
-  ADD KEY `idProducto` (`idProducto`),
-  ADD KEY `idMetodoPago` (`idMetodoPago`);
+  ADD PRIMARY KEY (`idVenta`),
+  ADD KEY `cedulaCliente` (`cedulaCliente`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -658,10 +785,16 @@ ALTER TABLE `antecedentes`
   MODIFY `id_antecedente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
+-- AUTO_INCREMENT de la tabla `categoria`
+--
+ALTER TABLE `categoria`
+  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `citas`
 --
 ALTER TABLE `citas`
-  MODIFY `idCita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `idCita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `diagnostico`
@@ -680,6 +813,18 @@ ALTER TABLE `especialidad`
 --
 ALTER TABLE `metodo_pago`
   MODIFY `idMetodoPago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `moneda`
+--
+ALTER TABLE `moneda`
+  MODIFY `id_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de la tabla `pago_venta`
+--
+ALTER TABLE `pago_venta`
+  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `piel`
@@ -712,16 +857,22 @@ ALTER TABLE `servicio`
   MODIFY `idServicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT de la tabla `tasa_moneda`
+--
+ALTER TABLE `tasa_moneda`
+  MODIFY `id_tasa` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `telefonocliente`
 --
 ALTER TABLE `telefonocliente`
-  MODIFY `idTelefonoCliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `idTelefonoCliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `telefonoesteticista`
 --
 ALTER TABLE `telefonoesteticista`
-  MODIFY `idTelefonoEsteticista` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `idTelefonoEsteticista` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `telefonoproveedor`
@@ -734,6 +885,18 @@ ALTER TABLE `telefonoproveedor`
 --
 ALTER TABLE `tipo_antecedente`
   MODIFY `id_tipo_antecedente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `tipo_producto`
+--
+ALTER TABLE `tipo_producto`
+  MODIFY `id_tipo` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `venta`
+--
+ALTER TABLE `venta`
+  MODIFY `idVenta` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Restricciones para tablas volcadas
@@ -768,6 +931,13 @@ ALTER TABLE `detalle_citas`
   ADD CONSTRAINT `detalle_citas_ibfk_2` FOREIGN KEY (`idCita`) REFERENCES `citas` (`idCita`) ON DELETE CASCADE;
 
 --
+-- Filtros para la tabla `detalle_venta`
+--
+ALTER TABLE `detalle_venta`
+  ADD CONSTRAINT `fk_detalle_producto` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_detalle_venta` FOREIGN KEY (`idVenta`) REFERENCES `venta` (`idVenta`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `diagnostico`
 --
 ALTER TABLE `diagnostico`
@@ -781,10 +951,25 @@ ALTER TABLE `esteticista`
   ADD CONSTRAINT `esteticista_ibfk_1` FOREIGN KEY (`idEspecialidad`) REFERENCES `especialidad` (`idEspecialidad`) ON DELETE CASCADE;
 
 --
+-- Filtros para la tabla `pago_venta`
+--
+ALTER TABLE `pago_venta`
+  ADD CONSTRAINT `fk_pago_metodo` FOREIGN KEY (`idMetodoPago`) REFERENCES `metodo_pago` (`idMetodoPago`),
+  ADD CONSTRAINT `fk_pago_moneda` FOREIGN KEY (`id_moneda`) REFERENCES `moneda` (`id_moneda`),
+  ADD CONSTRAINT `fk_pago_venta` FOREIGN KEY (`idVenta`) REFERENCES `venta` (`idVenta`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `producto`
 --
 ALTER TABLE `producto`
+  ADD CONSTRAINT `fk_producto_tipo` FOREIGN KEY (`id_tipo`) REFERENCES `tipo_producto` (`id_tipo`) ON DELETE CASCADE,
   ADD CONSTRAINT `producto_ibfk_1` FOREIGN KEY (`idProveedor`) REFERENCES `proveedor` (`idProveedor`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `tasa_moneda`
+--
+ALTER TABLE `tasa_moneda`
+  ADD CONSTRAINT `fk_tasa_moneda` FOREIGN KEY (`id_moneda`) REFERENCES `moneda` (`id_moneda`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `telefonocliente`
@@ -805,6 +990,12 @@ ALTER TABLE `telefonoproveedor`
   ADD CONSTRAINT `telefonoproveedor_ibfk_1` FOREIGN KEY (`idProveedor`) REFERENCES `proveedor` (`idProveedor`) ON DELETE CASCADE;
 
 --
+-- Filtros para la tabla `tipo_producto`
+--
+ALTER TABLE `tipo_producto`
+  ADD CONSTRAINT `fk_tipo_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `usuario`
 --
 ALTER TABLE `usuario`
@@ -814,9 +1005,7 @@ ALTER TABLE `usuario`
 -- Filtros para la tabla `venta`
 --
 ALTER TABLE `venta`
-  ADD CONSTRAINT `venta_ibfk_1` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE CASCADE,
-  ADD CONSTRAINT `venta_ibfk_2` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE CASCADE,
-  ADD CONSTRAINT `venta_ibfk_3` FOREIGN KEY (`idMetodoPago`) REFERENCES `metodo_pago` (`idMetodoPago`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_venta_cliente` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
