@@ -124,7 +124,7 @@ function consultar() {
                 + '  <td>' + (item.hora || '') + '</td>'
                 + '  <td>' + (item.servicios || 'Sin servicios') + '</td>'
                 + '  <td class="text-nowrap">'
-                + '    <button type="button" class="btn btn-sm btn-warning me-1 btn-editar-cita" title="Modificar" data-id-cita="' + item.idCita + '"><i class="fas fa-edit"></i></button>'
+                + '    <button type="button" class="btn btn-sm btn-purple me-1 btn-editar-cita" title="Modificar" data-id-cita="' + item.idCita + '"><i class="fas fa-edit"></i></button>'
                 + '    <button type="button" class="btn btn-sm btn-danger btn-eliminar-cita" title="Eliminar" data-id-cita="' + item.idCita + '"><i class="fas fa-trash-alt"></i></button>'
                 + '  </td>'
                 + '</tr>';

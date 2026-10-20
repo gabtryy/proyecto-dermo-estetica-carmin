@@ -5,7 +5,7 @@
         <button type="button" class="btn btn-primary shadow-sm" id="incluir">
             <i class="fas fa-user-plus me-1"></i>INCLUIR
         </button>
-        <a href="index.php" class="btn btn-outline-primary">
+        <a href="index.php?pagina=home" class="btn btn-outline-primary">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
         </a>
     </div>

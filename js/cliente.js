@@ -99,16 +99,16 @@ function renderTabla(lista) {
 
         var fila = ''
             + '<tr>'
+            + '<td class="text-nowrap">'
+            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
+            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-trash-alt"></i></button>'
+            +   '<button class="btn btn-sm btn-info ms-1 btn-detalle" title="Detalle" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-info-circle"></i></button>'
+            + '</td>'
             + '<td>' + (item.cedulaCliente || '') + '</td>'
             + '<td>' + (item.nombreCliente || '') + '</td>'
             + '<td>' + (item.fechaNacimiento || '') + '</td>'
             + '<td>' + direccion + '</td>'
             + '<td>' + telefono + '</td>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-warning me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            +   '<button class="btn btn-sm btn-info ms-1 btn-detalle" title="Detalle" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-info-circle"></i></button>'
-            + '</td>'
             + '</tr>';
         $tbody.append(fila);
     });
@@ -244,13 +244,13 @@ $(document).ready(function () {
         if (!cedula) return;
 
         var $fila = $(this).closest('tr');
-        var nombre = $fila.find('td').eq(1).text();
-        var fechaNacimiento = $fila.find('td').eq(2).text();
-        var direccion = ($fila.find('td').eq(3).text() || '').split(' / ');
+        var nombre = $fila.find('td').eq(2).text();
+        var fechaNacimiento = $fila.find('td').eq(3).text();
+        var direccion = ($fila.find('td').eq(4).text() || '').split(' / ');
         var estado = direccion[0] || '';
         var municipio = direccion[1] || '';
         var parroquia = direccion[2] || '';
-        var telefono = $fila.find('td').eq(4).text();
+        var telefono = $fila.find('td').eq(5).text();
 
         $('#cedula').val(cedula).prop('readonly', true);
         $('#nombres').val(nombre);

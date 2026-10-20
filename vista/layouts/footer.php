@@ -2,29 +2,32 @@
                 <small class="text-muted">&copy; <?php echo date('Y'); ?> Sistema de Gestión Dermo Estética Carmin.</small>
             </footer>
         </main>
-    <script src="vendor/jquery/js/jquery-3.6.0.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="vendor/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
-    <script src="vendor/sweetalert2/js/sweetalert2.all.min.js"></script>
-  
     <?php $controladorJS = $pagina ?? ''; ?>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js" defer></script>
+    <?php if ($controladorJS !== 'home'): ?>
+        <script src="vendor/jquery/js/jquery-3.6.0.min.js" defer></script>
+        <script src="vendor/datatables/js/jquery.dataTables.min.js" defer></script>
+        <script src="vendor/datatables/js/dataTables.bootstrap5.min.js" defer></script>
+        <script src="vendor/sweetalert2/js/sweetalert2.all.min.js" defer></script>
+    <?php endif; ?>
     <?php if ($controladorJS === 'clientes'): ?>
-        <script src="js/cliente.js"></script>
+        <script src="js/cliente.js" defer></script>
     <?php elseif ($controladorJS === 'esteticistas'): ?>
-        <script src="js/esteticista.js"></script>
+        <script src="js/esteticista.js" defer></script>
     <?php elseif ($controladorJS === 'servicios'): ?>
-        <script src="js/servicio.js"></script>
+        <script src="js/servicio.js" defer></script>
     <?php elseif ($controladorJS === 'proveedores'): ?>
-        <script src="js/proveedor.js"></script>
+        <script src="js/proveedor.js" defer></script>
     <?php elseif ($controladorJS === 'antecedentes'): ?>
-        <script src="js/antecedentes.js"></script>
+        <script src="js/antecedentes.js" defer></script>
     <?php elseif ($controladorJS === 'citas'): ?>
-        <script src="js/citas.js"></script>
+        <script src="js/citas.js" defer></script>
     <?php elseif ($controladorJS === 'productos'): ?>
-        <script src="js/productos.js"></script>
+        <script src="js/productos.js" defer></script>
+    <?php elseif ($controladorJS === 'ventas'): ?>
+        <script src="js/ventas.js" defer></script>
     <?php elseif ($controladorJS === 'diagnostico'): ?>
-        <script src="js/diagnostico.js?v=2"></script>
+        <script src="js/diagnostico.js?v=2" defer></script>
     <?php endif; ?>
 </body>
 </html>

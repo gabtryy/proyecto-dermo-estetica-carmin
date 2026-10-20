@@ -5,7 +5,7 @@
         <button type="button" class="btn btn-purple shadow-sm" id="btn-guardar-cita">
             <i class="fas fa-calendar-plus me-1"></i>GUARDAR CITA
         </button>
-        <a href="index.php" class="btn btn-outline-purple">
+        <a href="index.php?pagina=home" class="btn btn-outline-purple">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
         </a>
     </div>

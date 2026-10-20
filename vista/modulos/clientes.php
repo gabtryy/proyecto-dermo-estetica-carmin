@@ -5,7 +5,7 @@
         <button type="button" class="btn btn-purple shadow-sm" id="incluir">
             <i class="fas fa-user-plus me-1"></i>INCLUIR
         </button>
-        <a href="index.php" class="btn btn-outline-purple">
+        <a href="index.php?pagina=home" class="btn btn-outline-purple">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
         </a>
     </div>
@@ -25,12 +25,12 @@
                 >
                     <thead class="table-purple text-white">
                         <tr>
+                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                             <th scope="col">Cédula</th>
                             <th scope="col">Nombre</th>
                             <th scope="col" class="text-nowrap">Fecha nac.</th>
                             <th scope="col">Dirección</th>
                             <th scope="col">Teléfono</th>
-                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="resultadoconsulta">
