@@ -50,7 +50,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form method="post" id="formulario_cliente" autocomplete="off">
+                <form method="post" id="formulario_cliente" autocomplete="off" novalidate>
                     <input type="hidden" name="accion" id="accion" value="">
                     
                     <div class="row g-3">
@@ -94,7 +94,7 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label" for="telefono">Teléfono</label>
-                            <input class="form-control" type="tel" id="telefono" name="telefono" autocomplete="off">
+                            <input class="form-control" type="text" id="telefono" name="telefono" autocomplete="off">
                             <span class="form-text text-danger" id="stelefono"></span>
                         </div>
                     </div>

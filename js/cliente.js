@@ -114,60 +114,135 @@ function renderTabla(lista) {
     });
 }
 
-// ==========================================
-// 2. FUNCIONES DE VALIDACIÓN
-// ==========================================
+function validarCampo($campo, $mensaje, etiqueta, formato, expresion) {
+    var valor = String($campo.val() || '').trim();
+    var error = '';
 
-function validarkeypress(er, e) {
-    let key = e.keyCode || e.which;
-    let tecla = String.fromCharCode(key);
-    if (!er.test(tecla)) {
-        e.preventDefault();
+    if (!valor) {
+        error = etiqueta + ' es obligatorio.';
+    } else if (expresion && !expresion.test(valor)) {
+        error = formato;
     }
+
+    $mensaje.text(error);
+    $campo.toggleClass('is-invalid', Boolean(error));
+    return !error;
 }
 
-function validarkeyup(er, $etiqueta, $etiquetamensaje, mensaje) {
-    let a = er.test($etiqueta.val());
-    if (a) {
-        $etiquetamensaje.text("");
-        return 1;
-    } else {
-        $etiquetamensaje.text(mensaje).css("color", "red");
-        return 0;
-    }
+function validarCedula() {
+    return validarCampo(
+        $('#cedula'),
+        $('#scedula'),
+        'La cédula',
+        'La cédula debe contener solo números y tener 7 u 8 dígitos.',
+        /^\d{7,8}$/
+    );
 }
 
-function validarenvio() {
-    let regexTexto = /^[A-Za-z\b\s\u00f1\u00d1\u00E0-\u00FC]{3,50}$/;
+function validarNombre() {
+    return validarCampo(
+        $('#nombres'),
+        $('#snombres'),
+        'El nombre completo',
+        'Use entre 3 y 150 letras; puede incluir espacios, apóstrofes o guiones.',
+        /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'-]{3,150}$/
+    );
+}
 
-    if (validarkeyup(/^[0-9]{7,8}$/, $("#cedula"), $("#scedula"), "El formato debe ser 9999999") == 0) {
-        muestraMensaje('La cédula debe coincidir con el formato 9999999', 'warning');
-        return false;
-    } else if (validarkeyup(/^[A-Za-z\b\s\u00f1\u00d1\u00E0-\u00FC]{3,150}$/, $("#nombres"), $("#snombres"), "Solo letras entre 3 y 150 caracteres") == 0) {
-        muestraMensaje('Nombres: Solo letras entre 3 y 150 caracteres', 'warning');
-        return false;
-    } else if (validarkeyup(/^(?:(?:1[6-9]|[2-9]\d)?\d{2})(?:(?:(\/|-|\.)(?:0?[13578]|1[02])\1(?:31))|(?:(\/|-|\.)(?:0?[13-9]|1[0-2])\2(?:29|30)))$|^(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(\/|-|\.)0?2\3(?:29)$|^(?:(?:1[6-9]|[2-9]\d)?\d{2})(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:0?[1-9]|1\d|2[0-8])$/, $("#fechadenacimiento"), $("#sfechadenacimiento"), "Ingrese una fecha válida") == 0) {
-        muestraMensaje('Ingrese una fecha de nacimiento válida', 'warning');
-        return false;
-    } else if (validarkeyup(regexTexto, $("#estado"), $("#sestado"), "Solo letras entre 3 y 50 caracteres") == 0) {
-        muestraMensaje('Estado: Solo letras entre 3 y 50 caracteres', 'warning');
-        return false;
-    } else if (validarkeyup(regexTexto, $("#municipio"), $("#smunicipio"), "Solo letras entre 3 y 50 caracteres") == 0) {
-        muestraMensaje('Municipio: Solo letras entre 3 y 50 caracteres', 'warning');
-        return false;
-    } else if (validarkeyup(regexTexto, $("#parroquia"), $("#sparroquia"), "Solo letras entre 3 y 50 caracteres") == 0) {
-        muestraMensaje('Parroquia: Solo letras entre 3 y 50 caracteres', 'warning');
-        return false;
+function validarFechaNacimiento() {
+    var $fecha = $('#fechadenacimiento');
+    var fecha = String($fecha.val() || '').trim();
+    var $mensaje = $('#sfechadenacimiento');
+    var error = '';
+
+    if (!fecha) {
+        error = 'La fecha de nacimiento es obligatoria.';
+    } else if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+        error = 'Ingrese una fecha válida.';
     } else {
-        var f1 = new Date(1950, 0, 1);
-        var f2 = new Date($("#fechadenacimiento").val());
+        var partes = fecha.split('-').map(Number);
+        var fechaIngresada = new Date(partes[0], partes[1] - 1, partes[2]);
+        var fechaValida = fechaIngresada.getFullYear() === partes[0]
+            && fechaIngresada.getMonth() === partes[1] - 1
+            && fechaIngresada.getDate() === partes[2];
+        var hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
 
-        if (f2 < f1) {
-            muestraMensaje('La fecha de nacimiento debe ser mayor o igual a 01/01/1950', 'warning');
-            return false;
+        if (!fechaValida) {
+            error = 'Ingrese una fecha válida.';
+        } else if (fechaIngresada < new Date(1950, 0, 1)) {
+            error = 'La fecha debe ser igual o posterior al 01/01/1950.';
+        } else if (fechaIngresada > hoy) {
+            error = 'La fecha de nacimiento no puede ser futura.';
         }
     }
-    return true;
+
+    $mensaje.text(error);
+    $fecha.toggleClass('is-invalid', Boolean(error));
+    return !error;
+}
+
+function validarEstado() {
+    return validarCampo(
+        $('#estado'),
+        $('#sestado'),
+        'El estado',
+        'Use entre 3 y 50 letras.',
+        /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'-]{3,50}$/
+    );
+}
+
+function validarMunicipio() {
+    return validarCampo(
+        $('#municipio'),
+        $('#smunicipio'),
+        'El municipio',
+        'Use entre 3 y 50 letras.',
+        /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'-]{3,50}$/
+    );
+}
+
+function validarParroquia() {
+    return validarCampo(
+        $('#parroquia'),
+        $('#sparroquia'),
+        'La parroquia',
+        'Use entre 3 y 50 letras.',
+        /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'-]{3,50}$/
+    );
+}
+
+function validarTelefono() {
+    return validarCampo(
+        $('#telefono'),
+        $('#stelefono'),
+        'El teléfono',
+        'El teléfono debe contener solo números.',
+        /^\d+$/
+    );
+}
+
+function limpiarErrores() {
+    $('#formulario_cliente .is-invalid').removeClass('is-invalid');
+    $('#scedula, #snombres, #sfechadenacimiento, #sestado, #smunicipio, #sparroquia, #stelefono').text('');
+}
+
+function validarFormularioCliente() {
+    var cedulaValida = validarCedula();
+    var nombreValido = validarNombre();
+    var fechaValida = validarFechaNacimiento();
+    var estadoValido = validarEstado();
+    var municipioValido = validarMunicipio();
+    var parroquiaValida = validarParroquia();
+    var telefonoValido = validarTelefono();
+
+    return cedulaValida
+        && nombreValido
+        && fechaValida
+        && estadoValido
+        && municipioValido
+        && parroquiaValida
+        && telefonoValido;
 }
 
 function limpia() {
@@ -177,7 +252,8 @@ function limpia() {
     $("#estado").val("");
     $("#municipio").val("");
     $("#parroquia").val("");
-    $("#scedula, #snombres, #sfechadenacimiento, #sestado, #smunicipio, #sparroquia").text("");
+    $("#telefono").val("");
+    limpiarErrores();
 }
 
 function muestraMensaje(mensaje, icon = 'warning') {
@@ -192,21 +268,20 @@ function muestraMensaje(mensaje, icon = 'warning') {
 }
 
 
-// 3. EVENTOS Y DELEGACIONES (DOCUMENT READY)
+// 2. EVENTOS Y DELEGACIONES (DOCUMENT READY)
 
 
 $(document).ready(function () {
     pone_fecha();
     consultar();
 
-    $("#cedula").on("keypress", function (e) { validarkeypress(/^[0-9\b]*$/, e); });
-    $("#cedula").on("keyup", function () { validarkeyup(/^[0-9]{7,8}$/, $(this), $("#scedula"), "El formato debe ser 9999999"); });
-
-    $("#nombres, #estado, #municipio, #parroquia").on("keypress", function (e) { validarkeypress(/^[A-Za-z\b\s\u00f1\u00d1\u00E0-\u00FC]*$/, e); });
-    $("#nombres").on("keyup", function () { validarkeyup(/^[A-Za-z\b\s\u00f1\u00d1\u00E0-\u00FC]{3,150}$/, $(this), $("#snombres"), "Solo letras entre 3 y 150 caracteres"); });
-    $("#estado").on("keyup", function () { validarkeyup(/^[A-Za-z\b\s\u00f1\u00d1\u00E0-\u00FC]{3,50}$/, $(this), $("#sestado"), "Solo letras entre 3 y 50 caracteres"); });
-    $("#municipio").on("keyup", function () { validarkeyup(/^[A-Za-z\b\s\u00f1\u00d1\u00E0-\u00FC]{3,50}$/, $(this), $("#smunicipio"), "Solo letras entre 3 y 50 caracteres"); });
-    $("#parroquia").on("keyup", function () { validarkeyup(/^[A-Za-z\b\s\u00f1\u00d1\u00E0-\u00FC]{3,50}$/, $(this), $("#sparroquia"), "Solo letras entre 3 y 50 caracteres"); });
+    $('#cedula').on('input', validarCedula);
+    $('#nombres').on('input', validarNombre);
+    $('#fechadenacimiento').on('input change', validarFechaNacimiento);
+    $('#estado').on('input', validarEstado);
+    $('#municipio').on('input', validarMunicipio);
+    $('#parroquia').on('input', validarParroquia);
+    $('#telefono').on('input', validarTelefono);
 
     $('#incluir').on('click', function () {
         limpia();
@@ -259,6 +334,7 @@ $(document).ready(function () {
         $('#municipio').val(municipio);
         $('#parroquia').val(parroquia);
         $('#telefono').val(telefono);
+        limpiarErrores();
 
         $('#proceso').text('MODIFICAR');
         $('#accion').val('modificar');
@@ -269,15 +345,21 @@ $(document).ready(function () {
         }
     });
 
-    $('#proceso').on('click', function (e) {
+    $('#formulario_cliente').on('submit', function (e) {
         e.preventDefault();
-        var texto = $(this).text();
-        if (texto === 'INCLUIR' || texto === 'MODIFICAR') {
-            if (!validarenvio()) {
+        var accion = $('#accion').val();
+        if (accion === 'incluir' || accion === 'modificar') {
+            if (!validarFormularioCliente()) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos incorrectos',
+                    text: 'Corrige los campos marcados antes de continuar.'
+                });
                 return;
             }
+
             var datos = new FormData();
-            datos.append('accion', texto === 'INCLUIR' ? 'incluir' : 'modificar');
+            datos.append('accion', accion);
             datos.append('cedula', $('#cedula').val());
             datos.append('nombres', $('#nombres').val());
             datos.append('fechadenacimiento', $('#fechadenacimiento').val());
@@ -286,15 +368,11 @@ $(document).ready(function () {
             datos.append('parroquia', $('#parroquia').val());
             datos.append('telefono', $('#telefono').val());
             enviaAjax(datos);
-        } else if (texto === 'ELIMINAR') {
-            if (validarkeyup(/^[0-9]{7,8}$/, $('#cedula'), $('#scedula'), 'El formato debe ser 9999999') == 0) {
-                muestraMensaje('La cédula debe coincidir con el formato 9999999', 'error');
-            } else {
-                var datos = new FormData();
-                datos.append('accion', 'eliminar');
-                datos.append('cedula', $('#cedula').val());
-                enviaAjax(datos);
-            }
+        } else if (accion === 'eliminar') {
+            var datos = new FormData();
+            datos.append('accion', 'eliminar');
+            datos.append('cedula', $('#cedula').val());
+            enviaAjax(datos);
         }
     });
 });
