@@ -5,7 +5,7 @@
         <button type="button" class="btn btn-purple shadow-sm" id="btn-guardar-cita">
             <i class="fas fa-calendar-plus me-1"></i>GUARDAR CITA
         </button>
-        <a href="index.php?pagina=home" class="btn btn-outline-purple">
+        <a href="index.php?pagina=home" class="btn btn-outline-primary">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
         </a>
     </div>
@@ -13,7 +13,7 @@
     <h1 class="h3 mb-3">Citas</h1>
 
     <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-purple text-white border-bottom py-3">
+        <div class="card-header border-bottom py-3">
             <span class="fw-semibold">Registrar nueva cita</span>
         </div>
         <div class="card-body">
@@ -76,7 +76,7 @@
     </div>
 
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-purple text-white border-bottom py-3">
+        <div class="card-header border-bottom py-3">
             <span class="fw-semibold">Listado de citas</span>
         </div>
         <div class="card-body p-0">
@@ -89,7 +89,7 @@
                             <th scope="col">Fecha</th>
                             <th scope="col">Hora</th>
                             <th scope="col">Servicios</th>
-                            <th scope="col">Acciones</th>
+                            <th scope="col" class="text-nowrap">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="resultadoconsulta">

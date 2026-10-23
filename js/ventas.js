@@ -19,7 +19,16 @@ $(document).ready(function () {
     }
 
     function dinero(valor) {
-        return Number(valor || 0).toFixed(2);
+        return Number(valor || 0).toLocaleString('es-VE', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function tasaConDosDecimales(valor) {
+        return valor === '' || valor === null || valor === undefined
+            ? ''
+            : Number(valor).toFixed(2);
     }
 
     function fechaHoraLocal() {
@@ -54,7 +63,12 @@ $(document).ready(function () {
                 $('#idMetodoPago').append($('<option>').val(metodo.idMetodoPago).text(metodo.nom_MetodoPago));
             });
             data.monedas.forEach(function (moneda) {
-                $('#id_moneda').append($('<option>').val(moneda.id_moneda).text(moneda.nombre_moneda + ' (' + moneda.simbolo + ')'));
+                $('#id_moneda').append(
+                    $('<option>')
+                        .val(moneda.id_moneda)
+                        .attr('data-tasa', moneda.tasa_actual === null ? '' : moneda.tasa_actual)
+                        .text(moneda.nombre_moneda + ' (' + moneda.simbolo + ')')
+                );
             });
             data.productos.forEach(function (producto) {
                 producto.idProducto = Number(producto.idProducto);
@@ -130,7 +144,7 @@ $(document).ready(function () {
     }
 
     function actualizarMonto(total) {
-        var tasa = Number($('#tasa_cobrada').val()) || 0;
+        var tasa = Number($('#tasa_cobrada_exacta').val()) || 0;
         var moneda = $('#id_moneda option:selected').text();
         $('#montoPago').text((moneda && !$('#id_moneda').val() ? '' : moneda + ' ') + dinero(total * tasa));
     }
@@ -169,7 +183,6 @@ $(document).ready(function () {
                     }).addClass('btn btn-sm btn-danger eliminar-venta')
                         .append($('<i>').addClass('fas fa-trash-alt'))
                 );
-                $fila.append($acciones);
                 $fila.append($('<td>').text('#' + venta.idVenta));
                 $fila.append($('<td>').text(venta.fechaCompra));
                 $fila.append($('<td>').text(venta.nombreCliente));
@@ -179,6 +192,7 @@ $(document).ready(function () {
                 $fila.append($('<td>').text(
                     venta.monto_pagado === null ? '—' : (venta.simbolo || '') + ' ' + dinero(venta.monto_pagado)
                 ));
+                $fila.append($acciones);
                 $tbody.append($fila);
             });
         }, function () {
@@ -194,7 +208,8 @@ $(document).ready(function () {
         preciosCarrito = {};
         cantidadesOriginales = {};
         $('#formVenta')[0].reset();
-        $('#tasa_cobrada').val('1');
+        $('#tasa_cobrada').val('');
+        $('#tasa_cobrada_exacta').val('');
         $('#fechaCompra').val(fechaHoraLocal());
         $('#modalVentaLabel').text('Registrar venta');
         $('#guardarVenta').text('Confirmar venta');
@@ -206,7 +221,15 @@ $(document).ready(function () {
         modal.show();
     });
 
-    $('#id_moneda, #tasa_cobrada').on('change input', function () {
+    $('#id_moneda').on('change', function () {
+        var tasa = $(this).find(':selected').attr('data-tasa') || '';
+        $('#tasa_cobrada').val(tasaConDosDecimales(tasa));
+        $('#tasa_cobrada_exacta').val(tasa);
+        actualizarMonto(totalCarrito());
+    });
+
+    $('#tasa_cobrada').on('input', function () {
+        $('#tasa_cobrada_exacta').val($(this).val());
         actualizarMonto(totalCarrito());
     });
 
@@ -281,7 +304,9 @@ $(document).ready(function () {
                 $('#fechaCompra').val(String(venta.fechaCompra).replace(' ', 'T').slice(0, 16));
                 $('#idMetodoPago').val(venta.idMetodoPago || '');
                 $('#id_moneda').val(venta.id_moneda || '');
-                $('#tasa_cobrada').val(venta.tasa_cobrada || '1');
+                var tasa = venta.tasa_cobrada || '1';
+                $('#tasa_cobrada').val(tasaConDosDecimales(tasa));
+                $('#tasa_cobrada_exacta').val(tasa);
                 $('#referencia').val(venta.referencia || '');
                 $('#modalVentaLabel').text('Editar venta #' + venta.idVenta);
                 $('#guardarVenta').text('Guardar cambios');

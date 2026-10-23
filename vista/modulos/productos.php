@@ -3,7 +3,7 @@
 <div class="container py-2">
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
         <button type="button" class="btn btn-primary shadow-sm" id="incluir" disabled>
-            <i class="fas fa-user-plus me-1"></i>INCLUIR
+            <i class="fas fa-user-plus me-1"></i>REGISTRAR
         </button>
         <a href="index.php?pagina=home" class="btn btn-outline-primary">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
@@ -25,13 +25,13 @@
                 >
                     <thead>
                         <tr>
-                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                             <th scope="col">Nombre del producto</th>
                             <th scope="col">Marca</th>
                             <th scope="col">Precio del producto</th>
                             <th scope="col">Proveedor</th>
                             <th scope="col">Cantidad actual</th>
                             <th scope="col">Tipo de producto</th>
+                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="resultadoconsulta">
@@ -103,7 +103,7 @@
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cerrar</button>
-                    <button class="btn btn-primary" type="submit" id="proceso">INCLUIR</button>
+                    <button class="btn btn-primary" type="submit" id="proceso">REGISTRAR</button>
                 </div>
             </form>
         </div>

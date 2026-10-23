@@ -3,7 +3,7 @@
 <div class="container py-2">
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
         <button type="button" class="btn btn-purple shadow-sm" id="nuevaVenta">
-            <i class="fas fa-cart-plus me-1"></i>INCLUIR
+            <i class="fas fa-cart-plus me-1"></i>REGISTRAR
         </button>
         <a href="index.php?pagina=home" class="btn btn-outline-primary">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
@@ -19,7 +19,6 @@
                 <table class="table table-striped table-hover align-middle" id="tablaVentas">
                     <thead>
                         <tr>
-                            <th>Acciones</th>
                             <th>Venta</th>
                             <th>Fecha</th>
                             <th>Cliente</th>
@@ -27,6 +26,7 @@
                             <th>Total</th>
                             <th>Pago</th>
                             <th>Monto pagado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="listaVentas">
@@ -119,14 +119,15 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label" for="tasa_cobrada">Tasa (unidades de moneda por cada $1)</label>
-                            <input class="form-control" type="number" id="tasa_cobrada" name="tasa_cobrada" min="0.0001" max="999999.9999" step="0.0001" value="1" required>
+                            <input class="form-control" type="number" id="tasa_cobrada" min="0.01" max="999999.9999" step="0.01" required>
+                            <input type="hidden" id="tasa_cobrada_exacta" name="tasa_cobrada">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="referencia">Referencia de pago (opcional)</label>
                             <input class="form-control" type="text" id="referencia" name="referencia" maxlength="50">
                         </div>
                         <div class="col-md-6 d-flex align-items-end">
-                            <p class="mb-2 text-muted">Monto a cobrar: <strong id="montoPago">0.00</strong></p>
+                            <p class="mb-2 text-muted">Monto a cobrar: <strong id="montoPago">0,00</strong></p>
                         </div>
                     </div>
                     <p class="small text-muted mt-3 mb-0">Los precios de los productos se toman como base en dólares. El inventario se descuenta al confirmar la venta.</p>

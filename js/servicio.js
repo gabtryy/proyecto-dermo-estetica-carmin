@@ -37,13 +37,13 @@ function renderTabla(lista) {
     lista.forEach(function (item) {
             var fila = ''
             + '<tr>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-id-servicio="' + (item.idServicio || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id-servicio="' + (item.idServicio || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            + '</td>'
-            + '<td>' + (item.nombreServicio || '') + '</td>'
-            + '<td>' + (item.precio || '') + '</td>'
-            + '<td>' + (item.descripcion || '') + '</td>'
++ '<td>' + (item.nombreServicio || '') + '</td>'
++ '<td>' + (item.precio || '') + '</td>'
++ '<td>' + (item.descripcion || '') + '</td>'
++ '<td class="text-nowrap">'
++   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-id-servicio="' + (item.idServicio || '') + '"><i class="fas fa-edit"></i></button>'
++   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id-servicio="' + (item.idServicio || '') + '"><i class="fas fa-trash-alt"></i></button>'
++ '</td>'
             + '</tr>';
         $tbody.append(fila);
     });
@@ -116,7 +116,7 @@ $('#resultadoconsulta').on('click', '.btn-editar', function () {
     // Botón Incluir (Abrir modal)
     $(document).ready(function () {
         $('#incluir').on('click', function () {
-            $('#proceso').text('INCLUIR');
+            $('#proceso').text('REGISTRAR');
             $('#accion').val('incluir');
             var $modal = $('#modal1');
             if (!$modal.length || typeof bootstrap === 'undefined' || !bootstrap.Modal) {

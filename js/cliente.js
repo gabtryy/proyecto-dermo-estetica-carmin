@@ -99,16 +99,16 @@ function renderTabla(lista) {
 
         var fila = ''
             + '<tr>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            +   '<button class="btn btn-sm btn-info ms-1 btn-detalle" title="Detalle" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-info-circle"></i></button>'
-            + '</td>'
             + '<td>' + (item.cedulaCliente || '') + '</td>'
             + '<td>' + (item.nombreCliente || '') + '</td>'
             + '<td>' + (item.fechaNacimiento || '') + '</td>'
             + '<td>' + direccion + '</td>'
             + '<td>' + telefono + '</td>'
+            + '<td class="text-nowrap">'
+            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
+            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-trash-alt"></i></button>'
+            +   '<button class="btn btn-sm btn-info ms-1 btn-detalle" title="Detalle" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-info-circle"></i></button>'
+            + '</td>'
             + '</tr>';
         $tbody.append(fila);
     });
@@ -210,7 +210,7 @@ $(document).ready(function () {
 
     $('#incluir').on('click', function () {
         limpia();
-        $('#proceso').text('INCLUIR');
+        $('#proceso').text('REGISTRAR');
         $('#accion').val('incluir');
         var $modal = $('#modal1');
         if ($modal.length && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
@@ -271,13 +271,13 @@ $(document).ready(function () {
 
     $('#proceso').on('click', function (e) {
         e.preventDefault();
-        var texto = $(this).text();
-        if (texto === 'INCLUIR' || texto === 'MODIFICAR') {
+        var accion = $('#accion').val();
+        if (accion === 'incluir' || accion === 'modificar') {
             if (!validarenvio()) {
                 return;
             }
             var datos = new FormData();
-            datos.append('accion', texto === 'INCLUIR' ? 'incluir' : 'modificar');
+            datos.append('accion', accion);
             datos.append('cedula', $('#cedula').val());
             datos.append('nombres', $('#nombres').val());
             datos.append('fechadenacimiento', $('#fechadenacimiento').val());
@@ -286,7 +286,7 @@ $(document).ready(function () {
             datos.append('parroquia', $('#parroquia').val());
             datos.append('telefono', $('#telefono').val());
             enviaAjax(datos);
-        } else if (texto === 'ELIMINAR') {
+        } else if ($(this).text() === 'ELIMINAR') {
             if (validarkeyup(/^[0-9]{7,8}$/, $('#cedula'), $('#scedula'), 'El formato debe ser 9999999') == 0) {
                 muestraMensaje('La cédula debe coincidir con el formato 9999999', 'error');
             } else {

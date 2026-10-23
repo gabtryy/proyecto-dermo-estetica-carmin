@@ -11,6 +11,7 @@ $modulosSidebar = [
     ['pagina' => 'esteticistas', 'icono' => 'fa-user-tie',        'label' => 'Esteticistas'],
     ['pagina' => 'citas',        'icono' => 'fa-calendar-check',  'label' => 'Citas'],
     ['pagina' => 'diagnostico',  'icono' => 'fa-face-smile',      'label' => 'Diagnóstico'],
+    ['pagina' => 'configuracion','icono' => 'fa-cog',             'label' => 'Configuración'],
 ];
 ?>
 <!DOCTYPE html>
@@ -33,19 +34,34 @@ $modulosSidebar = [
             --purple-muted: #7d559d;
         }
         body {
-            min-height: 100vh;
+            height: 100vh;
+            height: 100dvh;
             background: linear-gradient(180deg, #faf2ff 0%, #8f6dbe 100%);
             color: #2e1a45;
             font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            overflow-x: hidden;
+            overflow: hidden;
+        }
+        .app-layout {
+            height: 100%;
+            min-height: 0;
+            overflow: hidden;
         }
         .sidebar {
             width: 260px;
-            min-height: 100vh;
+            height: 100%;
+            min-height: 0;
             flex: 0 0 260px;
             background: #ffffff;
             border-right: 1px solid rgba(107, 45, 134, 0.16);
             box-shadow: 4px 0 30px rgba(107, 45, 134, 0.08);
+            overflow-y: auto;
+        }
+        .app-content {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+            flex: 1 1 auto;
         }
         .sidebar .sidebar-brand {
             color: var(--purple-strong);
@@ -144,12 +160,149 @@ $modulosSidebar = [
         .text-purple-strong {
             color: var(--purple-strong) !important;
         }
+        .pagina-modulo main .container > h1,
+        .pagina-modulo main .container-fluid > h1 {
+            margin-bottom: 1.25rem !important;
+            color: var(--purple-strong);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .pagina-modulo main .container > .d-flex .btn,
+        .pagina-modulo main .container-fluid > .d-flex .btn {
+            min-height: 2.55rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 0.7rem;
+            font-weight: 600;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+        }
+        .pagina-modulo main .container > .d-flex .btn:hover,
+        .pagina-modulo main .container-fluid > .d-flex .btn:hover {
+            box-shadow: 0 6px 14px rgba(56, 23, 77, 0.14);
+            transform: translateY(-1px);
+        }
+        .pagina-modulo main .card:not(.modal-content) {
+            overflow: hidden;
+            border: 1px solid rgba(107, 45, 134, 0.13) !important;
+            border-radius: 1rem;
+            box-shadow: 0 10px 28px rgba(56, 23, 77, 0.08) !important;
+        }
+        .pagina-modulo main .card:not(.modal-content) > .card-header {
+            padding: 1rem 1.25rem;
+            color: var(--purple-strong);
+            background: linear-gradient(115deg, #ffffff, #f6effa) !important;
+            border-bottom: 1px solid rgba(107, 45, 134, 0.12) !important;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+        .pagina-modulo main .card:not(.modal-content) > .card-header.bg-purple {
+            color: #ffffff !important;
+            background: linear-gradient(120deg, var(--purple), var(--purple-strong)) !important;
+        }
+        .pagina-modulo main .card:not(.modal-content) > .card-body {
+            background-color: #ffffff;
+        }
+        .pagina-modulo main .table {
+            --bs-table-bg: #ffffff;
+            --bs-table-striped-bg: #fbf8fd;
+            --bs-table-hover-bg: #f5eef9;
+            --bs-table-border-color: #eee7f2;
+            margin-bottom: 0;
+        }
+        .pagina-modulo main .table > thead > tr > th {
+            padding: 0.85rem 1rem;
+            color: #68477a;
+            background-color: #f8f4fb;
+            border-bottom: 1px solid #e6dced;
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.045em;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+        .pagina-modulo main .table > tbody > tr > td,
+        .pagina-modulo main .table > tfoot > tr > th {
+            padding: 0.8rem 1rem;
+            color: #493653;
+            vertical-align: middle;
+        }
+        .pagina-modulo main .table-bordered > :not(caption) > * > * {
+            border-color: #eee7f2;
+        }
+        .pagina-modulo main .form-label {
+            margin-bottom: 0.45rem;
+            color: var(--purple-strong);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .pagina-modulo main .form-control,
+        .pagina-modulo main .form-select {
+            min-height: 2.7rem;
+            border-color: #ded4e8;
+            border-radius: 0.65rem;
+            background-color: #ffffff;
+        }
+        .pagina-modulo main textarea.form-control {
+            min-height: auto;
+        }
+        .pagina-modulo main .form-control:focus,
+        .pagina-modulo main .form-select:focus {
+            border-color: var(--purple-muted);
+            box-shadow: 0 0 0 0.2rem rgba(107, 45, 134, 0.14);
+        }
+        .pagina-modulo main .btn-primary {
+            color: #ffffff;
+            background-color: var(--purple);
+            border-color: var(--purple);
+        }
+        .pagina-modulo main .btn-primary:hover,
+        .pagina-modulo main .btn-primary:focus {
+            color: #ffffff;
+            background-color: var(--purple-strong);
+            border-color: var(--purple-strong);
+        }
+        .pagina-modulo main .btn-outline-primary {
+            color: var(--purple);
+            border-color: var(--purple);
+        }
+        .pagina-modulo main .btn-outline-primary:hover,
+        .pagina-modulo main .btn-outline-primary:focus {
+            color: #ffffff;
+            background-color: var(--purple);
+            border-color: var(--purple);
+        }
+        .pagina-modulo main .btn-primary,
+        .pagina-modulo main .btn-purple,
+        .pagina-modulo main .btn-outline-primary,
+        .pagina-modulo main .btn-outline-purple {
+            border-radius: 0.65rem;
+            font-weight: 600;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+        }
+        .pagina-modulo main .btn-primary:hover,
+        .pagina-modulo main .btn-purple:hover,
+        .pagina-modulo main .btn-outline-primary:hover,
+        .pagina-modulo main .btn-outline-purple:hover {
+            box-shadow: 0 5px 12px rgba(56, 23, 77, 0.16);
+        }
+        .pagina-modulo main .page-header {
+            padding: 1.5rem !important;
+            border: 1px solid rgba(107, 45, 134, 0.12);
+            border-radius: 1rem;
+            box-shadow: 0 12px 30px rgba(56, 23, 77, 0.09);
+        }
         .container-fluid {
             position: relative;
         }
         .flex-grow-1,
         main {
             min-width: 0;
+        }
+        main.container-fluid {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
         }
         .navbar-center {
             position: absolute;
@@ -184,107 +337,107 @@ $modulosSidebar = [
             max-height: calc(100vh - 10rem);
             overflow-y: auto;
         }
-        .pagina-formularios .modal-content {
+        .pagina-modulo .modal-content {
             overflow: hidden;
             border: 1px solid rgba(56, 23, 77, 0.1);
             border-radius: 1rem;
             box-shadow: 0 1.25rem 3.5rem rgba(39, 18, 55, 0.2);
         }
-        .pagina-formularios .modal-header {
+        .pagina-modulo .modal-header {
             padding: 1.1rem 1.4rem;
             color: #ffffff;
             background: linear-gradient(120deg, var(--purple), var(--purple-strong));
             border-bottom: 0;
         }
-        .pagina-formularios .modal-header.text-bg-info {
+        .pagina-modulo .modal-header.text-bg-info {
             color: #ffffff !important;
             background: linear-gradient(120deg, var(--purple), var(--purple-strong)) !important;
         }
-        .pagina-formularios .modal-title {
+        .pagina-modulo .modal-title {
             font-weight: 600;
             letter-spacing: 0.01em;
         }
-        .pagina-formularios .modal-header .btn-close {
+        .pagina-modulo .modal-header .btn-close {
             filter: brightness(0) invert(1);
             opacity: 0.85;
         }
-        .pagina-formularios .modal-header .btn-close:hover {
+        .pagina-modulo .modal-header .btn-close:hover {
             opacity: 1;
         }
-        .pagina-formularios .modal-body {
+        .pagina-modulo .modal-body {
             padding: 1.5rem;
             background: #ffffff;
         }
-        .pagina-formularios .modal-body .form-label {
+        .pagina-modulo .modal-body .form-label {
             margin-bottom: 0.45rem;
             color: var(--purple-strong);
             font-size: 0.9rem;
             font-weight: 500;
         }
-        .pagina-formularios .modal-body .form-control,
-        .pagina-formularios .modal-body .form-select {
+        .pagina-modulo .modal-body .form-control,
+        .pagina-modulo .modal-body .form-select {
             min-height: 2.75rem;
             border-color: #ded4e8;
             border-radius: 0.65rem;
             background-color: #ffffff;
         }
-        .pagina-formularios .modal-body textarea.form-control {
+        .pagina-modulo .modal-body textarea.form-control {
             min-height: auto;
         }
-        .pagina-formularios .modal-body .form-control:focus,
-        .pagina-formularios .modal-body .form-select:focus {
+        .pagina-modulo .modal-body .form-control:focus,
+        .pagina-modulo .modal-body .form-select:focus {
             border-color: var(--purple-muted);
             box-shadow: 0 0 0 0.2rem rgba(107, 45, 134, 0.14);
         }
-        .pagina-formularios .modal-body .border.rounded.bg-light,
-        .pagina-formularios .modal-body .border.rounded.p-3.bg-light {
+        .pagina-modulo .modal-body .border.rounded.bg-light,
+        .pagina-modulo .modal-body .border.rounded.p-3.bg-light {
             border-color: #e8dff0 !important;
             border-radius: 0.75rem !important;
             background-color: #faf7fd !important;
         }
-        .pagina-formularios .modal-footer {
+        .pagina-modulo .modal-footer {
             gap: 0.55rem;
             padding: 1rem 1.4rem;
             background: #faf8fc !important;
             border-top: 1px solid #eee8f3;
         }
-        .pagina-formularios .btn {
+        .pagina-modulo .btn {
             border-radius: 0.65rem;
             font-weight: 500;
             transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
         }
-        .pagina-formularios .btn-primary {
+        .pagina-modulo .btn-primary {
             color: #ffffff;
             background-color: var(--purple);
             border-color: var(--purple);
         }
-        .pagina-formularios .btn-primary:hover,
-        .pagina-formularios .btn-primary:focus {
+        .pagina-modulo .btn-primary:hover,
+        .pagina-modulo .btn-primary:focus {
             color: #ffffff;
             background-color: var(--purple-strong);
             border-color: var(--purple-strong);
             box-shadow: 0 0.35rem 0.9rem rgba(56, 23, 77, 0.18);
         }
-        .pagina-formularios .btn-outline-primary {
+        .pagina-modulo .btn-outline-primary {
             color: var(--purple);
             border-color: var(--purple);
             background-color: transparent;
         }
-        .pagina-formularios .btn-outline-primary:hover,
-        .pagina-formularios .btn-outline-primary:focus {
+        .pagina-modulo .btn-outline-primary:hover,
+        .pagina-modulo .btn-outline-primary:focus {
             color: #ffffff;
             background-color: var(--purple);
             border-color: var(--purple);
         }
-        .pagina-formularios .btn:focus-visible {
+        .pagina-modulo .btn:focus-visible {
             box-shadow: 0 0 0 0.2rem rgba(107, 45, 134, 0.2);
         }
         @media (max-width: 575.98px) {
-            .pagina-formularios .modal-body {
+            .pagina-modulo .modal-body {
                 padding: 1.1rem;
             }
-            .pagina-formularios .modal-header,
-            .pagina-formularios .modal-footer {
+            .pagina-modulo .modal-header,
+            .pagina-modulo .modal-footer {
                 padding-right: 1.1rem;
                 padding-left: 1.1rem;
             }
@@ -292,7 +445,8 @@ $modulosSidebar = [
         @media (max-width: 991.98px) {
             .sidebar {
                 --bs-offcanvas-width: min(280px, 85vw);
-                min-height: 100vh;
+                height: 100%;
+                min-height: 0;
                 border: 0;
                 border-right: 1px solid rgba(107, 45, 134, 0.16);
             }
@@ -345,8 +499,8 @@ $modulosSidebar = [
         }
     </style>
 </head>
-<body class="<?= in_array($paginaActual, ['productos', 'servicios', 'proveedores', 'esteticistas', 'antecedentes'], true) ? 'pagina-formularios' : '' ?>">
-<div class="d-flex">
+<body class="pagina-modulo">
+<div class="app-layout d-flex">
     <nav class="sidebar offcanvas-lg offcanvas-start d-flex flex-column flex-shrink-0 p-3 bg-white" id="sideNavigation" tabindex="-1" aria-label="Navegación principal">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <a href="index.php?pagina=home" class="sidebar-brand d-flex align-items-center gap-2 text-decoration-none">
@@ -371,7 +525,7 @@ $modulosSidebar = [
             <?php endforeach; ?>
         </ul>
     </nav>
-    <div class="flex-grow-1">
+    <div class="app-content">
         <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rounded-3 mb-4">
             <div class="container-fluid px-3 px-lg-4">
                 <a class="navbar-brand fw-semibold text-purple-strong d-lg-none d-flex align-items-center gap-2" href="#">

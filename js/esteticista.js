@@ -56,16 +56,16 @@ function renderTablaEst(lista) {
     lista.forEach(function (item) {
         var fila = ''
             + '<tr>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedula_esteticista || '') + '" data-especialidad-id="' + (item.id_especialidad || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedula_esteticista || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            + '</td>'
             + '<td>' + (item.cedula_esteticista || '') + '</td>'
             + '<td>' + (item.nombre_esteticista || '') + '</td>'
             + '<td>' + (item.telefono_esteticista || '') + '</td>'
             + '<td>' + (item.correo || '') + '</td>'
             + '<td>' + (item.fecha_nacimiento || '') + '</td>'
             + '<td>' + (item.especialidad || '') + '</td>'
+            + '<td class="text-nowrap">'
+            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedula_esteticista || '') + '" data-especialidad-id="' + (item.id_especialidad || '') + '"><i class="fas fa-edit"></i></button>'
+            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedula_esteticista || '') + '"><i class="fas fa-trash-alt"></i></button>'
+            + '</td>'
             + '</tr>';
         $tbody.append(fila);
     });
@@ -140,7 +140,7 @@ $(document).ready(function () {
 
     // Botón Incluir (Abrir modal)
     $('#incluir').on('click', function () {
-        $('#proceso').text('INCLUIR');
+        $('#proceso').text('REGISTRAR');
         $('#accion').val('incluir');
         var $modal = $('#modal1');
         // resetear formulario y permitir editar cédula

@@ -73,8 +73,63 @@
                 </div>
             </div>
         </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="stat-icon">
+                        <i class="fas fa-coins fa-2x"></i>
+                    </div>
+                    <div>
+                        <h2 class="h5 mb-1">Tasa del día</h2>
+                        <p class="mb-1 text-muted">Registra rápidamente la tasa de cambio de hoy.</p>
+                        <small class="text-muted">Moneda preseleccionada: Bolívar (Bs)</small>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top pt-3">
+                    <button type="button" class="btn btn-sm btn-purple" data-bs-toggle="modal" data-bs-target="#modalTasaDia">
+                        <i class="fas fa-plus me-1"></i>Añadir tasa de hoy
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+</div>
+
+<div class="modal fade" id="modalTasaDia" tabindex="-1" aria-labelledby="modalTasaDiaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-purple">
+                <h2 class="modal-title fs-5" id="modalTasaDiaLabel">Registrar tasa del día</h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="formTasaDia" autocomplete="off">
+                <div class="modal-body">
+                    <input type="hidden" name="accion" value="guardarTasa">
+                    <div class="mb-3">
+                        <label class="form-label" for="monedaTasaDia">Moneda</label>
+                        <select class="form-select" id="monedaTasaDia" name="id_moneda" required disabled>
+                            <option value="">Cargando monedas...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="fechaTasaDia">Fecha</label>
+                        <input class="form-control" type="date" id="fechaTasaDia" name="fecha_tasa" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="montoTasaDia">Tasa por cada $1</label>
+                        <input class="form-control" type="number" id="montoTasaDia" name="monto_tasa" min="0.0001" max="999999.9999" step="0.0001" required>
+                        <div class="form-text">Indica cuántos bolívares equivalen a un dólar. Las tasas anteriores se conservarán.</div>
+                    </div>
+                    <div id="mensajeTasaDia" class="alert d-none mb-0" role="status" aria-live="polite"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-purple" id="guardarTasaDia">Guardar tasa</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <?php require_once('vista/layouts/footer.php'); ?>

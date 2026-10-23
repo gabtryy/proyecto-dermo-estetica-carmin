@@ -73,13 +73,13 @@ $(function () {
                 }).addClass('btn btn-sm btn-outline-danger btn-eliminar')
                     .append($('<i>').addClass('fas fa-trash-alt'))
             );
-            $fila.append($acciones);
             $fila.append($('<td>').text(producto.nombreProducto || ''));
             $fila.append($('<td>').text(producto.marca || '—'));
             $fila.append($('<td>').text(Number(producto.precioProducto).toFixed(2)));
             $fila.append($('<td>').text(producto.nombreProveedor || ''));
             $fila.append($('<td>').text(producto.cantidadActual));
             $fila.append($('<td>').text(producto.tipoProducto || 'Sin clasificar'));
+            $fila.append($acciones);
             $tbody.append($fila);
         });
     }
@@ -120,7 +120,7 @@ $(function () {
         $('#formulario_producto')[0].reset();
         $('#idProducto').val('');
         $('#accion').val('incluir');
-        $('#proceso').text('INCLUIR');
+        $('#proceso').text('REGISTRAR');
         $('#modal1Label').text('Añadir producto');
         $('#snombreProducto, #smarca, #sidProveedor, #sprecioProducto, #scantidadActual, #stipoProducto').text('');
     }

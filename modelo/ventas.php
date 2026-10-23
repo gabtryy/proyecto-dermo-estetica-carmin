@@ -39,7 +39,17 @@ class Venta extends Conexion
              "SELECT idMetodoPago, nom_MetodoPago FROM metodo_pago ORDER BY nom_MetodoPago"
          )->fetchAll(PDO::FETCH_ASSOC),
          'monedas' => $this->pdo->query(
-             "SELECT id_moneda, nombre_moneda, simbolo FROM moneda ORDER BY nombre_moneda"
+             "SELECT m.id_moneda, m.nombre_moneda, m.simbolo,
+                     CASE WHEN m.id_moneda = 1 THEN COALESCE(
+                         (SELECT tm.monto_tasa FROM tasa_moneda tm
+                          WHERE tm.id_moneda = m.id_moneda AND tm.fecha_tasa = CURDATE()
+                          ORDER BY tm.id_tasa DESC LIMIT 1), 1)
+                         ELSE (SELECT tm.monto_tasa FROM tasa_moneda tm
+                               WHERE tm.id_moneda = m.id_moneda AND tm.fecha_tasa = CURDATE()
+                               ORDER BY tm.id_tasa DESC LIMIT 1)
+                     END AS tasa_actual
+              FROM moneda m
+              ORDER BY m.nombre_moneda"
          )->fetchAll(PDO::FETCH_ASSOC),
      ];
     }

@@ -37,10 +37,6 @@ function renderTabla(lista) {
     lista.forEach(function (item) {
         var fila = ''
             + '<tr>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-id-proveedor="' + (item.idProveedor || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id-proveedor="' + (item.idProveedor || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            + '</td>'
             + '<td>' + (item.rif || '') + '</td>'
             + '<td>' + (item.nombreProveedor || '') + '</td>'
             + '<td>' + (item.estadoDirProveedor || '') + '</td>'
@@ -48,6 +44,10 @@ function renderTabla(lista) {
             + '<td>' + (item.parroquiaDirProveedor || '') + '</td>'
             + '<td>' + (item.telefono || '') + '</td>'
             + '<td>' + (item.correo || '') + '</td>'
+            + '<td class="text-nowrap">'
+            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-id-proveedor="' + (item.idProveedor || '') + '"><i class="fas fa-edit"></i></button>'
+            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id-proveedor="' + (item.idProveedor || '') + '"><i class="fas fa-trash-alt"></i></button>'
+            + '</td>'
             + '</tr>';
         $tbody.append(fila);
     });
@@ -124,7 +124,7 @@ $(document).ready(function () {
     });
 
     $('#incluir').on('click', function () {
-        $('#proceso').text('INCLUIR');
+        $('#proceso').text('REGISTRAR');
         $('#accion').val('incluir');
         $('#formulario_proveedor')[0].reset();
         currentEditId = null;

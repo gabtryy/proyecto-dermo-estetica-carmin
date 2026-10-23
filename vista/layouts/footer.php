@@ -12,6 +12,8 @@
     <?php endif; ?>
     <?php if ($controladorJS === 'clientes'): ?>
         <script src="js/cliente.js" defer></script>
+    <?php elseif ($controladorJS === 'home'): ?>
+        <script src="js/home.js" defer></script>
     <?php elseif ($controladorJS === 'esteticistas'): ?>
         <script src="js/esteticista.js" defer></script>
     <?php elseif ($controladorJS === 'servicios'): ?>
@@ -26,6 +28,8 @@
         <script src="js/productos.js" defer></script>
     <?php elseif ($controladorJS === 'ventas'): ?>
         <script src="js/ventas.js" defer></script>
+    <?php elseif ($controladorJS === 'configuracion'): ?>
+        <script src="js/configuracion.js" defer></script>
     <?php elseif ($controladorJS === 'diagnostico'): ?>
         <script src="js/diagnostico.js?v=2" defer></script>
     <?php endif; ?>

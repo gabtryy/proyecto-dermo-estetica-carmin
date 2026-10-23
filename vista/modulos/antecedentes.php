@@ -3,7 +3,7 @@
 <div class="container py-2">
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
         <button type="button" class="btn btn-primary shadow-sm" id="incluir">
-            <i class="fas fa-notes-medical me-1"></i>INCLUIR
+            <i class="fas fa-notes-medical me-1"></i>REGISTRAR
         </button>
         <a href="index.php?pagina=home" class="btn btn-outline-primary">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
@@ -25,10 +25,10 @@
                 >
                     <thead>
                         <tr>
-                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                             <th scope="col">Cliente</th>
                             <th scope="col">Tipo de antecedente</th>
                             <th scope="col">Descripción</th>
+                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="resultadoconsulta">
@@ -71,7 +71,7 @@
             </div>
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cerrar</button>
-                <button class="btn btn-primary" type="submit" form="formulario_antecedente" id="proceso">INCLUIR</button>
+                <button class="btn btn-primary" type="submit" form="formulario_antecedente" id="proceso">REGISTRAR</button>
             </div>
         </div>
     </div>
