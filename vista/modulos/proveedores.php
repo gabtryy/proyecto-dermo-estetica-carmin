@@ -58,12 +58,15 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label" for="rif">RIF</label>
-                            <input class="form-control" type="text" id="rif" name="rif" autocomplete="off">
+                            <div class="input-group">
+                                <span class="input-group-text">J-</span>
+                                <input class="form-control" type="text" id="rif" name="rif" inputmode="numeric" autocomplete="off" maxlength="10" pattern="[0-9]{8}-?[0-9]" placeholder="12345678-9" required aria-describedby="srif">
+                            </div>
                             <span class="form-text text-danger" id="srif"></span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="nombreProveedor">Nombre del proveedor</label>
-                            <input class="form-control" type="text" id="nombreProveedor" name="nombreProveedor" autocomplete="off">
+                            <input class="form-control" type="text" id="nombreProveedor" name="nombreProveedor" minlength="2" maxlength="100" autocomplete="off" required>
                             <span class="form-text text-danger" id="snombreProveedor"></span>
                         </div>
                     </div>
@@ -89,12 +92,23 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label" for="telefono">Teléfono</label>
-                            <input class="form-control" type="text" id="telefono" name="telefono" autocomplete="off">
+                            <div class="input-group">
+                                <select class="form-select telefono-prefijo" id="prefijoTelefono" aria-label="Prefijo telefónico">
+                                    <option value="0412">0412</option>
+                                    <option value="0413">0413</option>
+                                    <option value="0414" selected>0414</option>
+                                    <option value="0416">0416</option>
+                                    <option value="0424">0424</option>
+                                    <option value="0426">0426</option>
+                                </select>
+                                <input class="form-control telefono-numero" type="tel" id="telefono" name="telefono" inputmode="numeric" autocomplete="off" maxlength="7" pattern="[0-9]{7}" placeholder="1234567" aria-describedby="stelefono">
+                            </div>
+                            <input type="hidden" id="telefonoOriginal" value="">
                             <span class="form-text text-danger" id="stelefono"></span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="correo">Correo</label>
-                            <input class="form-control" type="email" id="correo" name="correo" autocomplete="off">
+                            <input class="form-control" type="email" id="correo" name="correo" maxlength="30" autocomplete="off" required>
                             <span class="form-text text-danger" id="scorreo"></span>
                         </div>
                     </div>

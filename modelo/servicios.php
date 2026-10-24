@@ -42,9 +42,28 @@ class Servicio extends Conexion {
         return $this->descripcion;
     }
 
-   
+    private function validarDatos(): ?string
+    {
+        $nombre = trim((string) $this->nombreServicio);
+        $precio = trim((string) $this->precio);
+
+        if (mb_strlen($nombre, 'UTF-8') < 3 || mb_strlen($nombre, 'UTF-8') > 100) {
+            return 'El nombre del servicio debe tener entre 3 y 100 caracteres.';
+        }
+        if (!preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', $precio) || (float) $precio <= 0) {
+            return 'El precio debe ser mayor que cero y tener como máximo dos decimales.';
+        }
+
+        return null;
+    }
+
     public function insertar(): array 
     {
+        $errorValidacion = $this->validarDatos();
+        if ($errorValidacion !== null) {
+            return ['resultado' => 'error', 'mensaje' => $errorValidacion];
+        }
+
         try {
             $sql = "INSERT INTO servicio (nombreServicio, precio, descripcion)
                     VALUES (:nombreServicio, :precio, :descripcion)";
@@ -106,6 +125,15 @@ class Servicio extends Conexion {
     
     public function modificar(): array
     {
+        $idServicio = filter_var($this->idServicio, FILTER_VALIDATE_INT);
+        if (!$idServicio || $idServicio < 1) {
+            return ['resultado' => 'error', 'mensaje' => 'El servicio seleccionado no es válido.'];
+        }
+        $errorValidacion = $this->validarDatos();
+        if ($errorValidacion !== null) {
+            return ['resultado' => 'error', 'mensaje' => $errorValidacion];
+        }
+
         try {
             $sql = "UPDATE servicio SET 
                         nombreServicio = :nombreServicio,
@@ -118,7 +146,7 @@ class Servicio extends Conexion {
                 ':nombreServicio' => $this->nombreServicio,
                 ':precio'         => $this->precio,
                 ':descripcion'    => $this->descripcion,
-                ':idServicio'     => $this->idServicio,
+                ':idServicio'     => $idServicio,
             ]);
 
             return [

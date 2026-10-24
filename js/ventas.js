@@ -25,10 +25,10 @@ $(document).ready(function () {
         });
     }
 
-    function tasaConDosDecimales(valor) {
+    function formatearTasa(valor) {
         return valor === '' || valor === null || valor === undefined
             ? ''
-            : Number(valor).toFixed(2);
+            : Number(valor).toFixed(4).replace(/\.?0+$/, '');
     }
 
     function fechaHoraLocal() {
@@ -223,7 +223,7 @@ $(document).ready(function () {
 
     $('#id_moneda').on('change', function () {
         var tasa = $(this).find(':selected').attr('data-tasa') || '';
-        $('#tasa_cobrada').val(tasaConDosDecimales(tasa));
+        $('#tasa_cobrada').val(formatearTasa(tasa));
         $('#tasa_cobrada_exacta').val(tasa);
         actualizarMonto(totalCarrito());
     });
@@ -305,7 +305,7 @@ $(document).ready(function () {
                 $('#idMetodoPago').val(venta.idMetodoPago || '');
                 $('#id_moneda').val(venta.id_moneda || '');
                 var tasa = venta.tasa_cobrada || '1';
-                $('#tasa_cobrada').val(tasaConDosDecimales(tasa));
+                $('#tasa_cobrada').val(formatearTasa(tasa));
                 $('#tasa_cobrada_exacta').val(tasa);
                 $('#referencia').val(venta.referencia || '');
                 $('#modalVentaLabel').text('Editar venta #' + venta.idVenta);

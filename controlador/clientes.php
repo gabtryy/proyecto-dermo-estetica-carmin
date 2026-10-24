@@ -46,7 +46,16 @@ if (is_file("vista/modulos/".$pagina.".php")) {
         $modelo->set_estado(trim($_POST['estado'] ?? ''));
         $modelo->set_municipio(trim($_POST['municipio'] ?? ''));
         $modelo->set_parroquia(trim($_POST['parroquia'] ?? ''));
-        $modelo->set_telefono(trim($_POST['telefono'] ?? ''));
+        $telefono = trim($_POST['telefono'] ?? '');
+        if (
+            $telefono !== '' &&
+            !preg_match('/^(?:04(?:12|13|14|16|24|26)\d{7}|\+?58\d{10}|\d{7,15})$/', $telefono)
+        ) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'mensaje' => 'Ingrese un teléfono válido con prefijo móvil venezolano.']);
+            exit;
+        }
+        $modelo->set_telefono($telefono);
 
         if ($accion === 'incluir') {
             $resp = $modelo->insertar();

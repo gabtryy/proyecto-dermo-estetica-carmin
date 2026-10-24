@@ -119,7 +119,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label" for="tasa_cobrada">Tasa (unidades de moneda por cada $1)</label>
-                            <input class="form-control" type="number" id="tasa_cobrada" min="0.01" max="999999.9999" step="0.01" required>
+                            <input class="form-control" type="number" id="tasa_cobrada" min="0.0001" max="999999.9999" step="0.0001" required>
                             <input type="hidden" id="tasa_cobrada_exacta" name="tasa_cobrada">
                         </div>
                         <div class="col-md-6">

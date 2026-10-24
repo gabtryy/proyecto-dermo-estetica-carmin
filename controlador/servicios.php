@@ -61,6 +61,7 @@ if ($accion !== '') {
             if ($res['resultado'] === 'exito') {
                 echo json_encode(['ok' => true, 'mensaje' => 'Servicio registrado con éxito.']);
             } else {
+                http_response_code(400);
                 echo json_encode(['ok' => false, 'mensaje' => 'Error al registrar: ' . $res['mensaje']]);
             }
             break;
@@ -76,6 +77,7 @@ if ($accion !== '') {
             if ($res['resultado'] === 'exito') {
                 echo json_encode(['ok' => true, 'mensaje' => 'Servicio modificado correctamente.']);
             } else {
+                http_response_code(400);
                 echo json_encode(['ok' => false, 'mensaje' => 'Error al modificar: ' . $res['mensaje']]);
             }
             break;

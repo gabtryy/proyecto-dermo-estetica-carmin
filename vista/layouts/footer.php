@@ -10,16 +10,19 @@
         <script src="vendor/datatables/js/dataTables.bootstrap5.min.js" defer></script>
         <script src="vendor/sweetalert2/js/sweetalert2.all.min.js" defer></script>
     <?php endif; ?>
-    <?php if ($controladorJS === 'clientes'): ?>
-        <script src="js/cliente.js" defer></script>
-    <?php elseif ($controladorJS === 'home'): ?>
+    <?php if ($controladorJS === 'home'): ?>
         <script src="js/home.js" defer></script>
-    <?php elseif ($controladorJS === 'esteticistas'): ?>
-        <script src="js/esteticista.js" defer></script>
+    <?php elseif (in_array($controladorJS, ['clientes', 'esteticistas', 'proveedores'], true)): ?>
+        <script src="js/telefono.js" defer></script>
+        <?php if ($controladorJS === 'clientes'): ?>
+            <script src="js/cliente.js" defer></script>
+        <?php elseif ($controladorJS === 'esteticistas'): ?>
+            <script src="js/esteticista.js" defer></script>
+        <?php else: ?>
+            <script src="js/proveedor.js" defer></script>
+        <?php endif; ?>
     <?php elseif ($controladorJS === 'servicios'): ?>
         <script src="js/servicio.js" defer></script>
-    <?php elseif ($controladorJS === 'proveedores'): ?>
-        <script src="js/proveedor.js" defer></script>
     <?php elseif ($controladorJS === 'antecedentes'): ?>
         <script src="js/antecedentes.js" defer></script>
     <?php elseif ($controladorJS === 'citas'): ?>

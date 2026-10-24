@@ -21,6 +21,41 @@ if (is_file($ruta_modelo)) {
     }
 }
 
+function validarDatosProveedor(array &$datos): ?string
+{
+    $rif = strtoupper(trim($datos['rif']));
+    $rif = preg_replace('/^J-/i', '', $rif);
+    $rif = str_replace('-', '', $rif);
+    if (!preg_match('/^\d{9}$/', $rif)) {
+        return 'El RIF debe tener 8 dígitos para el negocio y un dígito final.';
+    }
+    $datos['rif'] = 'J-' . substr($rif, 0, 8) . '-' . substr($rif, 8, 1);
+
+    $nombre = trim($datos['nombreProveedor']);
+    if (mb_strlen($nombre, 'UTF-8') < 2 || mb_strlen($nombre, 'UTF-8') > 100 || preg_match('/[\x00-\x1F]/', $nombre)) {
+        return 'El nombre del proveedor debe tener entre 2 y 100 caracteres.';
+    }
+
+    if ($datos['correo'] === '' || strlen($datos['correo']) > 30 || !filter_var($datos['correo'], FILTER_VALIDATE_EMAIL)) {
+        return 'Ingrese un correo válido de máximo 30 caracteres.';
+    }
+
+    if (
+        $datos['telefono'] !== '' &&
+        !preg_match('/^04(?:12|13|14|16|24|26)\d{7}$/', $datos['telefono'])
+    ) {
+        return 'Ingrese un teléfono válido: seleccione un prefijo y escriba los 7 dígitos restantes.';
+    }
+
+    foreach (['estadoDirProveedor', 'municipioDirProveedor', 'parroquiaDirProveedor'] as $campo) {
+        if (mb_strlen($datos[$campo], 'UTF-8') > 100 || preg_match('/[\x00-\x1F]/', $datos[$campo])) {
+            return 'Revise los datos de la dirección del proveedor.';
+        }
+    }
+
+    return null;
+}
+
 $modelo = new Proveedor();
 
 $accion = $_POST['accion'] ?? '';
@@ -46,13 +81,28 @@ if ($accion !== '') {
             break;
 
         case 'incluir':
-            $modelo->set_rif(trim($_POST['rif'] ?? ''));
-            $modelo->set_nombreProveedor(trim($_POST['nombreProveedor'] ?? ''));
-            $modelo->set_estadoDirProveedor(trim($_POST['estadoDirProveedor'] ?? ''));
-            $modelo->set_municipioDirProveedor(trim($_POST['municipioDirProveedor'] ?? ''));
-            $modelo->set_parroquiaDirProveedor(trim($_POST['parroquiaDirProveedor'] ?? ''));
-            $modelo->set_telefono(trim($_POST['telefono'] ?? ''));
-            $modelo->set_correo(trim($_POST['correo'] ?? ''));
+            $datos = [
+                'rif' => trim($_POST['rif'] ?? ''),
+                'nombreProveedor' => trim($_POST['nombreProveedor'] ?? ''),
+                'estadoDirProveedor' => trim($_POST['estadoDirProveedor'] ?? ''),
+                'municipioDirProveedor' => trim($_POST['municipioDirProveedor'] ?? ''),
+                'parroquiaDirProveedor' => trim($_POST['parroquiaDirProveedor'] ?? ''),
+                'telefono' => trim($_POST['telefono'] ?? ''),
+                'correo' => trim($_POST['correo'] ?? ''),
+            ];
+            $error = validarDatosProveedor($datos);
+            if ($error !== null) {
+                http_response_code(400);
+                echo json_encode(['ok' => false, 'mensaje' => $error]);
+                exit;
+            }
+            $modelo->set_rif($datos['rif']);
+            $modelo->set_nombreProveedor($datos['nombreProveedor']);
+            $modelo->set_estadoDirProveedor($datos['estadoDirProveedor']);
+            $modelo->set_municipioDirProveedor($datos['municipioDirProveedor']);
+            $modelo->set_parroquiaDirProveedor($datos['parroquiaDirProveedor']);
+            $modelo->set_telefono($datos['telefono']);
+            $modelo->set_correo($datos['correo']);
 
             $res = $modelo->insertar();
 
@@ -65,13 +115,28 @@ if ($accion !== '') {
 
         case 'modificar':
             $modelo->set_idProveedor(trim($_POST['idProveedor'] ?? ''));
-            $modelo->set_rif(trim($_POST['rif'] ?? ''));
-            $modelo->set_nombreProveedor(trim($_POST['nombreProveedor'] ?? ''));
-            $modelo->set_estadoDirProveedor(trim($_POST['estadoDirProveedor'] ?? ''));
-            $modelo->set_municipioDirProveedor(trim($_POST['municipioDirProveedor'] ?? ''));
-            $modelo->set_parroquiaDirProveedor(trim($_POST['parroquiaDirProveedor'] ?? ''));
-            $modelo->set_telefono(trim($_POST['telefono'] ?? ''));
-            $modelo->set_correo(trim($_POST['correo'] ?? ''));
+            $datos = [
+                'rif' => trim($_POST['rif'] ?? ''),
+                'nombreProveedor' => trim($_POST['nombreProveedor'] ?? ''),
+                'estadoDirProveedor' => trim($_POST['estadoDirProveedor'] ?? ''),
+                'municipioDirProveedor' => trim($_POST['municipioDirProveedor'] ?? ''),
+                'parroquiaDirProveedor' => trim($_POST['parroquiaDirProveedor'] ?? ''),
+                'telefono' => trim($_POST['telefono'] ?? ''),
+                'correo' => trim($_POST['correo'] ?? ''),
+            ];
+            $error = validarDatosProveedor($datos);
+            if ($error !== null) {
+                http_response_code(400);
+                echo json_encode(['ok' => false, 'mensaje' => $error]);
+                exit;
+            }
+            $modelo->set_rif($datos['rif']);
+            $modelo->set_nombreProveedor($datos['nombreProveedor']);
+            $modelo->set_estadoDirProveedor($datos['estadoDirProveedor']);
+            $modelo->set_municipioDirProveedor($datos['municipioDirProveedor']);
+            $modelo->set_parroquiaDirProveedor($datos['parroquiaDirProveedor']);
+            $modelo->set_telefono($datos['telefono']);
+            $modelo->set_correo($datos['correo']);
 
             $res = $modelo->modificar();
 

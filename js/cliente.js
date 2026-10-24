@@ -177,6 +177,9 @@ function limpia() {
     $("#estado").val("");
     $("#municipio").val("");
     $("#parroquia").val("");
+    $("#telefonoOriginal").val("");
+    $("#prefijoTelefono").val("0414");
+    $("#telefono").val("");
     $("#scedula, #snombres, #sfechadenacimiento, #sestado, #smunicipio, #sparroquia").text("");
 }
 
@@ -244,13 +247,13 @@ $(document).ready(function () {
         if (!cedula) return;
 
         var $fila = $(this).closest('tr');
-        var nombre = $fila.find('td').eq(2).text();
-        var fechaNacimiento = $fila.find('td').eq(3).text();
-        var direccion = ($fila.find('td').eq(4).text() || '').split(' / ');
+        var nombre = $fila.find('td').eq(1).text();
+        var fechaNacimiento = $fila.find('td').eq(2).text();
+        var direccion = ($fila.find('td').eq(3).text() || '').split(' / ');
         var estado = direccion[0] || '';
         var municipio = direccion[1] || '';
         var parroquia = direccion[2] || '';
-        var telefono = $fila.find('td').eq(5).text();
+        var telefono = $fila.find('td').eq(4).text();
 
         $('#cedula').val(cedula).prop('readonly', true);
         $('#nombres').val(nombre);
@@ -258,7 +261,7 @@ $(document).ready(function () {
         $('#estado').val(estado);
         $('#municipio').val(municipio);
         $('#parroquia').val(parroquia);
-        $('#telefono').val(telefono);
+        cargarTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal', telefono);
 
         $('#proceso').text('MODIFICAR');
         $('#accion').val('modificar');
@@ -276,6 +279,11 @@ $(document).ready(function () {
             if (!validarenvio()) {
                 return;
             }
+            var telefono = obtenerTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal');
+            if (telefono === null) {
+                muestraMensaje('El teléfono debe contener 7 dígitos después del prefijo.', 'warning');
+                return;
+            }
             var datos = new FormData();
             datos.append('accion', accion);
             datos.append('cedula', $('#cedula').val());
@@ -284,7 +292,7 @@ $(document).ready(function () {
             datos.append('estado', $('#estado').val());
             datos.append('municipio', $('#municipio').val());
             datos.append('parroquia', $('#parroquia').val());
-            datos.append('telefono', $('#telefono').val());
+            datos.append('telefono', telefono);
             enviaAjax(datos);
         } else if ($(this).text() === 'ELIMINAR') {
             if (validarkeyup(/^[0-9]{7,8}$/, $('#cedula'), $('#scedula'), 'El formato debe ser 9999999') == 0) {

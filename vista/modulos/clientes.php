@@ -94,7 +94,18 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label" for="telefono">Teléfono</label>
-                            <input class="form-control" type="tel" id="telefono" name="telefono" autocomplete="off">
+                            <div class="input-group">
+                                <select class="form-select telefono-prefijo" id="prefijoTelefono" aria-label="Prefijo telefónico">
+                                    <option value="0412">0412</option>
+                                    <option value="0413">0413</option>
+                                    <option value="0414" selected>0414</option>
+                                    <option value="0416">0416</option>
+                                    <option value="0424">0424</option>
+                                    <option value="0426">0426</option>
+                                </select>
+                                <input class="form-control telefono-numero" type="tel" id="telefono" name="telefono" inputmode="numeric" autocomplete="off" maxlength="7" pattern="[0-9]{7}" placeholder="1234567" aria-describedby="stelefono">
+                            </div>
+                            <input type="hidden" id="telefonoOriginal" value="">
                             <span class="form-text text-danger" id="stelefono"></span>
                         </div>
                     </div>

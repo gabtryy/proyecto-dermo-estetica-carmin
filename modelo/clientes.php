@@ -169,6 +169,7 @@ class Clientes extends Conexion
                 return 'no existe';
             }
 
+            $this->pdo->beginTransaction();
             $ok = $stmt->execute([
                 ':nombre' => $this->nombres,
                 ':fecha_nacimiento' => $this->fechadenacimiento ?: null,
@@ -177,13 +178,46 @@ class Clientes extends Conexion
                 ':parroquia' => $this->parroquia,
                 ':cedula' => $this->cedula,
             ]);
+            if (!$ok) {
+                $this->pdo->rollBack();
+                return 'error: update fallido';
+            }
 
-            return $ok ? 'modificado' : 'error: update fallido';
+            if ($this->telefono && trim($this->telefono) !== '') {
+                $stmtTelefono = $this->pdo->prepare(
+                    "SELECT idTelefonoCliente FROM telefonocliente WHERE cedulaCliente = :cedula LIMIT 1"
+                );
+                $stmtTelefono->execute([':cedula' => $this->cedula]);
+                $idTelefono = $stmtTelefono->fetchColumn();
+
+                if ($idTelefono) {
+                    $stmtActualizarTelefono = $this->pdo->prepare(
+                        "UPDATE telefonocliente SET numTelefonoCliente = :telefono WHERE idTelefonoCliente = :id"
+                    );
+                    $stmtActualizarTelefono->execute([
+                        ':telefono' => $this->telefono,
+                        ':id' => $idTelefono,
+                    ]);
+                } else {
+                    $stmtInsertarTelefono = $this->pdo->prepare(
+                        "INSERT INTO telefonocliente (cedulaCliente, numTelefonoCliente) VALUES (:cedula, :telefono)"
+                    );
+                    $stmtInsertarTelefono->execute([
+                        ':cedula' => $this->cedula,
+                        ':telefono' => $this->telefono,
+                    ]);
+                }
+            }
+
+            $this->pdo->commit();
+            return 'modificado';
         } catch (\PDOException $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
             return 'error: '.$e->getMessage();
         }
     }
 }
 
 ?>
-

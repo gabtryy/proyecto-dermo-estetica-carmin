@@ -94,6 +94,28 @@ class Citas extends Conexion
         }
     }
 
+    public function listarPeriodo(string $fechaInicio, string $fechaFin): array
+    {
+        $sql = "SELECT c.fecha_cita,
+                       c.hora_cita AS hora,
+                       c.estado_cita,
+                       cl.nombreCliente,
+                       e.nombreEsteticista
+                FROM citas c
+                LEFT JOIN cliente cl ON cl.cedulaCliente = c.cedulaCliente
+                LEFT JOIN esteticista e ON e.cedulaEsteticista = c.cedulaEsteticista
+                WHERE c.fecha_cita BETWEEN :fechaInicio AND :fechaFin
+                ORDER BY c.fecha_cita ASC, c.hora_cita ASC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':fechaInicio' => $fechaInicio,
+            ':fechaFin' => $fechaFin,
+        ]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function insertar(): array
     {
         $cedulaCliente = trim((string) $this->cedulaCliente);

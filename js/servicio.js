@@ -31,22 +31,33 @@ function renderTabla(lista) {
 
     if (!lista.length) {
         $tbody.append('<tr><td colspan="4" class="text-center text-muted">Sin registros</td></tr>');
-        return;
-    }
+        return;
+    }
 
-    lista.forEach(function (item) {
-            var fila = ''
-            + '<tr>'
-+ '<td>' + (item.nombreServicio || '') + '</td>'
-+ '<td>' + (item.precio || '') + '</td>'
-+ '<td>' + (item.descripcion || '') + '</td>'
-+ '<td class="text-nowrap">'
-+   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-id-servicio="' + (item.idServicio || '') + '"><i class="fas fa-edit"></i></button>'
-+   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id-servicio="' + (item.idServicio || '') + '"><i class="fas fa-trash-alt"></i></button>'
-+ '</td>'
-            + '</tr>';
-        $tbody.append(fila);
-    });
+    lista.forEach(function (item) {
+        var $fila = $('<tr>');
+        $fila.append($('<td>').text(item.nombreServicio || ''));
+        $fila.append($('<td>').text(item.precio || ''));
+        $fila.append($('<td>').text(item.descripcion || ''));
+        $fila.append($('<td>').addClass('text-nowrap').append(
+            $('<button>').attr({
+                type: 'button',
+                title: 'Modificar',
+                'aria-label': 'Modificar ' + (item.nombreServicio || 'servicio'),
+                'data-id-servicio': item.idServicio || ''
+            }).addClass('btn btn-sm btn-purple me-1 btn-editar')
+                .append($('<i>').addClass('fas fa-edit'))
+        ).append(
+            $('<button>').attr({
+                type: 'button',
+                title: 'Eliminar',
+                'aria-label': 'Eliminar ' + (item.nombreServicio || 'servicio'),
+                'data-id-servicio': item.idServicio || ''
+            }).addClass('btn btn-sm btn-danger btn-eliminar')
+                .append($('<i>').addClass('fas fa-trash-alt'))
+        ));
+        $tbody.append($fila);
+    });
 }
 
 $(document).ready(function () {
@@ -89,113 +100,68 @@ $(document).ready(function () {
         });
     });
 
-    // Delegación para botón editar
-$('#resultadoconsulta').on('click', '.btn-editar', function () {
-    var idServicio = $(this).data('idServicio') || $(this).attr('data-id-servicio');
-    console.log('btn-editar clicked, idServicio=', idServicio);
-    if (!idServicio ) return;
+    $('#resultadoconsulta').on('click', '.btn-editar', function () {
+        var idServicio = $(this).attr('data-id-servicio');
+        if (!idServicio) return;
 
-    // Buscar la fila y extraer los datos
-    var $fila = $(this).closest('tr');
-    var nombre_servicio = $fila.find('td:eq(1)').text().trim();
-    var precio = $fila.find('td:eq(2)').text().trim();
-    var descripcion = $fila.find('td:eq(3)').text().trim();
-    // Guardar id en variable (no en el formulario)
-    currentEditId = idServicio;
-    $('#nombreServicio').val(nombre_servicio);
-    $('#precio').val(precio);
-    $('#descripcion').val(descripcion);
-    $('#proceso').text('MODIFICAR');
-    $('#accion').val('modificar');
-    var $modal = $('#modal1');
-    if ($modal.length && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-        bootstrap.Modal.getOrCreateInstance($modal[0]).show();
-    }
-});
-
-    // Botón Incluir (Abrir modal)
-    $(document).ready(function () {
-        $('#incluir').on('click', function () {
-            $('#proceso').text('REGISTRAR');
-            $('#accion').val('incluir');
-            var $modal = $('#modal1');
-            if (!$modal.length || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
-                return;
-            }
-            bootstrap.Modal.getOrCreateInstance($modal[0]).show();
-        });
-
-        // Cambiar a submit y validar campos vacíos
-        $('#formulario_servicio').on('submit', function (e) {
-            e.preventDefault();
-            var form = this;
-            var datos = new FormData(form);
-            // Si es modificación, anexar el id que guardamos al abrir el modal
-            if ($('#accion').val() === 'modificar' && currentEditId) {
-                datos.append('idServicio', currentEditId);
-            }
-
-            
-            var vacio = true;
-            for (var pair of datos.entries()) {
-                var key = pair[0];
-                var value = pair[1];
-                if (key !== 'accion' && key !== 'proceso' && value && value.toString().trim() !== '') {
-                    vacio = false;
-                    break;
-                }
-            }
-            if (vacio) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'El formulario está vacío. Por favor, complete al menos un campo.',
-                    confirmButtonText: 'Aceptar'
-                });
-                return;
-            }
-
-            enviaAjax({
-                datos: datos,
-                done: function (resp) {
-                    if (!resp || !resp.ok) {
-                        alert((resp && resp.mensaje) || 'No se pudo guardar.');
-                        return;
-                    }
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: resp.mensaje || 'Servicio guardado correctamente.',
-                        confirmButtonText: 'Aceptar'
-                    });
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1')).hide();
-                    form.reset();
-                    currentEditId = null;
-                    consultar();
-                },
-                fail: function (xhr) {
-                    console.log('Respuesta AJAX fallida:', xhr.responseText);
-                    var msg = 'Error al guardar servicio.';
-                    if (xhr.responseJSON && xhr.responseJSON.mensaje) {
-                        msg = xhr.responseJSON.mensaje;
-                    } else if (xhr.responseText) {
-                        
-                        try {
-                            var json = JSON.parse(xhr.responseText);
-                            if (json.mensaje) msg = json.mensaje;
-                        } catch (e) {}
-                    }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: msg,
-                        confirmButtonText: 'Aceptar'
-                    });
-                }
-            });
-        });
-
-        consultar();
+        var $fila = $(this).closest('tr');
+        currentEditId = idServicio;
+        $('#nombreServicio').val($fila.find('td:eq(0)').text().trim());
+        $('#precio').val($fila.find('td:eq(1)').text().trim());
+        $('#descripcion').val($fila.find('td:eq(2)').text().trim());
+        $('#proceso').text('MODIFICAR');
+        $('#accion').val('modificar');
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1')).show();
     });
 
+    $('#incluir').on('click', function () {
+        currentEditId = null;
+        $('#formulario_servicio')[0].reset();
+        $('#proceso').text('REGISTRAR');
+        $('#accion').val('incluir');
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1')).show();
+    });
+
+    $('#formulario_servicio').on('submit', function (e) {
+        e.preventDefault();
+        var form = this;
+        var nombre = $('#nombreServicio').val().trim();
+        var precio = Number($('#precio').val());
+        if (nombre.length < 3 || nombre.length > 100) {
+            Swal.fire('Revisa el nombre', 'El nombre del servicio debe tener entre 3 y 100 caracteres.', 'warning');
+            return;
+        }
+        if (!Number.isFinite(precio) || precio <= 0 || precio > 99999999.99) {
+            Swal.fire('Revisa el precio', 'Ingresa un precio mayor que cero y con un máximo de dos decimales.', 'warning');
+            return;
+        }
+
+        var datos = new FormData(form);
+        if ($('#accion').val() === 'modificar' && currentEditId) {
+            datos.set('idServicio', currentEditId);
+        }
+
+        enviaAjax({
+            datos: datos,
+            done: function (resp) {
+                if (!resp || !resp.ok) {
+                    Swal.fire('Error', (resp && resp.mensaje) || 'No se pudo guardar.', 'error');
+                    return;
+                }
+                Swal.fire('¡Éxito!', resp.mensaje || 'Servicio guardado correctamente.', 'success');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1')).hide();
+                form.reset();
+                currentEditId = null;
+                consultar();
+            },
+            fail: function (xhr) {
+                var msg = xhr.responseJSON && xhr.responseJSON.mensaje
+                    ? xhr.responseJSON.mensaje
+                    : 'Error al guardar servicio.';
+                Swal.fire('Error', msg, 'error');
+            }
+        });
+    });
+
+    consultar();
 });

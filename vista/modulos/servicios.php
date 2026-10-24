@@ -46,14 +46,14 @@
                 <h2 class="modal-title fs-5" id="modal1Label">Añadir servicio</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body">
-                <form method="post" id="formulario_servicio" autocomplete="off">
+            <form method="post" id="formulario_servicio" autocomplete="off">
+                <div class="modal-body">
                     <input type="hidden" name="accion" id="accion" value="">
                     
                     <div class="row g-3 mb-3">
                         <div class="col-md-8">
                             <label class="form-label" for="nombreServicio">Nombre Servicio</label>
-                            <input class="form-control" type="text" id="nombreServicio" name="nombreServicio" autocomplete="off">
+                            <input class="form-control" type="text" id="nombreServicio" name="nombreServicio" minlength="3" maxlength="100" autocomplete="off" required>
                             <span class="form-text text-danger" id="snombreServicio"></span>
                         </div>
                     </div>
@@ -61,7 +61,7 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label" for="precio">Precio</label>
-                            <input class="form-control" type="text" id="precio" name="precio" autocomplete="off">
+                            <input class="form-control" type="number" id="precio" name="precio" min="0.01" max="99999999.99" step="0.01" required>
                             <span class="form-text text-danger" id="sprecio"></span>
                         </div>
                         <div class="col-md-8">
@@ -70,12 +70,12 @@
                             <span class="form-text text-danger" id="sdescripcion"></span>
                         </div>
                     </div>
-            </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cerrar</button>
-                <button class="btn btn-primary" type="submit" id="proceso">REGISTRAR</button>
-            </div>
-                </form>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cerrar</button>
+                    <button class="btn btn-primary" type="submit" id="proceso">REGISTRAR</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
