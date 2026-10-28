@@ -1,195 +1,159 @@
-// ==========================================
-// 1. FUNCIONES PRINCIPALES Y AJAX
-// ==========================================
+$(function () {
+    var productos = {};
+    var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1'));
 
-function enviaAjax({datos, done, fail, always, url = '', type = 'POST', dataType = 'json'}) {
-    $.ajax({
-        url: url,
-        type: type,
-        data: datos,
-        processData: false,
-        contentType: false,
-        dataType: dataType
-    })
-    .done(done || function(){})
-    .fail(fail || function(){})
-    .always(always || function(){});
-}
-
-function pone_fecha() {
-    var datos = new FormData();
-    datos.append('accion');
-    
-    enviaAjax({
-        datos: datos,
-        done: function(resp) {
-            var fecha = resp.data || resp.mensaje || "";
-        }
-    });
-}
-
-function consultar() {
-    var datos = new FormData();
-    datos.append('accion', 'consultar');
-    
-    enviaAjax({
-        datos: datos,
-        done: function (resp) {
-            if (!resp?.ok) return;
-            renderTabla(resp.data || []);
-        }
-    });
-}
-
-function renderTabla(lista) {
-    var $tbody = $('#resultadoconsulta');
-    $tbody.empty();
-
-    if (!lista.length) {
-        $tbody.append('<tr><td colspan="7" class="text-center text-muted">Sin registros</td></tr>');
-        return;
+    function enviaAjax(datos, done, fail) {
+        return $.ajax({
+            url: 'index.php?pagina=productos',
+            type: 'POST',
+            data: datos,
+            processData: false,
+            contentType: false,
+            dataType: 'json'
+        }).done(done).fail(fail || function () {});
     }
 
-    lista.forEach(function (item) {
-        var fila = ''
-            + '<tr>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-outline-primary me-1 btn-editar" title="Modificar" data-idProducto="' + (item.idProducto || '') + '" data-idProveedor="' + (item.idProveedor || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-idProducto="' + (item.idProducto || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            + '</td>'
-                + '<td>' + (item.nombreProducto || '') + '</td>'
-                + '<td>' + (item.marca || '') + '</td>'
-                + '<td>' + (item.precioProducto || '') + '</td>'
-                + '<td>' + (item.nombreProveedor || item.idProveedor || '') + '</td>'
-                + '<td>' + (item.cantidadActual || '') + '</td>'
-                + '<td>' + (item.tipoProducto || '') + '</td>'
-            + '</tr>';
-        $tbody.append(fila);
-    });
-}
-
-// ==========================================
-// 2. FUNCIONES DE VALIDACIÓN
-// ==========================================
-
-function validarkeypress(er, e) {
-    let key = e.keyCode || e.which;
-    let tecla = String.fromCharCode(key);
-    if (!er.test(tecla)) {
-        e.preventDefault();
+    function mostrarError(xhr, mensajePredeterminado) {
+        var mensaje = xhr.responseJSON && xhr.responseJSON.mensaje
+            ? xhr.responseJSON.mensaje
+            : mensajePredeterminado;
+        Swal.fire('Error', mensaje, 'error');
     }
-}
 
-function validarkeyup(er, $etiqueta, $etiquetamensaje, mensaje) {
-    let a = er.test($etiqueta.val());
-    if (a) {
-        $etiquetamensaje.text("");
-        return 1;
-    } else {
-        $etiquetamensaje.text(mensaje).css("color", "red");
-        return 0;
-    }
-}
-
-function validarenvio() {
-    if (validarkeyup(/^[A-Za-z0-9\s\u00f1\u00d1\u00C0-\u017F\-\_\.\,\'\"()\&\/ºª%#\+\?\¡\!\:\;\@]{3,150}$/, $("#nombreProducto"), $("#snombreProducto"), "Solo caracteres válidos entre 3 y 150 caracteres") == 0) {
-        Swal.fire('Atención', 'Nombre del producto: Solo caracteres válidos entre 3 y 150 caracteres', 'warning');
-        return false;
-    } else if (validarkeyup(/^[A-Za-z0-9\s\u00f1\u00d1\u00C0-\u017F\-\_\.\,\'\"()\&\/ºª%#\+\?\¡\!\:\;\@]{3,150}$/, $("#marca"), $("#smarca"), "Solo caracteres válidos entre 3 y 150 caracteres") == 0) {
-        Swal.fire('Atención', 'Marca: Solo caracteres válidos entre 3 y 150 caracteres', 'warning');
-        return false;
-    } else if (validarkeyup(/^[0-9]+([.,][0-9]{1,2})?$/, $("#precioProducto"), $("#sprecioProducto"), "Ingrese un precio válido 1.00") == 0) {
-        Swal.fire('Atención', 'Precio del producto: Ingrese un precio válido 1.00', 'warning');
-        return false;
-    } else if (validarkeyup(/^[1-9][0-9]?$|^100$/, $("#cantidadActual"), $("#scantidadActual"), "Ingrese una cantidad válida entre 1 y 100") == 0) {
-        Swal.fire('Atención', 'Cantidad actual: Ingrese una cantidad válida entre 1 y 100', 'warning');
-        return false;
-    } else if (!["venta", "insumo"].includes($("#tipoProducto").val())) {
-        $("#stipoProducto").text("Seleccione Venta o Insumo").css("color", "red");
-        Swal.fire('Atención', 'Tipo de producto: Seleccione Venta o Insumo', 'warning');
-        return false;
-    } 
-    return true;
-}
-
-function limpia() {
-    $("#idProducto").val("").prop("readonly", false);
-    $("#nombreProducto").val("");
-    $("#marca").val("");
-    $("#idProveedor").val("");
-    $("#precioProducto").val("");
-    $("#cantidadActual").val("");
-    $("#tipoProducto").val("");
-    $("#snombreProducto").text("");
-    $("#smarca").text("");
-    $("#sprecioProducto").text("");
-    $("#scantidadActual").text("");
-    $("#stipoProducto").text("");
-}
-
-// ==========================================
-// 3. EVENTOS Y DELEGACIONES (DOCUMENT READY)
-// ==========================================
-
-$(document).ready(function () {
-    console.log('productos.js: document ready');
-    consultar();
-
-    // Cargar proveedores para el select
-    (function cargarProveedores(){
+    function consultar() {
         var datos = new FormData();
-        datos.append('accion', 'proveedores');
-        enviaAjax({
-            datos: datos,
-            done: function(resp){
-                if (!resp?.ok) return;
-                var $sel = $('#idProveedor');
-                if (!$sel.length) return;
-                $sel.empty();
-                $sel.append('<option value="">Seleccione proveedor</option>');
-                (resp.data || []).forEach(function(p){
-                    $sel.append('<option value="'+ (p.idProveedor || '') +'">'+ (p.nombreProveedor || p.idProveedor) +'</option>');
-                });
+        datos.append('accion', 'consultar');
+        enviaAjax(datos, function (respuesta) {
+            if (!respuesta.ok) {
+                $('#resultadoconsulta').empty().append(
+                    $('<tr>').append($('<td>').attr('colspan', 7).addClass('text-center text-danger')
+                        .text(respuesta.mensaje || 'No se pudieron consultar los productos.'))
+                );
+                return;
             }
+            renderTabla(respuesta.data || []);
+        }, function (xhr) {
+            $('#resultadoconsulta').empty().append(
+                $('<tr>').append($('<td>').attr('colspan', 7).addClass('text-center text-danger')
+                    .text('No se pudieron consultar los productos. Verifique la conexión e intente nuevamente.'))
+            );
+            console.error(xhr.responseText || xhr.statusText);
         });
-    })();
+    }
 
-    $("#nombreProducto").on("keypress", function (e) { validarkeypress(/^[A-Za-z0-9\s\u00f1\u00d1\u00C0-\u017F\-\_\.\,\'\"()\&\/ºª%#\+\?\¡\!\:\;\@]*$/, e); });
-    $("#nombreProducto").on("keyup", function () { validarkeyup(/^[A-Za-z0-9\s\u00f1\u00d1\u00C0-\u017F\-\_\.\,\'\"()\&\/ºª%#\+\?\¡\!\:\;\@]{3,150}$/, $(this), $("#snombreProducto"), "Solo caracteres válidos entre 3 y 150 caracteres"); });
-    
-    $("#marca").on("keypress", function (e) { validarkeypress(/^[A-Za-z0-9\s\u00f1\u00d1\u00C0-\u017F\-\_\.\,\'\"()\&\/ºª%#\+\?\¡\!\:\;\@]*$/, e); });
-    $("#marca").on("keyup", function () { validarkeyup(/^[A-Za-z0-9\s\u00f1\u00d1\u00C0-\u017F\-\_\.\,\'\"()\&\/ºª%#\+\?\¡\!\:\;\@]{3,150}$/, $(this), $("#smarca"), "Solo caracteres válidos entre 3 y 150 caracteres"); });
-
-    $("#precioProducto").on("keypress", function (e) { validarkeypress(/^[0-9.,]*$/, e); });
-    $("#precioProducto").on("keyup", function () { validarkeyup(/^[0-9]+([.,][0-9]{1,2})?$/, $(this), $("#sprecioProducto"), "Ingrese un precio válido 1.00"); });
-
-    $("#cantidadActual").on("keypress", function (e) { validarkeypress(/^[0-9]*$/, e); });
-    $("#cantidadActual").on("keyup", function () { validarkeyup(/^[1-9][0-9]?$|^100$/, $(this), $("#scantidadActual"), "Ingrese una cantidad válida entre 1 y 100"); });
-
-    $("#tipoProducto").on("change", function () {
-        if (["venta", "insumo"].includes($(this).val())) {
-            $("#stipoProducto").text("");
-        } else {
-            $("#stipoProducto").text("Seleccione Venta o Insumo").css("color", "red");
+    function renderTabla(lista) {
+        var $tbody = $('#resultadoconsulta').empty();
+        productos = {};
+        if (!lista.length) {
+            $tbody.append(
+                $('<tr>').append($('<td>').attr('colspan', 7).addClass('text-center text-muted').text('Sin registros'))
+            );
+            return;
         }
-    });
+
+        lista.forEach(function (producto) {
+            productos[String(producto.idProducto)] = producto;
+            var $fila = $('<tr>');
+            var $acciones = $('<td>').addClass('text-nowrap');
+            $acciones.append(
+                $('<button>').attr({
+                    type: 'button',
+                    title: 'Modificar',
+                    'aria-label': 'Modificar ' + producto.nombreProducto,
+                    'data-id-producto': producto.idProducto
+                }).addClass('btn btn-sm btn-purple me-1 btn-editar')
+                    .append($('<i>').addClass('fas fa-edit'))
+            );
+            $acciones.append(
+                $('<button>').attr({
+                    type: 'button',
+                    title: 'Eliminar',
+                    'aria-label': 'Eliminar ' + producto.nombreProducto,
+                    'data-id-producto': producto.idProducto
+                }).addClass('btn btn-sm btn-outline-danger btn-eliminar')
+                    .append($('<i>').addClass('fas fa-trash-alt'))
+            );
+            $fila.append($('<td>').text(producto.nombreProducto || ''));
+            $fila.append($('<td>').text(producto.marca || '—'));
+            $fila.append($('<td>').text(Number(producto.precioProducto).toFixed(2)));
+            $fila.append($('<td>').text(producto.nombreProveedor || ''));
+            $fila.append($('<td>').text(producto.cantidadActual));
+            $fila.append($('<td>').text(producto.tipoProducto || 'Sin clasificar'));
+            $fila.append($acciones);
+            $tbody.append($fila);
+        });
+    }
+
+    function cargarCatalogos() {
+        var datos = new FormData();
+        datos.append('accion', 'catalogos');
+        enviaAjax(datos, function (respuesta) {
+            if (!respuesta.ok) {
+                Swal.fire('Error', respuesta.mensaje || 'No se pudieron cargar los datos.', 'error');
+                return;
+            }
+            var $proveedor = $('#idProveedor').empty()
+                .append($('<option>').val('').text('Seleccione proveedor'));
+            respuesta.data.proveedores.forEach(function (proveedor) {
+                $proveedor.append(
+                    $('<option>').val(proveedor.idProveedor).text(proveedor.nombreProveedor)
+                );
+            });
+
+            var $tipo = $('#tipoProducto').empty()
+                .append($('<option>').val('').text('Seleccione el tipo de producto'));
+            respuesta.data.tipos.forEach(function (tipo) {
+                $tipo.append(
+                    $('<option>').val(tipo.idTipo).text(tipo.nombreTipo)
+                );
+            });
+            $('#incluir').prop(
+                'disabled',
+                respuesta.data.proveedores.length === 0 || respuesta.data.tipos.length === 0
+            );
+        }, function (xhr) {
+            mostrarError(xhr, 'No se pudieron cargar proveedores y tipos de producto.');
+        });
+    }
+
+    function limpiarFormulario() {
+        $('#formulario_producto')[0].reset();
+        $('#idProducto').val('');
+        $('#accion').val('incluir');
+        $('#proceso').text('REGISTRAR');
+        $('#modal1Label').text('Añadir producto');
+        $('#snombreProducto, #smarca, #sidProveedor, #sprecioProducto, #scantidadActual, #stipoProducto').text('');
+    }
 
     $('#incluir').on('click', function () {
-        console.log('productos.js: incluir clicked');
-        limpia();
-        $('#proceso').text('INCLUIR');
-        $('#accion').val('incluir');
-        var $modal = $('#modal1');
-        if (!$modal.length) $modal = $('#mostrarmodal');
-        if ($modal.length && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            bootstrap.Modal.getOrCreateInstance($modal[0]).show();
+        limpiarFormulario();
+        modal.show();
+    });
+
+    $('#resultadoconsulta').on('click', '.btn-editar', function () {
+        var idProducto = String($(this).attr('data-id-producto'));
+        var producto = productos[idProducto];
+        if (!producto) {
+            Swal.fire('Error', 'No se encontró la información del producto.', 'error');
+            return;
         }
+
+        limpiarFormulario();
+        $('#idProducto').val(producto.idProducto);
+        $('#nombreProducto').val(producto.nombreProducto);
+        $('#marca').val(producto.marca || '');
+        $('#idProveedor').val(producto.idProveedor);
+        $('#precioProducto').val(producto.precioProducto);
+        $('#cantidadActual').val(producto.cantidadActual);
+        $('#tipoProducto').val(producto.idTipo || '');
+        $('#accion').val('modificar');
+        $('#proceso').text('GUARDAR CAMBIOS');
+        $('#modal1Label').text('Modificar producto');
+        modal.show();
     });
 
     $('#resultadoconsulta').on('click', '.btn-eliminar', function () {
-        var idProducto = $(this).data('idproducto');
-        if (!idProducto) return;
-
+        var idProducto = $(this).attr('data-id-producto');
         Swal.fire({
             title: '¿Eliminar producto?',
             text: 'Esta acción no se puede deshacer.',
@@ -197,95 +161,50 @@ $(document).ready(function () {
             showCancelButton: true,
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar'
-        }).then(function (result) {
-            if (result.isConfirmed) {
-                var datos = new FormData();
-                datos.append('accion', 'eliminar');
-                datos.append('idProducto', idProducto);
-
-                enviaAjax({
-                    datos: datos,
-                    done: function (resp) {
-                        if (resp?.ok) {
-                            Swal.fire('Eliminado', resp.mensaje || 'Producto eliminado correctamente.', 'success');
-                            consultar();
-                        } else {
-                            Swal.fire('Error', resp?.mensaje || 'No se pudo eliminar.', 'error');
-                        }
-                    },
-                    fail: function () {
-                        Swal.fire('Error', 'No se pudo comunicarse con el servidor.', 'error');
-                    }
-                });
+        }).then(function (resultado) {
+            if (!resultado.isConfirmed) {
+                return;
             }
-        });
-    });
-
-    $('#resultadoconsulta').on('click', '.btn-editar', function () {
-        var idProducto = $(this).data('idproducto');
-        if (!idProducto) return;
-
-        var idProveedor = $(this).data('idproveedor') || '';
-        var $fila = $(this).closest('tr');
-        var nombreProducto = $fila.find('td').eq(1).text();
-        var marca = $fila.find('td').eq(2).text();
-        var precioProducto = $fila.find('td').eq(3).text();
-        var cantidadActual = $fila.find('td').eq(5).text();
-        var tipoProducto = $fila.find('td').eq(6).text();
-
-        $('#idProducto').val(idProducto).prop('readonly', true);
-        $('#nombreProducto').val(nombreProducto);
-        $('#marca').val(marca);
-        $('#idProveedor').val(idProveedor);
-        $('#precioProducto').val(precioProducto);
-        $('#cantidadActual').val(cantidadActual);
-        $('#tipoProducto').val(tipoProducto);
-
-        $('#proceso').text('MODIFICAR');
-        $('#accion').val('modificar');
-
-        var $modal = $('#modal1');
-        if (!$modal.length) $modal = $('#mostrarmodal');
-        if ($modal.length && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            bootstrap.Modal.getOrCreateInstance($modal[0]).show();
-        }
-    });
-
-    $('#formulario_producto').on('submit', function (e) {
-        e.preventDefault();
-        if (!validarenvio()) {
-            return;
-        }
-
-        var datos = new FormData(this);
-        enviaAjax({
-            datos: datos,
-            done: function (resp) {
-                if (!resp?.ok) {
-                    Swal.fire('Error', resp?.mensaje || 'No se pudo guardar el producto.', 'error');
+            var datos = new FormData();
+            datos.append('accion', 'eliminar');
+            datos.append('idProducto', idProducto);
+            enviaAjax(datos, function (respuesta) {
+                if (!respuesta.ok) {
+                    Swal.fire('Error', respuesta.mensaje || 'No se pudo eliminar el producto.', 'error');
                     return;
                 }
-                Swal.fire('Éxito', resp.mensaje || 'Producto guardado correctamente.', 'success');
-                var modalEl = document.getElementById('modal1');
-                if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                    bootstrap.Modal.getOrCreateInstance(modalEl).hide();
-                }
-                $('#formulario_producto')[0].reset();
-                limpia();
+                Swal.fire('Eliminado', respuesta.mensaje, 'success');
                 consultar();
-            },
-            fail: function (xhr) {
-                var msg = 'Error al guardar el producto.';
-                if (xhr?.responseJSON?.mensaje) {
-                    msg = xhr.responseJSON.mensaje;
-                } else if (xhr?.responseText) {
-                    try {
-                        var json = JSON.parse(xhr.responseText);
-                        if (json.mensaje) msg = json.mensaje;
-                    } catch (e) {}
-                }
-                Swal.fire('Error', msg, 'error');
-            }
+            }, function (xhr) {
+                mostrarError(xhr, 'No se pudo eliminar el producto.');
+            });
         });
     });
+
+    $('#formulario_producto').on('submit', function (evento) {
+        evento.preventDefault();
+        if (!this.reportValidity()) {
+            return;
+        }
+        var datos = new FormData(this);
+        $('#proceso').prop('disabled', true);
+        enviaAjax(datos, function (respuesta) {
+            if (!respuesta.ok) {
+                Swal.fire('Error', respuesta.mensaje || 'No se pudo guardar el producto.', 'error');
+                return;
+            }
+            Swal.fire('Éxito', respuesta.mensaje, 'success');
+            modal.hide();
+            limpiarFormulario();
+            consultar();
+        }, function (xhr) {
+            mostrarError(xhr, 'No se pudo guardar el producto.');
+        }).always(function () {
+            $('#proceso').prop('disabled', false);
+        });
+    });
+
+    document.getElementById('modal1').addEventListener('hidden.bs.modal', limpiarFormulario);
+    cargarCatalogos();
+    consultar();
 });

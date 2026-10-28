@@ -105,7 +105,7 @@ function renderTabla(lista) {
             + '<td>' + direccion + '</td>'
             + '<td>' + telefono + '</td>'
             + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-warning me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
+            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
             +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-trash-alt"></i></button>'
             +   '<button class="btn btn-sm btn-info ms-1 btn-detalle" title="Detalle" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-info-circle"></i></button>'
             + '</td>'
@@ -285,7 +285,7 @@ $(document).ready(function () {
 
     $('#incluir').on('click', function () {
         limpia();
-        $('#proceso').text('INCLUIR');
+        $('#proceso').text('REGISTRAR');
         $('#accion').val('incluir');
         var $modal = $('#modal1');
         if ($modal.length && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
@@ -360,13 +360,14 @@ $(document).ready(function () {
 
             var datos = new FormData();
             datos.append('accion', accion);
+            datos.append('accion', accion);
             datos.append('cedula', $('#cedula').val());
             datos.append('nombres', $('#nombres').val());
             datos.append('fechadenacimiento', $('#fechadenacimiento').val());
             datos.append('estado', $('#estado').val());
             datos.append('municipio', $('#municipio').val());
             datos.append('parroquia', $('#parroquia').val());
-            datos.append('telefono', $('#telefono').val());
+            datos.append('telefono', telefono);
             enviaAjax(datos);
         } else if (accion === 'eliminar') {
             var datos = new FormData();

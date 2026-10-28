@@ -35,21 +35,32 @@ function renderTabla(lista) {
     }
 
     lista.forEach(function (item) {
-        var fila = ''
-            + '<tr>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-outline-primary me-1 btn-editar" title="Modificar" data-id-proveedor="' + (item.idProveedor || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id-proveedor="' + (item.idProveedor || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            + '</td>'
-            + '<td>' + (item.rif || '') + '</td>'
-            + '<td>' + (item.nombreProveedor || '') + '</td>'
-            + '<td>' + (item.estadoDirProveedor || '') + '</td>'
-            + '<td>' + (item.municipioDirProveedor || '') + '</td>'
-            + '<td>' + (item.parroquiaDirProveedor || '') + '</td>'
-            + '<td>' + (item.telefono || '') + '</td>'
-            + '<td>' + (item.correo || '') + '</td>'
-            + '</tr>';
-        $tbody.append(fila);
+        var $fila = $('<tr>');
+        [
+            item.rif, item.nombreProveedor, item.estadoDirProveedor,
+            item.municipioDirProveedor, item.parroquiaDirProveedor,
+            item.telefono, item.correo
+        ].forEach(function (valor) {
+            $fila.append($('<td>').text(valor || ''));
+        });
+        $fila.append($('<td>').addClass('text-nowrap').append(
+            $('<button>').attr({
+                type: 'button',
+                title: 'Modificar',
+                'aria-label': 'Modificar proveedor',
+                'data-id-proveedor': item.idProveedor || ''
+            }).addClass('btn btn-sm btn-purple me-1 btn-editar')
+                .append($('<i>').addClass('fas fa-edit'))
+        ).append(
+            $('<button>').attr({
+                type: 'button',
+                title: 'Eliminar',
+                'aria-label': 'Eliminar proveedor',
+                'data-id-proveedor': item.idProveedor || ''
+            }).addClass('btn btn-sm btn-danger btn-eliminar')
+                .append($('<i>').addClass('fas fa-trash-alt'))
+        ));
+        $tbody.append($fila);
     });
 }
 
@@ -96,13 +107,13 @@ $(document).ready(function () {
         if (!idProveedor) return;
 
         var $fila = $(this).closest('tr');
-        var rif = $fila.find('td:eq(1)').text().trim();
-        var nombreProveedor = $fila.find('td:eq(2)').text().trim();
-        var estado = $fila.find('td:eq(3)').text().trim();
-        var municipio = $fila.find('td:eq(4)').text().trim();
-        var parroquia = $fila.find('td:eq(5)').text().trim();
-        var telefono = $fila.find('td:eq(6)').text().trim();
-        var correo = $fila.find('td:eq(7)').text().trim();
+        var rif = $fila.find('td:eq(0)').text().trim().replace(/^J-/i, '');
+        var nombreProveedor = $fila.find('td:eq(1)').text().trim();
+        var estado = $fila.find('td:eq(2)').text().trim();
+        var municipio = $fila.find('td:eq(3)').text().trim();
+        var parroquia = $fila.find('td:eq(4)').text().trim();
+        var telefono = $fila.find('td:eq(5)').text().trim();
+        var correo = $fila.find('td:eq(6)').text().trim();
 
         currentEditId = idProveedor;
         $('#idProveedor').val(idProveedor);
@@ -111,7 +122,7 @@ $(document).ready(function () {
         $('#estadoDirProveedor').val(estado);
         $('#municipioDirProveedor').val(municipio);
         $('#parroquiaDirProveedor').val(parroquia);
-        $('#telefono').val(telefono);
+        cargarTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal', telefono);
         $('#correo').val(correo);
 
         $('#proceso').text('MODIFICAR');
@@ -124,9 +135,11 @@ $(document).ready(function () {
     });
 
     $('#incluir').on('click', function () {
-        $('#proceso').text('INCLUIR');
+        $('#proceso').text('REGISTRAR');
         $('#accion').val('incluir');
         $('#formulario_proveedor')[0].reset();
+        $('#telefonoOriginal').val('');
+        $('#prefijoTelefono').val('0414');
         currentEditId = null;
         $('#idProveedor').val('');
 
@@ -140,7 +153,22 @@ $(document).ready(function () {
     $('#formulario_proveedor').on('submit', function (e) {
         e.preventDefault();
         var form = this;
+        if (!form.reportValidity()) {
+            return;
+        }
+        var numeroRif = $('#rif').val().replace(/\D/g, '');
+        if (!/^\d{9}$/.test(numeroRif)) {
+            Swal.fire('RIF inválido', 'Ingresa los 8 dígitos del negocio y el dígito final del RIF.', 'warning');
+            return;
+        }
+        var telefono = obtenerTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal');
+        if (telefono === null) {
+            Swal.fire('Teléfono inválido', 'Ingresa 7 dígitos después del prefijo seleccionado.', 'warning');
+            return;
+        }
         var datos = new FormData(form);
+        datos.set('rif', numeroRif);
+        datos.set('telefono', telefono);
 
         if ($('#accion').val() === 'modificar' && currentEditId) {
             datos.append('idProveedor', currentEditId);

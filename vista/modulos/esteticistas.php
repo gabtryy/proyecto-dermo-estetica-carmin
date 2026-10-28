@@ -3,9 +3,9 @@
 <div class="container py-4">
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
         <button type="button" class="btn btn-primary shadow-sm" id="incluir">
-            <i class="fas fa-user-plus me-1"></i>INCLUIR
+            <i class="fas fa-user-plus me-1"></i>REGISTRAR
         </button>
-        <a href="index.php" class="btn btn-outline-primary">
+        <a href="index.php?pagina=home" class="btn btn-outline-primary">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
         </a>
     </div>
@@ -25,13 +25,13 @@
                 >
                     <thead>
                         <tr>
-                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                             <th scope="col">Cédula</th>
                             <th scope="col">Nombre</th>
                             <th scope="col">Teléfono</th>
                             <th scope="col">Correo</th>
                             <th scope="col">Fecha de nacimiento</th>
                             <th scope="col">Especialidad</th>
+                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="resultadoconsulta">
@@ -70,7 +70,18 @@
                     <div class="row g-3 mt-0">
                         <div class="col-md-4">
                             <label class="form-label" for="telefono">Teléfono</label>
-                            <input class="form-control" type="text" id="telefono" name="telefono" autocomplete="off">
+                            <div class="input-group">
+                                <select class="form-select telefono-prefijo" id="prefijoTelefono" aria-label="Prefijo telefónico">
+                                    <option value="0412">0412</option>
+                                    <option value="0413">0413</option>
+                                    <option value="0414" selected>0414</option>
+                                    <option value="0416">0416</option>
+                                    <option value="0424">0424</option>
+                                    <option value="0426">0426</option>
+                                </select>
+                                <input class="form-control telefono-numero" type="tel" id="telefono" name="telefono" inputmode="numeric" autocomplete="off" maxlength="7" pattern="[0-9]{7}" placeholder="1234567" aria-describedby="stelefono">
+                            </div>
+                            <input type="hidden" id="telefonoOriginal" value="">
                             <span class="form-text text-danger" id="stelefono"></span>
                         </div>
                         <div class="col-md-8">
@@ -97,7 +108,7 @@
             </div>
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cerrar</button>
-                <button class="btn btn-primary" type="submit" id="proceso">INCLUIR</button>
+                <button class="btn btn-primary" type="submit" id="proceso">REGISTRAR</button>
             </div>
                 </form>
         </div>

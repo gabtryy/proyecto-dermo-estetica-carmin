@@ -123,13 +123,13 @@ function renderTabla(lista) {
     lista.forEach(function(item) {
         var fila = ''
             + '<tr>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-outline-primary me-1 btn-editar" title="Modificar" data-id-antecedente="' + (item.id_antecedente || '') + '" data-cedula-cliente="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id-antecedente="' + (item.id_antecedente || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            + '</td>'
             + '<td>' + (item.nombreCliente || '') + '</td>'
             + '<td>' + (item.nom_tipo_antecedente || '') + '</td>'
             + '<td>' + (item.descripcion_antecedente || '') + '</td>'
+            + '<td class="text-nowrap">'
+            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-id-antecedente="' + (item.id_antecedente || '') + '" data-cedula-cliente="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
+            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id-antecedente="' + (item.id_antecedente || '') + '"><i class="fas fa-trash-alt"></i></button>'
+            + '</td>'
             + '</tr>';
         $tbody.append(fila);
     });
@@ -141,7 +141,7 @@ $(document).ready(function () {
     consultar();
 
     $('#incluir').on('click', function () {
-        $('#proceso').text('INCLUIR');
+        $('#proceso').text('REGISTRAR');
         $('#accion').val('incluir');
         $('#id_antecedente').val('');
         resetChecklist();

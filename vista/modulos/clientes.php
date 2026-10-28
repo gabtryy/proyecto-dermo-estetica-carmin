@@ -3,9 +3,9 @@
 <div class="container-fluid py-2 px-0 px-lg-3">
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
         <button type="button" class="btn btn-purple shadow-sm" id="incluir">
-            <i class="fas fa-user-plus me-1"></i>INCLUIR
+            <i class="fas fa-user-plus me-1"></i>REGISTRAR
         </button>
-        <a href="index.php" class="btn btn-outline-purple">
+        <a href="index.php?pagina=home" class="btn btn-outline-primary">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
         </a>
     </div>
@@ -13,7 +13,7 @@
     <h1 class="h3 mb-3">Clientes</h1>
 
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-purple text-white border-bottom py-3">
+        <div class="card-header border-bottom py-3">
             <span class="fw-semibold">Listado de clientes</span>
         </div>
         <div class="card-body p-0">
@@ -102,7 +102,7 @@
             </div>
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-outline-purple" data-bs-dismiss="modal">Cerrar</button>
-                <button class="btn btn-purple" type="submit" id="proceso">INCLUIR</button>
+                <button class="btn btn-purple" type="submit" id="proceso">REGISTRAR</button>
             </div>
                 </form>
         </div>

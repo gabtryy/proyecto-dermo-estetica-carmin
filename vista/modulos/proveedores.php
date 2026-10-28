@@ -3,9 +3,9 @@
 <div class="container py-2">
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
         <button type="button" class="btn btn-primary shadow-sm" id="incluir">
-            <i class="fas fa-user-plus me-1"></i>INCLUIR
+            <i class="fas fa-user-plus me-1"></i>REGISTRAR
         </button>
-        <a href="index.php" class="btn btn-outline-primary">
+        <a href="index.php?pagina=home" class="btn btn-outline-primary">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
         </a>
     </div>
@@ -25,7 +25,6 @@
                 >
                     <thead>
                         <tr>
-                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                             <th scope="col">RIF</th>
                             <th scope="col">Nombre del proveedor</th>
                             <th scope="col">Estado</th>
@@ -33,6 +32,7 @@
                             <th scope="col">Parroquia</th>
                             <th scope="col">Teléfono</th>
                             <th scope="col">Correo</th>
+                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="resultadoconsulta">
@@ -58,12 +58,15 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label" for="rif">RIF</label>
-                            <input class="form-control" type="text" id="rif" name="rif" autocomplete="off">
+                            <div class="input-group">
+                                <span class="input-group-text">J-</span>
+                                <input class="form-control" type="text" id="rif" name="rif" inputmode="numeric" autocomplete="off" maxlength="10" pattern="[0-9]{8}-?[0-9]" placeholder="12345678-9" required aria-describedby="srif">
+                            </div>
                             <span class="form-text text-danger" id="srif"></span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="nombreProveedor">Nombre del proveedor</label>
-                            <input class="form-control" type="text" id="nombreProveedor" name="nombreProveedor" autocomplete="off">
+                            <input class="form-control" type="text" id="nombreProveedor" name="nombreProveedor" minlength="2" maxlength="100" autocomplete="off" required>
                             <span class="form-text text-danger" id="snombreProveedor"></span>
                         </div>
                     </div>
@@ -89,12 +92,23 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label" for="telefono">Teléfono</label>
-                            <input class="form-control" type="text" id="telefono" name="telefono" autocomplete="off">
+                            <div class="input-group">
+                                <select class="form-select telefono-prefijo" id="prefijoTelefono" aria-label="Prefijo telefónico">
+                                    <option value="0412">0412</option>
+                                    <option value="0413">0413</option>
+                                    <option value="0414" selected>0414</option>
+                                    <option value="0416">0416</option>
+                                    <option value="0424">0424</option>
+                                    <option value="0426">0426</option>
+                                </select>
+                                <input class="form-control telefono-numero" type="tel" id="telefono" name="telefono" inputmode="numeric" autocomplete="off" maxlength="7" pattern="[0-9]{7}" placeholder="1234567" aria-describedby="stelefono">
+                            </div>
+                            <input type="hidden" id="telefonoOriginal" value="">
                             <span class="form-text text-danger" id="stelefono"></span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="correo">Correo</label>
-                            <input class="form-control" type="email" id="correo" name="correo" autocomplete="off">
+                            <input class="form-control" type="email" id="correo" name="correo" maxlength="30" autocomplete="off" required>
                             <span class="form-text text-danger" id="scorreo"></span>
                         </div>
                     </div>
@@ -102,7 +116,7 @@
             </div>
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cerrar</button>
-                <button class="btn btn-primary" type="submit" form="formulario_proveedor" id="proceso">INCLUIR</button>
+                <button class="btn btn-primary" type="submit" form="formulario_proveedor" id="proceso">REGISTRAR</button>
             </div>
         </div>
     </div>

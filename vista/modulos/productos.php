@@ -2,10 +2,10 @@
 
 <div class="container py-2">
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-        <button type="button" class="btn btn-primary shadow-sm" id="incluir">
-            <i class="fas fa-user-plus me-1"></i>INCLUIR
+        <button type="button" class="btn btn-primary shadow-sm" id="incluir" disabled>
+            <i class="fas fa-user-plus me-1"></i>REGISTRAR
         </button>
-        <a href="index.php" class="btn btn-outline-primary">
+        <a href="index.php?pagina=home" class="btn btn-outline-primary">
             <i class="fas fa-arrow-left me-1"></i>REGRESAR
         </a>
     </div>
@@ -25,13 +25,13 @@
                 >
                     <thead>
                         <tr>
-                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                             <th scope="col">Nombre del producto</th>
                             <th scope="col">Marca</th>
                             <th scope="col">Precio del producto</th>
                             <th scope="col">Proveedor</th>
                             <th scope="col">Cantidad actual</th>
                             <th scope="col">Tipo de producto</th>
+                            <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="resultadoconsulta">
@@ -50,27 +50,27 @@
                 <h2 class="modal-title fs-5" id="modal1Label">Añadir producto</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body">
-                <form method="post" id="formulario_producto" autocomplete="off">
+            <form method="post" id="formulario_producto" autocomplete="off">
+                <div class="modal-body">
                     <input type="hidden" name="accion" id="accion" value="">
                     <input type="hidden" name="idProducto" id="idProducto" value="">
                     
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label" for="nombreProducto">Nombre del producto</label>
-                            <input class="form-control" type="text" id="nombreProducto" name="nombreProducto" autocomplete="off">
+                            <input class="form-control" type="text" id="nombreProducto" name="nombreProducto" maxlength="100" required>
                             <span class="form-text text-danger" id="snombreProducto"></span>
                         </div>
                         <div class="col-md-8">
                             <label class="form-label" for="marca">Marca</label>
-                            <input class="form-control" type="text" id="marca" name="marca" autocomplete="off">
+                            <input class="form-control" type="text" id="marca" name="marca" maxlength="50">
                             <span class="form-text text-danger" id="smarca"></span>
                         </div>
                     </div>
                     <div class="row g-3 mt-2">
                         <div class="col-md-6">
                             <label class="form-label" for="idProveedor">Proveedor</label>
-                            <select class="form-select" id="idProveedor" name="idProveedor">
+                            <select class="form-select" id="idProveedor" name="idProveedor" required>
                                 <option value="">Cargando proveedores...</option>
                             </select>
                             <span class="form-text text-danger" id="sidProveedor"></span>
@@ -80,12 +80,12 @@
                     <div class="row g-3 mt-0">
                         <div class="col-md-4">
                             <label class="form-label" for="precioProducto">Precio del producto</label>
-                            <input class="form-control" type="number" step="0.01" id="precioProducto" name="precioProducto">
+                            <input class="form-control" type="number" min="0.01" max="99999999.99" step="0.01" id="precioProducto" name="precioProducto" required>
                             <span class="form-text text-danger" id="sprecioProducto"></span>
                         </div>
                         <div class="col-md-8">
                             <label class="form-label" for="cantidadActual">Cantidad actual</label>
-                            <input class="form-control" type="number" id="cantidadActual" name="cantidadActual">
+                            <input class="form-control" type="number" min="0" max="2147483647" step="1" id="cantidadActual" name="cantidadActual" required>
                             <span class="form-text text-danger" id="scantidadActual"></span>
                         </div>
                     </div>
@@ -93,23 +93,19 @@
                     <div class="row g-3 mt-0">
                         <div class="col-md-6">
                             <label class="form-label" for="tipoProducto">Tipo de producto</label>
-                            <select class="form-select" id="tipoProducto" name="tipoProducto">
-                                <option value="">Seleccione el tipo de producto</option>
-                                <option value="venta">Venta</option>
-                                <option value="insumo">Insumo</option>
+                            <select class="form-select" id="tipoProducto" name="tipoProducto" required>
+                                <option value="">Cargando tipos de producto...</option>
                             </select>
                             <span class="form-text text-danger" id="stipoProducto"></span>
                         </div>
                     </div>
 
-                    
-                
-            </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cerrar</button>
-                <button class="btn btn-primary" type="submit" id="proceso">INCLUIR</button>
-            </div>
-                </form>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cerrar</button>
+                    <button class="btn btn-primary" type="submit" id="proceso">REGISTRAR</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

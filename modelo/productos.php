@@ -3,181 +3,197 @@ require_once 'modelo/conexion.php';
 
 class Productos extends Conexion
 {
-    // Atributos privados actualizados según la nueva tabla
-    private $idProducto;
-    private $nombreProducto;
-    private $marca;
-    private $idProveedor;
-    private $precioProducto;
-    private $cantidadActual;
-    private $tipoProducto;
-    private $ultimoError; 
-
-    // Setters
-    public function set_id($valor) {
-        $this->idProducto = $valor;
-    }
-    public function set_nombreProducto($valor) {
-        $this->nombreProducto = $valor;
-    }
-    // Alias para compatibilidad con el controlador
-    public function set_nombre($valor) { 
-        $this->nombreProducto = $valor; 
-    }
-
-    public function set_marca($valor) {
-        $this->marca = $valor;
-    }
-    public function set_idProveedor($valor) { 
-        $this->idProveedor = $valor; 
-    }
-    public function set_precioProducto($valor) {
-        $this->precioProducto = $valor;
-    }
-    // Alias
-    public function set_precio($valor) { 
-        $this->precioProducto = $valor; 
-    }
-    public function set_cantidadActual($valor) {
-        $this->cantidadActual = $valor;
-    }
-    // Alias
-    public function set_cantidad($valor) { 
-        $this->cantidadActual = $valor; 
-    }
-    public function set_tipoProducto($valor) {
-        $this->tipoProducto = $valor;
-    }
-
-    // Getters
-    public function get_id() {
-        return $this->idProducto;
-    }
-    public function get_nombreProducto() {
-        return $this->nombreProducto;
-    }
-    public function get_marca() {
-        return $this->marca;
-    }
-    public function get_idProveedor() { 
-        return $this->idProveedor; 
-    }
-    public function get_precioProducto() {
-        return $this->precioProducto;
-    }
-    public function get_cantidadActual() {
-        return $this->cantidadActual;
-    }
-    public function get_tipoProducto() {
-        return $this->tipoProducto;
-    }
-
-    public function insertar(): array
-    {
-        try {
-            $sql = "INSERT INTO producto (nombreProducto, marca, precioProducto, idProveedor, cantidadActual, tipoProducto) 
-                    VALUES (:nombreProducto, :marca, :precioProducto, :idProveedor, :cantidadActual, :tipoProducto)";
-            $stmt = $this->pdo->prepare($sql);
-            $ok = $stmt->execute([
-                ':nombreProducto' => $this->nombreProducto,
-                ':marca' => $this->marca,
-                ':precioProducto' => $this->precioProducto,
-                ':idProveedor' => $this->idProveedor,
-                ':cantidadActual' => $this->cantidadActual,
-                ':tipoProducto' => $this->tipoProducto,
-            ]);
-
-            if ($ok) {
-                return ['ok' => true, 'insertId' => $this->pdo->lastInsertId()];
-            }
-
-            $this->ultimoError = 'Error al ejecutar INSERT';
-            return ['ok' => false, 'error' => $this->ultimoError];
-        } catch (\PDOException $e) {
-            $this->ultimoError = $e->getMessage();
-            return ['ok' => false, 'error' => $this->ultimoError];
-        }
-    }
-
-    public function getUltimoError() {
-        return $this->ultimoError ?? null;
-    }
-
-
+    private $ultimoError;
 
     public function listar(): array
     {
-        $sql = "SELECT p.idProducto, p.nombreProducto, p.marca, p.precioProducto, p.cantidadActual, p.tipoProducto, p.idProveedor, prov.nombreProveedor
+        $sql = "SELECT p.idProducto, p.nombreProducto, p.marca, p.precioProducto,
+                       p.cantidadActual, p.idProveedor, p.id_tipo AS idTipo,
+                       COALESCE(t.nombre_tipo, 'Sin clasificar') AS tipoProducto,
+                       prov.nombreProveedor
                 FROM producto p
-                LEFT JOIN proveedor prov ON p.idProveedor = prov.idProveedor
+                LEFT JOIN proveedor prov ON prov.idProveedor = p.idProveedor
+                LEFT JOIN tipo_producto t ON t.id_tipo = p.id_tipo
                 ORDER BY p.nombreProducto ASC";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function listarProveedores(): array
+    public function catalogos(): array
     {
-        $stmt = $this->pdo->query("SELECT idProveedor, nombreProveedor FROM proveedor ORDER BY nombreProveedor ASC");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->asegurarTiposPredeterminados();
+
+        return [
+            'proveedores' => $this->pdo->query(
+                "SELECT idProveedor, nombreProveedor FROM proveedor ORDER BY nombreProveedor"
+            )->fetchAll(PDO::FETCH_ASSOC),
+            'tipos' => $this->pdo->query(
+                "SELECT id_tipo AS idTipo, nombre_tipo AS nombreTipo
+                 FROM tipo_producto ORDER BY nombre_tipo"
+            )->fetchAll(PDO::FETCH_ASSOC),
+        ];
     }
 
-    public function existeId($id): array
+    private function asegurarTiposPredeterminados(): void
     {
-        $stmt = $this->pdo->prepare("SELECT 1 FROM producto WHERE idProducto = :idProducto LIMIT 1");
-        $stmt->execute([':idProducto' => $id]);
-        return (array) $stmt->fetchColumn();
-    }
-
-    public function eliminar($id): array
-    {
+        $this->pdo->beginTransaction();
         try {
-            $sql = "DELETE FROM producto WHERE idProducto = :id";
-            $stmt = $this->pdo->prepare($sql);
-            $ok = $stmt->execute([':id' => $id]);
-            if ($ok) {
-                return ['ok' => true];
+            $categoria = $this->pdo->prepare(
+                "SELECT id_categoria FROM categoria
+                 WHERE nombre_categoria = 'General' ORDER BY id_categoria LIMIT 1 FOR UPDATE"
+            );
+            $categoria->execute();
+            $idCategoria = $categoria->fetchColumn();
+
+            if (!$idCategoria) {
+                $insertarCategoria = $this->pdo->prepare(
+                    "INSERT INTO categoria (nombre_categoria) VALUES ('General')"
+                );
+                $insertarCategoria->execute();
+                $idCategoria = $this->pdo->lastInsertId();
             }
-            $this->ultimoError = 'No se pudo eliminar el registro';
-            return ['ok' => false, 'error' => $this->ultimoError];
-        } catch (\PDOException $e) {
-            $this->ultimoError = $e->getMessage();
-            return ['ok' => false, 'error' => $this->ultimoError];
+
+            $insertarTipo = $this->pdo->prepare(
+                "INSERT INTO tipo_producto (id_categoria, nombre_tipo)
+                 SELECT :idCategoria, :nombreTipo
+                 WHERE NOT EXISTS (
+                     SELECT 1 FROM tipo_producto WHERE id_categoria = :idCategoriaCheck
+                       AND LOWER(nombre_tipo) = LOWER(:nombreTipoCheck)
+                 )"
+            );
+            foreach (['Venta', 'Insumo'] as $nombreTipo) {
+                $insertarTipo->execute([
+                    ':idCategoria' => $idCategoria,
+                    ':nombreTipo' => $nombreTipo,
+                    ':idCategoriaCheck' => $idCategoria,
+                    ':nombreTipoCheck' => $nombreTipo,
+                ]);
+            }
+            $this->pdo->commit();
+        } catch (Throwable $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            throw $e;
         }
     }
 
-    public function modificar(): array
+    public function insertar(array $datos): array
     {
         try {
-            $sql = "UPDATE producto SET 
-                    nombreProducto = :nombreProducto,
-                    marca = :marca,
-                    precioProducto = :precioProducto,
-                    idProveedor = :idProveedor,
-                    cantidadActual = :cantidadActual,
-                    tipoProducto = :tipoProducto
-                WHERE idProducto = :id";
+            $sql = "INSERT INTO producto
+                        (nombreProducto, marca, precioCosto, precioProducto, idProveedor, cantidadActual, id_tipo)
+                    VALUES
+                        (:nombreProducto, :marca, 0, :precioProducto, :idProveedor, :cantidadActual, :idTipo)";
             $stmt = $this->pdo->prepare($sql);
-            $ok = $stmt->execute([
-                ':nombreProducto' => $this->nombreProducto,
-                ':marca' => $this->marca,
-                ':precioProducto' => $this->precioProducto,
-                ':idProveedor' => $this->idProveedor,
-                ':cantidadActual' => $this->cantidadActual,
-                ':tipoProducto' => $this->tipoProducto,
-                ':id' => $this->idProducto,
+            $stmt->execute([
+                ':nombreProducto' => $datos['nombreProducto'],
+                ':marca' => $datos['marca'] !== '' ? $datos['marca'] : null,
+                ':precioProducto' => $datos['precioProducto'],
+                ':idProveedor' => $datos['idProveedor'],
+                ':cantidadActual' => $datos['cantidadActual'],
+                ':idTipo' => $datos['idTipo'],
             ]);
+            return ['ok' => true, 'insertId' => (int) $this->pdo->lastInsertId()];
+        } catch (PDOException $e) {
+            $this->ultimoError = $e->getMessage();
+            error_log('No se pudo registrar el producto: ' . $e->getMessage());
+            return ['ok' => false, 'mensaje' => 'No se pudo guardar el producto. Verifique el proveedor y los datos ingresados.'];
+        }
+    }
 
-            if ($ok) {
-                return ['ok' => true];
+    public function modificar(int $idProducto, array $datos): array
+    {
+        try {
+            $sql = "UPDATE producto
+                    SET nombreProducto = :nombreProducto,
+                        marca = :marca,
+                        precioProducto = :precioProducto,
+                        idProveedor = :idProveedor,
+                        cantidadActual = :cantidadActual,
+                        id_tipo = :idTipo
+                    WHERE idProducto = :idProducto";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':nombreProducto' => $datos['nombreProducto'],
+                ':marca' => $datos['marca'] !== '' ? $datos['marca'] : null,
+                ':precioProducto' => $datos['precioProducto'],
+                ':idProveedor' => $datos['idProveedor'],
+                ':cantidadActual' => $datos['cantidadActual'],
+                ':idTipo' => $datos['idTipo'],
+                ':idProducto' => $idProducto,
+            ]);
+            if ($stmt->rowCount() === 0 && !$this->existeId($idProducto)) {
+                return ['ok' => false, 'mensaje' => 'El producto ya no existe.'];
+            }
+            return ['ok' => true];
+        } catch (PDOException $e) {
+            $this->ultimoError = $e->getMessage();
+            error_log('No se pudo modificar el producto: ' . $e->getMessage());
+            return ['ok' => false, 'mensaje' => 'No se pudo modificar el producto. Verifique el proveedor y los datos ingresados.'];
+        }
+    }
+
+    public function eliminar(int $idProducto): array
+    {
+        try {
+            $this->pdo->beginTransaction();
+            $bloquear = $this->pdo->prepare(
+                "SELECT idProducto FROM producto WHERE idProducto = :idProducto FOR UPDATE"
+            );
+            $bloquear->execute([':idProducto' => $idProducto]);
+            if (!$bloquear->fetchColumn()) {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'El producto ya no existe.'];
             }
 
-            $this->ultimoError = 'Error al ejecutar UPDATE';
-            return ['ok' => false, 'error' => $this->ultimoError];
-        } catch (\PDOException $e) {
+            $enUso = $this->pdo->prepare(
+                "SELECT
+                    EXISTS(SELECT 1 FROM detalle_venta WHERE idProducto = :idVenta) AS enVenta,
+                    EXISTS(SELECT 1 FROM detalleproductoservicio WHERE idProducto = :idServicio) AS enServicio"
+            );
+            $enUso->execute([
+                ':idVenta' => $idProducto,
+                ':idServicio' => $idProducto,
+            ]);
+            $referencias = $enUso->fetch(PDO::FETCH_ASSOC);
+            if ($referencias['enVenta']) {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'No se puede eliminar un producto incluido en ventas registradas.'];
+            }
+            if ($referencias['enServicio']) {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'No se puede eliminar un producto asociado a un servicio.'];
+            }
+
+            $stmt = $this->pdo->prepare("DELETE FROM producto WHERE idProducto = :idProducto");
+            $stmt->execute([':idProducto' => $idProducto]);
+            if ($stmt->rowCount() === 0) {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'El producto ya no existe.'];
+            }
+            $this->pdo->commit();
+            return ['ok' => true];
+        } catch (PDOException $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
             $this->ultimoError = $e->getMessage();
-            return ['ok' => false, 'error' => $this->ultimoError];
+            error_log('No se pudo eliminar el producto: ' . $e->getMessage());
+            return ['ok' => false, 'mensaje' => 'No se pudo eliminar el producto. Puede estar relacionado con otros registros.'];
         }
+    }
+
+    public function existeId(int $idProducto): bool
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT 1 FROM producto WHERE idProducto = :idProducto LIMIT 1"
+        );
+        $stmt->execute([':idProducto' => $idProducto]);
+        return (bool) $stmt->fetchColumn();
+    }
+
+    public function getUltimoError(): ?string
+    {
+        return $this->ultimoError ?? null;
     }
 }
-?>
-

@@ -56,6 +56,12 @@
 </style>
 
 <div class="container-fluid py-2 px-0 px-lg-3">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <a href="index.php?pagina=home" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>REGRESAR
+        </a>
+    </div>
+
     <div class="page-header p-4 mb-4">
         <h1 class="h3 page-title mb-1">Diagnóstico facial</h1>
         <p class="page-subtitle mb-0">Selecciona el cliente, el tipo de piel y la condición observada en cada zona.</p>

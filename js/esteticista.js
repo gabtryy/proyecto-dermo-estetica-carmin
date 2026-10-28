@@ -56,16 +56,16 @@ function renderTablaEst(lista) {
     lista.forEach(function (item) {
         var fila = ''
             + '<tr>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-outline-primary me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedula_esteticista || '') + '" data-especialidad-id="' + (item.id_especialidad || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedula_esteticista || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            + '</td>'
             + '<td>' + (item.cedula_esteticista || '') + '</td>'
             + '<td>' + (item.nombre_esteticista || '') + '</td>'
             + '<td>' + (item.telefono_esteticista || '') + '</td>'
             + '<td>' + (item.correo || '') + '</td>'
             + '<td>' + (item.fecha_nacimiento || '') + '</td>'
             + '<td>' + (item.especialidad || '') + '</td>'
+            + '<td class="text-nowrap">'
+            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedula_esteticista || '') + '" data-especialidad-id="' + (item.id_especialidad || '') + '"><i class="fas fa-edit"></i></button>'
+            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedula_esteticista || '') + '"><i class="fas fa-trash-alt"></i></button>'
+            + '</td>'
             + '</tr>';
         $tbody.append(fila);
     });
@@ -114,15 +114,15 @@ $(document).ready(function () {
         if (!cedula) return;
 
         var $fila = $(this).closest('tr');
-        var nombre = $fila.find('td').eq(2).text();
-        var telefono = $fila.find('td').eq(3).text();
-        var correo = $fila.find('td').eq(4).text();
-        var fecha = $fila.find('td').eq(5).text();
+        var nombre = $fila.find('td').eq(1).text();
+        var telefono = $fila.find('td').eq(2).text();
+        var correo = $fila.find('td').eq(3).text();
+        var fecha = $fila.find('td').eq(4).text();
         var espId = $(this).attr('data-especialidad-id') || '';
 
         $('#cedula').val(cedula).prop('readonly', true);
         $('#nombres').val(nombre);
-        $('#telefono').val(telefono);
+        cargarTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal', telefono);
         $('#correo').val(correo);
         $('#fechaNacimiento').val(fecha);
 
@@ -140,12 +140,14 @@ $(document).ready(function () {
 
     // Botón Incluir (Abrir modal)
     $('#incluir').on('click', function () {
-        $('#proceso').text('INCLUIR');
+        $('#proceso').text('REGISTRAR');
         $('#accion').val('incluir');
         var $modal = $('#modal1');
         // resetear formulario y permitir editar cédula
         $('#formulario_esteticista')[0].reset();
         $('#cedula').prop('readonly', false);
+        $('#telefonoOriginal').val('');
+        $('#prefijoTelefono').val('0414');
         $('#especialidad').empty().append('<option value="">Cargando...</option>');
         cargarEspecialidades();
         if (!$modal.length || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
@@ -159,6 +161,12 @@ $(document).ready(function () {
         e.preventDefault();
         var form = this;
         var datos = new FormData(form);
+        var telefono = obtenerTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal');
+        if (telefono === null) {
+            Swal.fire('Teléfono inválido', 'Ingresa 7 dígitos después del prefijo seleccionado.', 'warning');
+            return;
+        }
+        datos.set('telefono', telefono);
 
         var vacio = true;
         for (var pair of datos.entries()) {

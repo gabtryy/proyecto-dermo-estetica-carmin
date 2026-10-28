@@ -58,6 +58,9 @@ CREATE TABLE `categoria` (
   `nombre_categoria` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+INSERT INTO `categoria` (`id_categoria`, `nombre_categoria`) VALUES
+(1, 'General');
+
 -- --------------------------------------------------------
 
 --
@@ -552,6 +555,10 @@ CREATE TABLE `tipo_producto` (
   `id_categoria` int(11) NOT NULL,
   `nombre_tipo` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `tipo_producto` (`id_tipo`, `id_categoria`, `nombre_tipo`) VALUES
+(1, 1, 'Venta'),
+(2, 1, 'Insumo');
 
 -- --------------------------------------------------------
 
