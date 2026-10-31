@@ -28,7 +28,8 @@ if ($accion !== '') {
 		exit;
 	}
 
-	if ($accion === 'incluir') {
+	if (in_array($accion, ['incluir', 'modificar'], true)) {
+		$modelo->set_idDiagnostico(trim($_POST['idDiagnostico'] ?? ''));
 		$modelo->set_cedulaCliente(trim($_POST['cedulaCliente'] ?? ''));
 		$modelo->set_idPiel(trim($_POST['idPiel'] ?? ''));
 		$modelo->set_frente(trim($_POST['frente'] ?? ''));
@@ -37,7 +38,17 @@ if ($accion !== '') {
 		$modelo->set_mejillaDerecha(trim($_POST['mejilla_derecha'] ?? $_POST['mejilla_der'] ?? ''));
 		$modelo->set_menton(trim($_POST['menton'] ?? ''));
 
-		$respuesta = $modelo->insertar();
+		$respuesta = $accion === 'modificar' ? $modelo->modificar() : $modelo->insertar();
+		echo json_encode([
+			'ok' => $respuesta['resultado'] === 'exito',
+			'mensaje' => $respuesta['mensaje']
+		]);
+		exit;
+	}
+
+	if ($accion === 'eliminar') {
+		$modelo->set_idDiagnostico(trim($_POST['idDiagnostico'] ?? ''));
+		$respuesta = $modelo->eliminar();
 		echo json_encode([
 			'ok' => $respuesta['resultado'] === 'exito',
 			'mensaje' => $respuesta['mensaje']

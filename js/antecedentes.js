@@ -56,7 +56,7 @@ function cargarTiposAntecedentes() {
 function renderTiposAntecedentes(lista) {
     var $contenedor = $('#listaTiposAntecedentes');
     $contenedor.empty();
-
+    console.log('Tipos de antecedentes:', lista);
     if (!lista.length) {
         $contenedor.append('<div class="text-muted">No hay tipos de antecedentes registrados.</div>');
         return;
@@ -116,22 +116,23 @@ function renderTabla(lista) {
     $tbody.empty();
 
     if (!lista.length) {
-        $tbody.append('<tr><td colspan="4" class="text-center text-muted">Sin registros</td></tr>');
+        $tbody.append('<tr><td colspan="3" class="text-center text-muted">Sin registros</td></tr>');
         return;
     }
 
     lista.forEach(function(item) {
-        var fila = ''
-            + '<tr>'
-            + '<td>' + (item.nombreCliente || '') + '</td>'
-            + '<td>' + (item.nom_tipo_antecedente || '') + '</td>'
-            + '<td>' + (item.descripcion_antecedente || '') + '</td>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-id-antecedente="' + (item.id_antecedente || '') + '" data-cedula-cliente="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-id-antecedente="' + (item.id_antecedente || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            + '</td>'
-            + '</tr>';
-        $tbody.append(fila);
+        var $editar = $('<button type="button" title="Modificar antecedentes">')
+            .attr('data-cedula-cliente', item.cedulaCliente)
+            .addClass('btn btn-sm btn-purple btn-editar')
+            .append('<i class="fas fa-edit"></i>');
+        var $eliminar = $('<button type="button" title="Eliminar antecedentes">')
+            .attr('data-cedula-cliente', item.cedulaCliente)
+            .addClass('btn btn-sm btn-danger btn-eliminar-cliente')
+            .append('<i class="fas fa-trash-alt"></i>');
+        $tbody.append($('<tr>')
+            .append($('<td>').text(item.nombreCliente || item.cedulaCliente))
+            .append($('<td>').text(item.enfermedades || ''))
+            .append($('<td>').addClass('text-nowrap').append($editar, ' ', $eliminar)));
     });
 }
 
@@ -152,13 +153,13 @@ $(document).ready(function () {
         bootstrap.Modal.getOrCreateInstance($modal[0]).show();
     });
 
-    $('#resultadoconsulta').on('click', '.btn-eliminar', function () {
-        var idAntecedente = $(this).data('idAntecedente') || $(this).attr('data-id-antecedente');
-        if (!idAntecedente) return;
+    $('#resultadoconsulta').on('click', '.btn-eliminar-cliente', function () {
+        var cedulaCliente = $(this).attr('data-cedula-cliente');
+        if (!cedulaCliente) return;
 
         Swal.fire({
-            title: '¿Eliminar antecedente?',
-            text: 'Esta acción no se puede deshacer.',
+            title: '¿Eliminar todos los antecedentes?',
+            text: 'Se eliminarán todos los antecedentes de este cliente. Esta acción no se puede deshacer.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Sí, eliminar',
@@ -166,14 +167,14 @@ $(document).ready(function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 var datos = new FormData();
-                datos.append('accion', 'eliminar');
-                datos.append('id_antecedente', idAntecedente);
+                datos.append('accion', 'eliminarCliente');
+                datos.append('cedulaCliente', cedulaCliente);
 
                 enviaAjax({
                     datos: datos,
                     done: function(resp) {
                         if (resp?.ok) {
-                            Swal.fire('Eliminado', resp.mensaje || 'Antecedente eliminado.', 'success');
+                            Swal.fire('Eliminados', resp.mensaje || 'Antecedentes eliminados.', 'success');
                             consultar();
                         } else {
                             Swal.fire('Error', resp?.mensaje || 'No se pudo eliminar.', 'error');
@@ -256,7 +257,7 @@ $(document).ready(function () {
             datos: datos,
             done: function (resp) {
                 if (!resp || !resp.ok) {
-                    alert((resp && resp.mensaje) || 'No se pudo guardar.');
+                    Swal.fire('Error', (resp && resp.mensaje) || 'No se pudo guardar.', 'error');
                     return;
                 }
                 Swal.fire({

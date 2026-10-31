@@ -35,7 +35,7 @@ function enviaAjax(datos) {
             } else if (accion === 'incluir') {
                 if (resp?.ok) {
                     muestraMensaje(resp.mensaje || 'Cliente guardado correctamente.', 'success');
-                    $('#modal1').modal('hide');
+                    cerrarModalCliente();
                     consultar();
                 } else {
                     muestraMensaje(resp?.mensaje || 'No se pudo guardar el cliente.', 'error');
@@ -43,7 +43,7 @@ function enviaAjax(datos) {
             } else if (accion === 'modificar') {
                 if (resp?.ok) {
                     muestraMensaje(resp.mensaje || 'Cliente modificado correctamente.', 'success');
-                    $('#modal1').modal('hide');
+                    cerrarModalCliente();
                     consultar();
                 } else {
                     muestraMensaje(resp?.mensaje || 'No se pudo modificar el cliente.', 'error');
@@ -51,7 +51,7 @@ function enviaAjax(datos) {
             } else if (accion === 'eliminar') {
                 if (resp?.ok) {
                     muestraMensaje(resp.mensaje || 'Cliente eliminado correctamente.', 'success');
-                    $('#modal1').modal('hide');
+                    cerrarModalCliente();
                     consultar();
                 } else {
                     muestraMensaje(resp?.mensaje || 'No se pudo eliminar el cliente.', 'error');
@@ -63,9 +63,21 @@ function enviaAjax(datos) {
         error: function (request, status, err) {
             if (status === 'timeout') {
                 muestraMensaje('Servidor ocupado, intente de nuevo', 'error');
-            } else {
-                muestraMensaje('ERROR: <br/>' + status + ' ' + err, 'error');
+                return;
             }
+
+            var mensaje = 'ERROR: <br/>' + status + ' ' + err;
+            if (request && request.responseText) {
+                try {
+                    var resp = JSON.parse(request.responseText);
+                    if (resp && resp.mensaje) {
+                        mensaje = resp.mensaje;
+                    }
+                } catch (e) {
+                    // Mantener el mensaje genérico si la respuesta no es JSON.
+                }
+            }
+            muestraMensaje(mensaje, 'error');
         }
     });
 }
@@ -80,6 +92,13 @@ function consultar() {
     var datos = new FormData();
     datos.append('accion', 'consultar');
     enviaAjax(datos);
+}
+
+function cerrarModalCliente() {
+    var modal = document.getElementById('modal1');
+    if (modal && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        bootstrap.Modal.getOrCreateInstance(modal).hide();
+    }
 }
 
 function renderTabla(lista) {
@@ -217,8 +236,8 @@ function validarTelefono() {
         $('#telefono'),
         $('#stelefono'),
         'El teléfono',
-        'El teléfono debe contener solo números.',
-        /^\d+$/
+        'Ingrese un teléfono válido. Ejemplo: 04121234567, +584121234567 o 1234567.',
+        /^(?:04(?:12|13|14|16|24|26)\d{7}|\+?58\d{10}|\d{7,15})$/
     );
 }
 
@@ -358,8 +377,8 @@ $(document).ready(function () {
                 return;
             }
 
+            var telefono = $('#telefono').val();
             var datos = new FormData();
-            datos.append('accion', accion);
             datos.append('accion', accion);
             datos.append('cedula', $('#cedula').val());
             datos.append('nombres', $('#nombres').val());

@@ -3,6 +3,7 @@ require_once('modelo/conexion.php');
 
 class Diagnostico extends Conexion
 {
+    private $idDiagnostico;
     private $cedulaCliente;
     private $idPiel;
     private $frente;
@@ -10,6 +11,10 @@ class Diagnostico extends Conexion
     private $mejillaIzquierda;
     private $mejillaDerecha;
     private $menton;
+
+    public function set_idDiagnostico($valor) {
+        $this->idDiagnostico = $valor;
+    }
 
     public function set_cedulaCliente($valor) {
         $this->cedulaCliente = $valor;
@@ -51,6 +56,8 @@ class Diagnostico extends Conexion
     public function listar(): array
     {
         $sql = "SELECT d.idDiagnostico,
+                       d.cedulaCliente,
+                       d.idPiel,
                        c.nombreCliente,
                        p.nom_Piel,
                        d.fecha_diagnostico,
@@ -106,6 +113,52 @@ class Diagnostico extends Conexion
                 'resultado' => 'error',
                 'mensaje' => $e->getMessage()
             ];
+        }
+    }
+
+    public function modificar(): array
+    {
+        if ((int) $this->idDiagnostico <= 0) {
+            return ['resultado' => 'error', 'mensaje' => 'El diagnóstico seleccionado no es válido.'];
+        }
+
+        try {
+            $sql = "UPDATE diagnostico
+                    SET cedulaCliente = :cedulaCliente, idPiel = :idPiel,
+                        frente = :frente, nariz = :nariz, mejilla_izq = :mejilla_izq,
+                        mejilla_der = :mejilla_der, menton = :menton
+                    WHERE idDiagnostico = :idDiagnostico";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':cedulaCliente' => $this->cedulaCliente,
+                ':idPiel' => $this->idPiel,
+                ':frente' => trim((string) $this->frente) ?: 'sin detalle',
+                ':nariz' => trim((string) $this->nariz) ?: 'sin detalle',
+                ':mejilla_izq' => trim((string) $this->mejillaIzquierda) ?: 'sin detalle',
+                ':mejilla_der' => trim((string) $this->mejillaDerecha) ?: 'sin detalle',
+                ':menton' => trim((string) $this->menton) ?: 'sin detalle',
+                ':idDiagnostico' => $this->idDiagnostico,
+            ]);
+
+            return ['resultado' => 'exito', 'mensaje' => 'Diagnóstico modificado correctamente.'];
+        } catch (Exception $e) {
+            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
+        }
+    }
+
+    public function eliminar(): array
+    {
+        if ((int) $this->idDiagnostico <= 0) {
+            return ['resultado' => 'error', 'mensaje' => 'El diagnóstico seleccionado no es válido.'];
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("DELETE FROM diagnostico WHERE idDiagnostico = :idDiagnostico");
+            $stmt->execute([':idDiagnostico' => $this->idDiagnostico]);
+
+            return ['resultado' => 'exito', 'mensaje' => 'Diagnóstico eliminado correctamente.'];
+        } catch (Exception $e) {
+            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
         }
     }
 }

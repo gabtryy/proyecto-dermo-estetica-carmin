@@ -26,8 +26,7 @@
                     <thead>
                         <tr>
                             <th scope="col">Cliente</th>
-                            <th scope="col">Tipo de antecedente</th>
-                            <th scope="col">Descripción</th>
+                            <th scope="col">Antecedentes</th>
                             <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>

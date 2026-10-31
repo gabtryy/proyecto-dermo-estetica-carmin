@@ -62,7 +62,8 @@ if ($accion !== '') {
                 echo json_encode(['ok' => false, 'mensaje' => 'Debe indicar un cliente.']);
                 break;
             }
-            $datos = $modelo->listarPorCliente($cedulaCliente);
+            $modelo->set_cedulaCliente($cedulaCliente);
+            $datos = $modelo->listarPorCliente();
             echo json_encode(['ok' => true, 'data' => $datos]);
             break;
 
@@ -82,7 +83,12 @@ if ($accion !== '') {
                 break;
             }
 
-            $res = $modelo->guardarCliente($cedulaCliente, $tipos, $descripciones);
+            $modelo->set_cedulaCliente($cedulaCliente);
+            $modelo->set_tipos($tipos);
+            $modelo->set_descripciones($descripciones);
+            $res = $accion === 'modificar'
+                ? $modelo->modificarRegistros()
+                : $modelo->guardarRegistros();
 
             if ($res['resultado'] === 'exito') {
                 echo json_encode(['ok' => true, 'mensaje' => $res['mensaje']]);
@@ -91,12 +97,17 @@ if ($accion !== '') {
             }
             break;
 
-        case 'eliminar':
-            $modelo->set_id_antecedente(trim($_POST['id_antecedente'] ?? ''));
-            $res = $modelo->eliminar();
+        case 'eliminarCliente':
+            $cedulaCliente = trim($_POST['cedulaCliente'] ?? '');
+            if ($cedulaCliente === '') {
+                echo json_encode(['ok' => false, 'mensaje' => 'Debe indicar un cliente.']);
+                break;
+            }
 
+            $modelo->set_cedulaCliente($cedulaCliente);
+            $res = $modelo->eliminarPorCliente();
             if ($res['resultado'] === 'exito') {
-                echo json_encode(['ok' => true, 'mensaje' => 'Antecedente eliminado correctamente.']);
+                echo json_encode(['ok' => true, 'mensaje' => $res['mensaje']]);
             } else {
                 echo json_encode(['ok' => false, 'mensaje' => 'Error al eliminar: ' . $res['mensaje']]);
             }

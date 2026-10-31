@@ -73,6 +73,7 @@
         </div>
         <div class="card-body p-3 p-md-5">
             <form id="formulario_diagnostico" method="post" autocomplete="off">
+                <input type="hidden" id="idDiagnostico" name="idDiagnostico" value="">
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold" for="cedulaCliente">Cliente</label>
@@ -118,7 +119,7 @@
 
                 <div class="d-flex justify-content-end gap-2 mt-4">
                     <button type="reset" class="btn btn-outline-purple">Limpiar</button>
-                    <button type="submit" class="btn btn-purple"><i class="fas fa-save me-1"></i>Guardar diagnóstico</button>
+                    <button type="submit" class="btn btn-purple" id="guardar-diagnostico"><i class="fas fa-save me-1"></i>Guardar diagnóstico</button>
                 </div>
             </form>
         </div>
@@ -141,6 +142,7 @@
                             <th scope="col">Mejilla izq.</th>
                             <th scope="col">Mejilla der.</th>
                             <th scope="col">Mentón</th>
+                            <th scope="col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="resultado-diagnosticos"></tbody>
