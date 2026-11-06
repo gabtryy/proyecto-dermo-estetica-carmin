@@ -216,6 +216,107 @@ $(document).ready(function () {
         actualizarCarrito();
     }
 
+    function validarFormularioVenta() {
+        function seleccionValida(selector) {
+            var valor = $(selector).val();
+            return /^[1-9]\d*$/.test(valor) &&
+                Number.isSafeInteger(Number(valor)) &&
+                Number(valor) <= 2147483647 &&
+                $(selector + ' option').filter(function () {
+                    return this.value === valor;
+                }).length > 0;
+        }
+
+        if (!seleccionValida('#cedulaCliente')) {
+            Swal.fire('Venta inválida', 'Seleccione un cliente válido.', 'warning');
+            $('#cedulaCliente').trigger('focus');
+            return false;
+        }
+        if (!seleccionValida('#idMetodoPago')) {
+            Swal.fire('Venta inválida', 'Seleccione un método de pago válido.', 'warning');
+            $('#idMetodoPago').trigger('focus');
+            return false;
+        }
+        if (!seleccionValida('#id_moneda')) {
+            Swal.fire('Venta inválida', 'Seleccione una moneda válida.', 'warning');
+            $('#id_moneda').trigger('focus');
+            return false;
+        }
+
+        var fechaEntrada = $('#fechaCompra').val();
+        var partesFecha = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(fechaEntrada);
+        if (partesFecha) {
+            var fecha = new Date(
+                Number(partesFecha[1]),
+                Number(partesFecha[2]) - 1,
+                Number(partesFecha[3]),
+                Number(partesFecha[4]),
+                Number(partesFecha[5])
+            );
+            if (
+                fecha.getFullYear() !== Number(partesFecha[1]) ||
+                fecha.getMonth() !== Number(partesFecha[2]) - 1 ||
+                fecha.getDate() !== Number(partesFecha[3]) ||
+                fecha.getHours() !== Number(partesFecha[4]) ||
+                fecha.getMinutes() !== Number(partesFecha[5])
+            ) {
+                partesFecha = null;
+            }
+        }
+        if (!partesFecha) {
+            Swal.fire('Venta inválida', 'Ingrese una fecha y hora de venta válida.', 'warning');
+            $('#fechaCompra').trigger('focus');
+            return false;
+        }
+
+        var tasa = $('#tasa_cobrada').val().trim();
+        var tasaNumerica = Number(tasa);
+        if (
+            !/^\d+(?:\.\d{1,4})?$/.test(tasa) ||
+            !Number.isFinite(tasaNumerica) ||
+            tasaNumerica <= 0 ||
+            tasaNumerica > 999999.9999
+        ) {
+            Swal.fire('Venta inválida', 'La tasa debe ser mayor que cero y tener hasta 4 decimales.', 'warning');
+            $('#tasa_cobrada').trigger('focus');
+            return false;
+        }
+        $('#tasa_cobrada_exacta').val(tasa);
+
+        var referencia = $('#referencia').val();
+        if (new TextEncoder().encode(referencia).length > 50) {
+            Swal.fire('Venta inválida', 'La referencia no puede superar los 50 caracteres.', 'warning');
+            $('#referencia').trigger('focus');
+            return false;
+        }
+
+        var idsProducto = Object.keys(carrito);
+        if (!idsProducto.length) {
+            Swal.fire('Atención', 'Agregue al menos un producto a la venta.', 'warning');
+            return false;
+        }
+        for (var i = 0; i < idsProducto.length; i++) {
+            var idProducto = idsProducto[i];
+            var cantidad = carrito[idProducto];
+            if (
+                !productosDisponibles[idProducto] ||
+                !Number.isSafeInteger(cantidad) ||
+                cantidad < 1 ||
+                cantidad > 2147483647 ||
+                cantidad > stockDisponible(idProducto)
+            ) {
+                Swal.fire('Venta inválida', 'Revise los productos y sus cantidades.', 'warning');
+                return false;
+            }
+        }
+
+        if (idVentaEnEdicion && (!/^[1-9]\d*$/.test(idVentaEnEdicion) || Number(idVentaEnEdicion) > 2147483647)) {
+            Swal.fire('Venta inválida', 'La venta seleccionada no es válida.', 'warning');
+            return false;
+        }
+        return true;
+    }
+
     $('#nuevaVenta').on('click', function () {
         prepararVentaNueva();
         modal.show();
@@ -356,8 +457,7 @@ $(document).ready(function () {
 
     $('#formVenta').on('submit', function (event) {
         event.preventDefault();
-        if (!Object.keys(carrito).length) {
-            Swal.fire('Atención', 'Agregue al menos un producto a la venta.', 'warning');
+        if (!validarFormularioVenta() || !this.reportValidity()) {
             return;
         }
 

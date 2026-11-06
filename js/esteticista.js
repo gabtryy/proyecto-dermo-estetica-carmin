@@ -71,6 +71,75 @@ function renderTablaEst(lista) {
     });
 }
 
+function validarFormularioEsteticista(telefono) {
+    var campos = {
+        cedula: $('#cedula').val().trim(),
+        nombres: $('#nombres').val().trim(),
+        correo: $('#correo').val().trim(),
+        fechaNacimiento: $('#fechaNacimiento').val().trim(),
+        especialidad: $('#especialidad').val(),
+        telefono: telefono.trim()
+    };
+    var errores = {
+        cedula: '',
+        nombres: '',
+        telefono: '',
+        correo: '',
+        fechaNacimiento: '',
+        especialidad: ''
+    };
+
+    if (!/^\d{6,12}$/.test(campos.cedula)) {
+        errores.cedula = 'La cédula debe tener entre 6 y 12 dígitos.';
+    }
+    var longitudNombre = Array.from(campos.nombres).length;
+    if (longitudNombre < 1 || longitudNombre > 100) {
+        errores.nombres = 'El nombre debe tener entre 1 y 100 caracteres.';
+    }
+    if (campos.telefono && (
+        campos.telefono.length > 20 ||
+        !/^(?:04(?:12|13|14|16|24|26)\d{7}|\+?58\d{10}|\d{7,15})$/.test(campos.telefono)
+    )) {
+        errores.telefono = 'Ingrese un teléfono válido con prefijo móvil venezolano.';
+    }
+    if (campos.correo && (
+        Array.from(campos.correo).length > 100 ||
+        document.getElementById('correo').validity.typeMismatch ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(campos.correo)
+    )) {
+        errores.correo = 'Ingrese un correo electrónico válido de hasta 100 caracteres.';
+    }
+    if (campos.fechaNacimiento && !/^\d{4}-\d{2}-\d{2}$/.test(campos.fechaNacimiento)) {
+        errores.fechaNacimiento = 'Ingrese una fecha de nacimiento válida.';
+    } else if (campos.fechaNacimiento) {
+        var partesFecha = campos.fechaNacimiento.split('-').map(Number);
+        var fecha = new Date(partesFecha[0], partesFecha[1] - 1, partesFecha[2]);
+        if (
+            fecha.getFullYear() !== partesFecha[0] ||
+            fecha.getMonth() !== partesFecha[1] - 1 ||
+            fecha.getDate() !== partesFecha[2]
+        ) {
+            errores.fechaNacimiento = 'Ingrese una fecha de nacimiento válida.';
+        }
+    }
+    if (!campos.especialidad || !/^[1-9]\d*$/.test(campos.especialidad)) {
+        errores.especialidad = 'Seleccione una especialidad válida.';
+    }
+
+    Object.keys(errores).forEach(function (campo) {
+        $('#s' + campo).text(errores[campo]);
+    });
+
+    var primerCampoInvalido = Object.keys(errores).find(function (campo) {
+        return errores[campo] !== '';
+    });
+    if (primerCampoInvalido) {
+        $('#' + primerCampoInvalido).trigger('focus');
+        return false;
+    }
+    return true;
+}
+
 $(document).ready(function () {
     // Delegación para botón eliminar
     $('#resultadoconsulta').on('click', '.btn-eliminar', function () {
@@ -160,12 +229,15 @@ $(document).ready(function () {
     $('#formulario_esteticista').on('submit', function (e) {
         e.preventDefault();
         var form = this;
-        var datos = new FormData(form);
         var telefono = obtenerTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal');
         if (telefono === null) {
-            Swal.fire('Teléfono inválido', 'Ingresa 7 dígitos después del prefijo seleccionado.', 'warning');
+            $('#stelefono').text('Ingresa 7 dígitos después del prefijo seleccionado.');
+            $('#telefono').trigger('focus');
             return;
         }
+        if (!validarFormularioEsteticista(telefono)) return;
+
+        var datos = new FormData(form);
         datos.set('telefono', telefono);
 
         var vacio = true;

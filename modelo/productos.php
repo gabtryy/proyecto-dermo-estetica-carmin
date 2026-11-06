@@ -3,7 +3,97 @@ require_once 'modelo/conexion.php';
 
 class Productos extends Conexion
 {
+    private $idProducto = 0;
+    private $nombreProducto = '';
+    private $marca = '';
+    private $idProveedor = 0;
+    private $precioProducto = '';
+    private $cantidadActual = 0;
+    private $idTipo = 0;
     private $ultimoError;
+
+    public function set_idProducto(int $valor): void
+    {
+        $this->idProducto = $valor;
+    }
+
+    public function get_idProducto(): int
+    {
+        return $this->idProducto;
+    }
+
+    public function set_nombreProducto(string $valor): void
+    {
+        $this->nombreProducto = trim($valor);
+    }
+
+    public function get_nombreProducto(): string
+    {
+        return $this->nombreProducto;
+    }
+
+    public function set_marca(string $valor): void
+    {
+        $this->marca = trim($valor);
+    }
+
+    public function get_marca(): string
+    {
+        return $this->marca;
+    }
+
+    public function set_idProveedor(int $valor): void
+    {
+        $this->idProveedor = $valor;
+    }
+
+    public function get_idProveedor(): int
+    {
+        return $this->idProveedor;
+    }
+
+    public function set_precioProducto(string $valor): void
+    {
+        $this->precioProducto = trim($valor);
+    }
+
+    public function get_precioProducto(): string
+    {
+        return $this->precioProducto;
+    }
+
+    public function set_cantidadActual(int $valor): void
+    {
+        $this->cantidadActual = $valor;
+    }
+
+    public function get_cantidadActual(): int
+    {
+        return $this->cantidadActual;
+    }
+
+    public function set_idTipo(int $valor): void
+    {
+        $this->idTipo = $valor;
+    }
+
+    public function get_idTipo(): int
+    {
+        return $this->idTipo;
+    }
+
+    private function asignarDatos(array $datos, ?int $idProducto = null): void
+    {
+        $this->set_nombreProducto((string) ($datos['nombreProducto'] ?? ''));
+        $this->set_marca((string) ($datos['marca'] ?? ''));
+        $this->set_idProveedor((int) ($datos['idProveedor'] ?? 0));
+        $this->set_precioProducto((string) ($datos['precioProducto'] ?? ''));
+        $this->set_cantidadActual((int) ($datos['cantidadActual'] ?? 0));
+        $this->set_idTipo((int) ($datos['idTipo'] ?? 0));
+        if ($idProducto !== null) {
+            $this->set_idProducto($idProducto);
+        }
+    }
 
     public function listar(): array
     {
@@ -79,6 +169,7 @@ class Productos extends Conexion
 
     public function insertar(array $datos): array
     {
+        $this->asignarDatos($datos);
         try {
             $sql = "INSERT INTO producto
                         (nombreProducto, marca, precioCosto, precioProducto, idProveedor, cantidadActual, id_tipo)
@@ -86,12 +177,12 @@ class Productos extends Conexion
                         (:nombreProducto, :marca, 0, :precioProducto, :idProveedor, :cantidadActual, :idTipo)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
-                ':nombreProducto' => $datos['nombreProducto'],
-                ':marca' => $datos['marca'] !== '' ? $datos['marca'] : null,
-                ':precioProducto' => $datos['precioProducto'],
-                ':idProveedor' => $datos['idProveedor'],
-                ':cantidadActual' => $datos['cantidadActual'],
-                ':idTipo' => $datos['idTipo'],
+                ':nombreProducto' => $this->get_nombreProducto(),
+                ':marca' => $this->get_marca() !== '' ? $this->get_marca() : null,
+                ':precioProducto' => $this->get_precioProducto(),
+                ':idProveedor' => $this->get_idProveedor(),
+                ':cantidadActual' => $this->get_cantidadActual(),
+                ':idTipo' => $this->get_idTipo(),
             ]);
             return ['ok' => true, 'insertId' => (int) $this->pdo->lastInsertId()];
         } catch (PDOException $e) {
@@ -103,6 +194,7 @@ class Productos extends Conexion
 
     public function modificar(int $idProducto, array $datos): array
     {
+        $this->asignarDatos($datos, $idProducto);
         try {
             $sql = "UPDATE producto
                     SET nombreProducto = :nombreProducto,
@@ -114,15 +206,15 @@ class Productos extends Conexion
                     WHERE idProducto = :idProducto";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
-                ':nombreProducto' => $datos['nombreProducto'],
-                ':marca' => $datos['marca'] !== '' ? $datos['marca'] : null,
-                ':precioProducto' => $datos['precioProducto'],
-                ':idProveedor' => $datos['idProveedor'],
-                ':cantidadActual' => $datos['cantidadActual'],
-                ':idTipo' => $datos['idTipo'],
-                ':idProducto' => $idProducto,
+                ':nombreProducto' => $this->get_nombreProducto(),
+                ':marca' => $this->get_marca() !== '' ? $this->get_marca() : null,
+                ':precioProducto' => $this->get_precioProducto(),
+                ':idProveedor' => $this->get_idProveedor(),
+                ':cantidadActual' => $this->get_cantidadActual(),
+                ':idTipo' => $this->get_idTipo(),
+                ':idProducto' => $this->get_idProducto(),
             ]);
-            if ($stmt->rowCount() === 0 && !$this->existeId($idProducto)) {
+            if ($stmt->rowCount() === 0 && !$this->existeId($this->get_idProducto())) {
                 return ['ok' => false, 'mensaje' => 'El producto ya no existe.'];
             }
             return ['ok' => true];

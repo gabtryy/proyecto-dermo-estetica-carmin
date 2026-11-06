@@ -20,6 +20,69 @@ $(function () {
         Swal.fire('Error', mensaje, 'error');
     }
 
+    function validarFormulario() {
+        var nombre = $('#nombreProducto').val().trim();
+        var marca = $('#marca').val().trim();
+        var proveedor = $('#idProveedor').val();
+        var precio = $('#precioProducto').val().trim();
+        var cantidad = $('#cantidadActual').val().trim();
+        var tipo = $('#tipoProducto').val();
+        var accion = $('#accion').val();
+        var idProducto = $('#idProducto').val();
+        var errores = {};
+        var proveedorExiste = $('#idProveedor option').filter(function () {
+            return this.value === proveedor;
+        }).length > 0;
+        var tipoExiste = $('#tipoProducto option').filter(function () {
+            return this.value === tipo;
+        }).length > 0;
+
+        if (Array.from(nombre).length < 1 || Array.from(nombre).length > 100) {
+            errores.nombreProducto = 'Ingrese un nombre de hasta 100 caracteres.';
+        }
+        if (Array.from(marca).length > 50) {
+            errores.marca = 'La marca no puede superar los 50 caracteres.';
+        }
+        if (!/^[1-9]\d*$/.test(proveedor) || Number(proveedor) > 2147483647 || !proveedorExiste) {
+            errores.idProveedor = 'Seleccione un proveedor válido.';
+        }
+        if (
+            !/^\d+(?:\.\d{1,2})?$/.test(precio) ||
+            Number(precio) <= 0 ||
+            Number(precio) > 99999999.99
+        ) {
+            errores.precioProducto = 'Ingrese un precio mayor que cero, con hasta 2 decimales.';
+        }
+        if (!/^\d+$/.test(cantidad) || Number(cantidad) > 2147483647) {
+            errores.cantidadActual = 'Ingrese una cantidad entera entre 0 y 2147483647.';
+        }
+        if (!/^[1-9]\d*$/.test(tipo) || Number(tipo) > 2147483647 || !tipoExiste) {
+            errores.tipoProducto = 'Seleccione un tipo de producto válido.';
+        }
+        if (accion === 'modificar' && (!/^[1-9]\d*$/.test(idProducto) || Number(idProducto) > 2147483647)) {
+            errores.idProducto = 'El producto seleccionado no es válido.';
+        }
+
+        $('#snombreProducto, #smarca, #sidProveedor, #sprecioProducto, #scantidadActual, #stipoProducto').text('');
+        Object.keys(errores).forEach(function (campo) {
+            $('#s' + campo).text(errores[campo]);
+        });
+
+        if (errores.idProducto) {
+            Swal.fire('Error', errores.idProducto, 'error');
+            return false;
+        }
+
+        var primerCampoInvalido = Object.keys(errores).find(function (campo) {
+            return errores[campo] !== '';
+        });
+        if (primerCampoInvalido) {
+            $('#' + primerCampoInvalido).trigger('focus');
+            return false;
+        }
+        return true;
+    }
+
     function consultar() {
         var datos = new FormData();
         datos.append('accion', 'consultar');
@@ -183,7 +246,7 @@ $(function () {
 
     $('#formulario_producto').on('submit', function (evento) {
         evento.preventDefault();
-        if (!this.reportValidity()) {
+        if (!validarFormulario() || !this.reportValidity()) {
             return;
         }
         var datos = new FormData(this);
@@ -202,6 +265,10 @@ $(function () {
         }).always(function () {
             $('#proceso').prop('disabled', false);
         });
+    });
+
+    $('#formulario_producto').on('input change', 'input, select', function () {
+        $('#s' + this.id).text('');
     });
 
     document.getElementById('modal1').addEventListener('hidden.bs.modal', limpiarFormulario);

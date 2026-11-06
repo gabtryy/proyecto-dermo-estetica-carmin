@@ -4,6 +4,117 @@ require_once 'modelo/conexion.php';
 
 class Venta extends Conexion
 {
+    private $idVenta = 0;
+    private $cedulaCliente = 0;
+    private $fechaCompra = '';
+    private $idMetodoPago = 0;
+    private $idMoneda = 0;
+    private $tasaCobrada = 0.0;
+    private $referencia = '';
+    private $productos = [];
+
+    public function set_idVenta(int $valor): void
+    {
+        $this->idVenta = $valor;
+    }
+
+    public function get_idVenta(): int
+    {
+        return $this->idVenta;
+    }
+
+    public function set_cedulaCliente(int $valor): void
+    {
+        $this->cedulaCliente = $valor;
+    }
+
+    public function get_cedulaCliente(): int
+    {
+        return $this->cedulaCliente;
+    }
+
+    public function set_fechaCompra(string $valor): void
+    {
+        $this->fechaCompra = $valor;
+    }
+
+    public function get_fechaCompra(): string
+    {
+        return $this->fechaCompra;
+    }
+
+    public function set_idMetodoPago(int $valor): void
+    {
+        $this->idMetodoPago = $valor;
+    }
+
+    public function get_idMetodoPago(): int
+    {
+        return $this->idMetodoPago;
+    }
+
+    public function set_idMoneda(int $valor): void
+    {
+        $this->idMoneda = $valor;
+    }
+
+    public function get_idMoneda(): int
+    {
+        return $this->idMoneda;
+    }
+
+    public function set_tasaCobrada(float $valor): void
+    {
+        $this->tasaCobrada = $valor;
+    }
+
+    public function get_tasaCobrada(): float
+    {
+        return $this->tasaCobrada;
+    }
+
+    public function set_referencia(string $valor): void
+    {
+        $this->referencia = trim($valor);
+    }
+
+    public function get_referencia(): string
+    {
+        return $this->referencia;
+    }
+
+    public function set_productos(array $valor): void
+    {
+        $this->productos = $valor;
+    }
+
+    public function get_productos(): array
+    {
+        return $this->productos;
+    }
+
+    private function asignarDatos(array $datos, ?int $idVenta = null): void
+    {
+        $this->set_cedulaCliente((int) ($datos['cedulaCliente'] ?? 0));
+        $this->set_fechaCompra(str_replace('T', ' ', (string) ($datos['fechaCompra'] ?? '')) . ':00');
+        $this->set_idMetodoPago((int) ($datos['idMetodoPago'] ?? 0));
+        $this->set_idMoneda((int) ($datos['id_moneda'] ?? 0));
+        $this->set_tasaCobrada((float) ($datos['tasa_cobrada'] ?? 0));
+        $this->set_referencia((string) ($datos['referencia'] ?? ''));
+
+        $cantidades = [];
+        foreach ((array) ($datos['productos'] ?? []) as $item) {
+            $item = (array) $item;
+            $idProducto = (int) ($item['idProducto'] ?? 0);
+            $cantidad = (int) ($item['cantidad'] ?? 0);
+            $cantidades[$idProducto] = ($cantidades[$idProducto] ?? 0) + $cantidad;
+        }
+        $this->set_productos($cantidades);
+        if ($idVenta !== null) {
+            $this->set_idVenta($idVenta);
+        }
+    }
+
     public function listar(): array
     {
      $sql = "SELECT v.idVenta, v.fechaCompra, c.nombreCliente,
@@ -84,46 +195,15 @@ class Venta extends Conexion
 
     public function registrar(array $datos): array
     {
-     $cedulaCliente = filter_var($datos['cedulaCliente'] ?? null, FILTER_VALIDATE_INT);
-     $fechaCompraEntrada = trim((string) ($datos['fechaCompra'] ?? ''));
-     $idMetodoPago = filter_var($datos['idMetodoPago'] ?? null, FILTER_VALIDATE_INT);
-     $idMoneda = filter_var($datos['id_moneda'] ?? null, FILTER_VALIDATE_INT);
-     $tasa = filter_var($datos['tasa_cobrada'] ?? null, FILTER_VALIDATE_FLOAT);
-     $referencia = trim((string) ($datos['referencia'] ?? ''));
-     $items = $datos['productos'] ?? null;
+        $this->asignarDatos($datos);
 
-     if (!$cedulaCliente || !$idMetodoPago || !$idMoneda) {
-         return ['ok' => false, 'mensaje' => 'Seleccione un cliente, método de pago y moneda válidos.'];
-     }
-     $fechaCompra = DateTime::createFromFormat('!Y-m-d\TH:i', $fechaCompraEntrada);
-     $erroresFecha = DateTime::getLastErrors();
-     if (
-         !$fechaCompra ||
-         ($erroresFecha !== false && ($erroresFecha['warning_count'] > 0 || $erroresFecha['error_count'] > 0)) ||
-         $fechaCompra->format('Y-m-d\TH:i') !== $fechaCompraEntrada
-     ) {
-         return ['ok' => false, 'mensaje' => 'Ingrese una fecha y hora de venta válida.'];
-     }
-     $fechaCompra = $fechaCompra->format('Y-m-d H:i:s');
-     if ($tasa === false || $tasa <= 0 || $tasa > 999999.9999) {
-         return ['ok' => false, 'mensaje' => 'La tasa de cambio debe ser un número mayor que cero.'];
-     }
-     if (strlen($referencia) > 50) {
-         return ['ok' => false, 'mensaje' => 'La referencia no puede superar los 50 caracteres.'];
-     }
-     if (!is_array($items) || count($items) === 0) {
-         return ['ok' => false, 'mensaje' => 'Agregue al menos un producto a la venta.'];
-     }
-
-     $cantidades = [];
-     foreach ($items as $item) {
-         $idProducto = filter_var($item['idProducto'] ?? null, FILTER_VALIDATE_INT);
-         $cantidad = filter_var($item['cantidad'] ?? null, FILTER_VALIDATE_INT);
-         if (!$idProducto || !$cantidad || $cantidad < 1) {
-             return ['ok' => false, 'mensaje' => 'Hay productos o cantidades inválidas en la venta.'];
-         }
-         $cantidades[$idProducto] = ($cantidades[$idProducto] ?? 0) + $cantidad;
-     }
+        $cedulaCliente = $this->get_cedulaCliente();
+        $fechaCompra = $this->get_fechaCompra();
+        $idMetodoPago = $this->get_idMetodoPago();
+        $idMoneda = $this->get_idMoneda();
+        $tasa = $this->get_tasaCobrada();
+        $referencia = $this->get_referencia();
+        $cantidades = $this->get_productos();
 
      try {
          $this->pdo->beginTransaction();
@@ -178,6 +258,7 @@ class Venta extends Conexion
              ':fechaCompra' => $fechaCompra,
          ]);
          $idVenta = (int) $this->pdo->lastInsertId();
+         $this->set_idVenta($idVenta);
 
          $insertarDetalle = $this->pdo->prepare(
              "INSERT INTO detalle_venta (idVenta, idProducto, cantidad, precioUnitario)
@@ -231,45 +312,15 @@ class Venta extends Conexion
 
     public function modificar(int $idVenta, array $datos): array
     {
-        $cedulaCliente = filter_var($datos['cedulaCliente'] ?? null, FILTER_VALIDATE_INT);
-        $idMetodoPago = filter_var($datos['idMetodoPago'] ?? null, FILTER_VALIDATE_INT);
-        $idMoneda = filter_var($datos['id_moneda'] ?? null, FILTER_VALIDATE_INT);
-        $tasa = filter_var($datos['tasa_cobrada'] ?? null, FILTER_VALIDATE_FLOAT);
-        $referencia = trim((string) ($datos['referencia'] ?? ''));
-        $fechaEntrada = trim((string) ($datos['fechaCompra'] ?? ''));
-        $items = $datos['productos'] ?? null;
+        $this->asignarDatos($datos, $idVenta);
 
-        if ($idVenta < 1 || !$cedulaCliente || !$idMetodoPago || !$idMoneda) {
-            return ['ok' => false, 'mensaje' => 'La venta, el cliente y los datos de pago deben ser válidos.'];
-        }
-        $fecha = DateTime::createFromFormat('!Y-m-d\TH:i', $fechaEntrada);
-        $erroresFecha = DateTime::getLastErrors();
-        if (
-            !$fecha ||
-            ($erroresFecha !== false && ($erroresFecha['warning_count'] > 0 || $erroresFecha['error_count'] > 0)) ||
-            $fecha->format('Y-m-d\TH:i') !== $fechaEntrada
-        ) {
-            return ['ok' => false, 'mensaje' => 'Ingrese una fecha y hora de venta válida.'];
-        }
-        if ($tasa === false || $tasa <= 0 || $tasa > 999999.9999 || strlen($referencia) > 50) {
-            return ['ok' => false, 'mensaje' => 'Revise la tasa de cambio y la referencia del pago.'];
-        }
-        if (!is_array($items) || count($items) === 0) {
-            return ['ok' => false, 'mensaje' => 'Agregue al menos un producto a la venta.'];
-        }
-
-        $cantidades = [];
-        foreach ($items as $item) {
-            if (!is_array($item)) {
-                return ['ok' => false, 'mensaje' => 'Hay productos o cantidades inválidas en la venta.'];
-            }
-            $idProducto = filter_var($item['idProducto'] ?? null, FILTER_VALIDATE_INT);
-            $cantidad = filter_var($item['cantidad'] ?? null, FILTER_VALIDATE_INT);
-            if (!$idProducto || !$cantidad || $cantidad < 1) {
-                return ['ok' => false, 'mensaje' => 'Hay productos o cantidades inválidas en la venta.'];
-            }
-            $cantidades[$idProducto] = ($cantidades[$idProducto] ?? 0) + $cantidad;
-        }
+        $idVenta = $this->get_idVenta();
+        $cedulaCliente = $this->get_cedulaCliente();
+        $idMetodoPago = $this->get_idMetodoPago();
+        $idMoneda = $this->get_idMoneda();
+        $tasa = $this->get_tasaCobrada();
+        $referencia = $this->get_referencia();
+        $cantidades = $this->get_productos();
 
         try {
             $this->pdo->beginTransaction();
@@ -357,7 +408,7 @@ class Venta extends Conexion
             );
             $actualizarVenta->execute([
                 ':cedulaCliente' => $cedulaCliente,
-                ':fechaCompra' => $fecha->format('Y-m-d H:i:s'),
+                ':fechaCompra' => $this->get_fechaCompra(),
                 ':idVenta' => $idVenta,
             ]);
 
@@ -399,7 +450,7 @@ class Venta extends Conexion
                 ':monto' => $montoPagado,
                 ':tasa' => $tasa,
                 ':referencia' => $referencia !== '' ? $referencia : null,
-                ':fechaPago' => $fecha->format('Y-m-d H:i:s'),
+                ':fechaPago' => $this->get_fechaCompra(),
                 ':idVenta' => $idVenta,
             ]);
             if ($actualizarPago->rowCount() === 0) {
@@ -417,7 +468,7 @@ class Venta extends Conexion
                         ':idMoneda' => $idMoneda,
                         ':monto' => $montoPagado,
                         ':tasa' => $tasa,
-                        ':fechaPago' => $fecha->format('Y-m-d H:i:s'),
+                        ':fechaPago' => $this->get_fechaCompra(),
                         ':referencia' => $referencia !== '' ? $referencia : null,
                     ]);
                 }
