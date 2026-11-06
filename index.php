@@ -5,23 +5,20 @@
 //paginas en nuetro sitio web
 
 
-//$pagina, Variable que se recibe por GET y que indica que
-//pagina sera cargada, se le asigna un valor por defecto
-//en este caso home para cuando se carga por primera vez
- 
-$pagina = "home"; 
+$pagina = !empty($_GET['pagina']) ? $_GET['pagina'] : 'home';
+require_once 'modelo/verifica.php';
+$verifica = new verifica();
 
-if (empty($_GET['pagina'])) {
-   require_once 'vista/login.php';
-   exit;
+if ($pagina === 'salida') {
+   $verifica->destruyesesion();
 }
 
-
-//condicional que lee la solicitud
-//de cambio de pagina  
- if (!empty($_GET['pagina'])){ //si no esta vacia la variable $pagina que viene por get
-   $pagina = $_GET['pagina'];  //cambia el valor de $pagina por el obtenido por GET
- }
+$nivel = $verifica->leesesion();
+if ($nivel === '') {
+   $pagina = 'login';
+} elseif ($pagina === 'login') {
+   $pagina = 'home';
+}
  
  //pregunta si existe el archivo
  //si existe lo trae, si no escribe pagina en costrucción

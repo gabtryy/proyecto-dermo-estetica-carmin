@@ -3,17 +3,36 @@ require_once __DIR__ . '/conexion.php';
 
 class Usuario extends Conexion {
 
+    public function autenticar($nombreUsuario, $clave) {
+        if (!is_string($nombreUsuario) || $nombreUsuario === '' || !is_string($clave) || $clave === '') {
+            return false;
+        }
+
+        $sql = "SELECT cedula, usuario, rol, clave FROM usuario WHERE usuario = :usuario";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['usuario' => $nombreUsuario]);
+        $usuario = $stmt->fetch();
+
+        if (!$usuario || $usuario['clave'] !== $clave) {
+            return false;
+        }
+
+        return [
+            'cedula' => $usuario['cedula'],
+            'usuario' => $usuario['usuario'],
+            'rol' => $usuario['rol'],
+        ];
+    }
+
     public function registrar($cedula, $clave) {
         try {
             if (empty($cedula) || empty($clave)) {
                 return false;
             }
 
-            $claveHash = password_hash($clave, PASSWORD_DEFAULT);
-
             $sql = "INSERT INTO usuario (cedula, clave) VALUES (?, ?)";
             $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([$cedula, $claveHash]);
+            return $stmt->execute([$cedula, $clave]);
         } catch (PDOException $e) {
             error_log("Error al registrar usuario: " . $e->getMessage());
             return false;
@@ -41,8 +60,7 @@ class Usuario extends Conexion {
 
             $sql = "UPDATE usuario SET clave = :clave WHERE cedula = :cedula";
             $stmt = $this->pdo->prepare($sql);
-            $claveHash = password_hash($clave, PASSWORD_DEFAULT);
-            $stmt->bindParam(':clave', $claveHash);
+            $stmt->bindParam(':clave', $clave);
             $stmt->bindParam(':cedula', $cedula);
             return $stmt->execute();
         } catch (PDOException $e) {

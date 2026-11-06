@@ -6,11 +6,6 @@
 	<title>Iniciar sesión | Dermo Estética</title>
 	<link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
-	<script>
-		if (sessionStorage.getItem('dermoestetica_login') === '1') {
-			window.location.replace('index.php?pagina=home');
-		}
-	</script>
 	<style>
 		:root {
 			--purple: #6b2d86;
@@ -63,24 +58,25 @@
 		</div>
 		<h1 class="h3 text-center mb-1">Dermo Estética</h1>
 		<p class="text-center text-muted mb-4">Ingresa al sistema de gestión</p>
-		<form action="index.php?pagina=home" method="get" id="loginForm">
+		<?php if (!empty($mensaje)): ?>
+			<div class="alert alert-danger" role="alert">
+				<?= htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8') ?>
+			</div>
+		<?php endif; ?>
+		<form action="index.php?pagina=login" method="post" id="loginForm">
 			<div class="mb-3">
 				<label for="usuario" class="form-label">Usuario</label>
-				<input type="text" class="form-control" id="usuario" name="usuario">
+				<input type="text" class="form-control" id="usuario" name="usuario" autocomplete="username" maxlength="32" required autofocus>
 			</div>
 			<div class="mb-4">
-				<label for="contrasena" class="form-label">Contraseña</label>
-				<input type="password" class="form-control" id="contrasena" name="contrasena">
+				<label for="clave" class="form-label">Contraseña</label>
+				<input type="password" class="form-control" id="clave" name="clave" autocomplete="current-password" required>
 			</div>
 			<button type="submit" class="btn btn-purple w-100">
 				<i class="fas fa-sign-in-alt me-2"></i>Ingresar
 			</button>
 		</form>
 	</main>
-	<script>
-		document.getElementById('loginForm').addEventListener('submit', function () {
-			sessionStorage.setItem('dermoestetica_login', '1');
-		});
-	</script>
+	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
