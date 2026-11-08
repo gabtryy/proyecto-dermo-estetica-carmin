@@ -49,62 +49,76 @@
                 <h2 class="modal-title fs-5" id="modal1Label">Añadir cliente</h2>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body">
-                <form method="post" id="formulario_cliente" autocomplete="off" novalidate>
+            <form method="post" id="formulario_cliente" autocomplete="off" novalidate>
+                <div class="modal-body">
                     <input type="hidden" name="accion" id="accion" value="">
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label" for="cedula">Cédula</label>
-                            <input class="form-control" type="text" id="cedula" name="cedula" autocomplete="off">
-                            <span class="form-text text-danger" id="scedula"></span>
+
+                    <section class="mb-4" aria-labelledby="datos-personales-titulo">
+                        <h3 class="fs-6 fw-semibold text-purple-strong border-bottom pb-2 mb-3" id="datos-personales-titulo">Datos personales</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="cedula">Cédula</label>
+                                <input class="form-control" type="text" id="cedula" name="cedula" autocomplete="off">
+                                <span class="form-text text-danger" id="scedula"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="nombres">Nombre completo</label>
+                                <input class="form-control" type="text" id="nombres" name="nombres" autocomplete="off">
+                                <span class="form-text text-danger" id="snombres"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="fechadenacimiento">Fecha de nacimiento</label>
+                                <input class="form-control" type="date" id="fechadenacimiento" name="fechadenacimiento">
+                                <span class="form-text text-danger" id="sfechadenacimiento"></span>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="nombres">Nombre completo</label>
-                            <input class="form-control" type="text" id="nombres" name="nombres" autocomplete="off">
-                            <span class="form-text text-danger" id="snombres"></span>
+                    </section>
+
+                    <section class="mb-4" aria-labelledby="direccion-titulo">
+                        <h3 class="fs-6 fw-semibold text-purple-strong border-bottom pb-2 mb-3" id="direccion-titulo">Dirección</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="estado-visible">Estado</label>
+                                <input type="hidden" id="estado" name="estado" value="Lara">
+                                <input class="form-control" type="text" id="estado-visible" value="Lara" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="capital">Capital</label>
+                                <select class="form-select" id="capital">
+                                    <option value="">Seleccione una capital</option>
+                                </select>
+                                <span class="form-text text-danger" id="smunicipio"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="municipio">Municipio</label>
+                                <input class="form-control" type="text" id="municipio" name="municipio" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="parroquia">Parroquia</label>
+                                <select class="form-select" id="parroquia" name="parroquia" disabled>
+                                    <option value="">Seleccione una parroquia</option>
+                                </select>
+                                <span class="form-text text-danger" id="sparroquia"></span>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label" for="fechadenacimiento">Fecha de nacimiento</label>
-                            <input class="form-control" type="date" id="fechadenacimiento" name="fechadenacimiento">
-                            <span class="form-text text-danger" id="sfechadenacimiento"></span>
+                    </section>
+
+                    <section aria-labelledby="contacto-titulo">
+                        <h3 class="fs-6 fw-semibold text-purple-strong border-bottom pb-2 mb-3" id="contacto-titulo">Contacto</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="telefono">Teléfono</label>
+                                <input class="form-control" type="text" id="telefono" name="telefono" autocomplete="off">
+                                <span class="form-text text-danger" id="stelefono"></span>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="estado">Estado</label>
-                            <input class="form-control" type="text" id="estado" name="estado" autocomplete="off">
-                            <span class="form-text text-danger" id="sestado"></span>
-                        </div>
-                    </div>
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label" for="municipio">Municipio</label>
-                            <input class="form-control" type="text" id="municipio" name="municipio" autocomplete="off">
-                            <span class="form-text text-danger" id="smunicipio"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="parroquia">Parroquia</label>
-                            <input class="form-control" type="text" id="parroquia" name="parroquia" autocomplete="off">
-                            <span class="form-text text-danger" id="sparroquia"></span>
-                        </div>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label" for="telefono">Teléfono</label>
-                            <input class="form-control" type="text" id="telefono" name="telefono" autocomplete="off">
-                            <span class="form-text text-danger" id="stelefono"></span>
-                        </div>
-                    </div>
-                
-            </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-outline-purple" data-bs-dismiss="modal">Cerrar</button>
-                <button class="btn btn-purple" type="submit" id="proceso">REGISTRAR</button>
-            </div>
-                </form>
+                    </section>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-purple" data-bs-dismiss="modal">Cerrar</button>
+                    <button class="btn btn-purple" type="submit" id="proceso">REGISTRAR</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

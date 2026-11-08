@@ -1,6 +1,6 @@
 <?php
 $paginaActual = $pagina ?? 'home';
-$rolUsuario = (int) ($_SESSION['nivel'] ?? 0);
+$rolUsuario = $_SESSION['nivel'];
 ?>
 <!DOCTYPE html>
 <html lang="es">

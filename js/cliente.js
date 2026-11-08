@@ -1,6 +1,61 @@
-﻿// ==========================================
+// ==========================================
 // 1. FUNCIONES PRINCIPALES Y AJAX
 // ==========================================
+
+var direccionesLara = {
+    estado: 'Lara',
+    municipios: [
+        { nombre: 'Andrés Eloy Blanco', capital: 'Sanare', parroquias: ['Pío Tamayo', 'Quebrada Honda de Guache', 'Yacambú'] },
+        { nombre: 'Crespo', capital: 'Duaca', parroquias: ['Freitez', 'José María Blanco'] },
+        { nombre: 'Iribarren', capital: 'Barquisimeto', parroquias: ['Aguedo Felipe Alvarado', 'Ana Soto', 'Buena Vista', 'Catedral', 'Concepción', 'El Cují', 'Juares', 'Santa Rosa', 'Tamaca', 'Unión'] },
+        { nombre: 'Jiménez', capital: 'Quíbor', parroquias: ['Coronel Mariano Peraza', 'Cuara', 'Diego de Lozada', 'José Bernardo Dorante', 'Juan Bautista Rodríguez', 'Paraíso de San José', 'San Miguel', 'Tintorero'] },
+        { nombre: 'Morán', capital: 'El Tocuyo', parroquias: ['Anzoátegui', 'Bolívar', 'Guárico', 'Hilario Luna y Luna', 'Humocaro Alto', 'Humocaro Bajo', 'La Candelaria', 'Morán'] },
+        { nombre: 'Palavecino', capital: 'Cabudare', parroquias: ['Agua Viva', 'Cabudare', 'José Gregorio Bastidas'] },
+        { nombre: 'Simón Planas', capital: 'Sarare', parroquias: ['Buría', 'Gustavo Vegas León', 'Sarare'] },
+        { nombre: 'Torres', capital: 'Carora', parroquias: ['Altagracia', 'Antonio Díaz', 'Camacaro', 'Castañeda', 'Cecilio Zubillaga', 'Chiquinquirá', 'El Blanco', 'Espinoza de los Monteros', 'Heriberto Arroyo', 'Lara', 'Las Mercedes', 'Manuel Morillo', 'Montaña Verde', 'Montes de Oca', 'Reyes Vargas', 'Torres', 'Trinidad Samuel'] },
+        { nombre: 'Urdaneta', capital: 'Siquisique', parroquias: ['Moroturo', 'San Miguel', 'Siquisique', 'Xaguas'] }
+    ]
+};
+
+function obtieneMunicipioSeleccionado() {
+    return direccionesLara.municipios.find(function (municipio) {
+        return municipio.nombre === $('#capital').val();
+    });
+}
+
+function actualizaDireccion() {
+    var municipio = obtieneMunicipioSeleccionado();
+    var $parroquia = $('#parroquia');
+
+    $('#municipio').val(municipio ? municipio.nombre : '');
+    $('#sparroquia').text('');
+    $parroquia.empty().append($('<option>', {
+        value: '',
+        text: 'Seleccione una parroquia'
+    })).prop('disabled', !municipio).removeClass('is-invalid');
+
+    if (municipio) {
+        municipio.parroquias.forEach(function (parroquia) {
+            $parroquia.append($('<option>', { value: parroquia, text: parroquia }));
+        });
+    }
+}
+
+function cargaDirecciones() {
+    $('#estado').val(direccionesLara.estado);
+    $('#capital').empty().append($('<option>', {
+        value: '',
+        text: 'Seleccione una capital'
+    }));
+
+    direccionesLara.municipios.forEach(function (municipio) {
+        $('#capital').append($('<option>', {
+            value: municipio.nombre,
+            text: municipio.capital
+        }));
+    });
+    actualizaDireccion();
+}
 
 function enviaAjax(datos) {
     $.ajax({
@@ -201,34 +256,21 @@ function validarFechaNacimiento() {
     return !error;
 }
 
-function validarEstado() {
-    return validarCampo(
-        $('#estado'),
-        $('#sestado'),
-        'El estado',
-        'Use entre 3 y 50 letras.',
-        /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'-]{3,50}$/
-    );
-}
-
 function validarMunicipio() {
-    return validarCampo(
-        $('#municipio'),
-        $('#smunicipio'),
-        'El municipio',
-        'Use entre 3 y 50 letras.',
-        /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'-]{3,50}$/
-    );
+    var municipio = obtieneMunicipioSeleccionado();
+    var valido = Boolean(municipio && $('#municipio').val() === municipio.nombre);
+    $('#smunicipio').text(valido ? '' : 'Seleccione una capital válida.');
+    $('#municipio').toggleClass('is-invalid', !valido);
+    return valido;
 }
 
 function validarParroquia() {
-    return validarCampo(
-        $('#parroquia'),
-        $('#sparroquia'),
-        'La parroquia',
-        'Use entre 3 y 50 letras.',
-        /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'-]{3,50}$/
-    );
+    var municipio = obtieneMunicipioSeleccionado();
+    var parroquia = $('#parroquia').val();
+    var valido = Boolean(municipio && municipio.parroquias.indexOf(parroquia) !== -1);
+    $('#sparroquia').text(valido ? '' : 'Seleccione una parroquia.');
+    $('#parroquia').toggleClass('is-invalid', !valido);
+    return valido;
 }
 
 function validarTelefono() {
@@ -243,14 +285,13 @@ function validarTelefono() {
 
 function limpiarErrores() {
     $('#formulario_cliente .is-invalid').removeClass('is-invalid');
-    $('#scedula, #snombres, #sfechadenacimiento, #sestado, #smunicipio, #sparroquia, #stelefono').text('');
+    $('#scedula, #snombres, #sfechadenacimiento, #smunicipio, #sparroquia, #stelefono').text('');
 }
 
 function validarFormularioCliente() {
     var cedulaValida = validarCedula();
     var nombreValido = validarNombre();
     var fechaValida = validarFechaNacimiento();
-    var estadoValido = validarEstado();
     var municipioValido = validarMunicipio();
     var parroquiaValida = validarParroquia();
     var telefonoValido = validarTelefono();
@@ -258,7 +299,6 @@ function validarFormularioCliente() {
     return cedulaValida
         && nombreValido
         && fechaValida
-        && estadoValido
         && municipioValido
         && parroquiaValida
         && telefonoValido;
@@ -268,9 +308,8 @@ function limpia() {
     pone_fecha();
     $("#cedula").val("").prop("readonly", false);
     $("#nombres").val("");
-    $("#estado").val("");
-    $("#municipio").val("");
-    $("#parroquia").val("");
+    $("#capital").val("");
+    actualizaDireccion();
     $("#telefono").val("");
     limpiarErrores();
 }
@@ -291,15 +330,18 @@ function muestraMensaje(mensaje, icon = 'warning') {
 
 
 $(document).ready(function () {
+    cargaDirecciones();
     pone_fecha();
     consultar();
 
     $('#cedula').on('input', validarCedula);
     $('#nombres').on('input', validarNombre);
     $('#fechadenacimiento').on('input change', validarFechaNacimiento);
-    $('#estado').on('input', validarEstado);
-    $('#municipio').on('input', validarMunicipio);
-    $('#parroquia').on('input', validarParroquia);
+    $('#capital').on('change', function () {
+        actualizaDireccion();
+        validarMunicipio();
+    });
+    $('#parroquia').on('change', validarParroquia);
     $('#telefono').on('input', validarTelefono);
 
     $('#incluir').on('click', function () {
@@ -341,7 +383,6 @@ $(document).ready(function () {
         var nombre = $fila.find('td').eq(1).text();
         var fechaNacimiento = $fila.find('td').eq(2).text();
         var direccion = ($fila.find('td').eq(3).text() || '').split(' / ');
-        var estado = direccion[0] || '';
         var municipio = direccion[1] || '';
         var parroquia = direccion[2] || '';
         var telefono = $fila.find('td').eq(4).text();
@@ -349,9 +390,12 @@ $(document).ready(function () {
         $('#cedula').val(cedula).prop('readonly', true);
         $('#nombres').val(nombre);
         $('#fechadenacimiento').val(fechaNacimiento);
-        $('#estado').val(estado);
-        $('#municipio').val(municipio);
+        $('#estado').val(direccionesLara.estado);
+        $('#capital').val(municipio);
+        actualizaDireccion();
         $('#parroquia').val(parroquia);
+        validarMunicipio();
+        validarParroquia();
         $('#telefono').val(telefono);
         limpiarErrores();
 
