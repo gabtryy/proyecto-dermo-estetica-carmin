@@ -55,6 +55,12 @@ $rolUsuario = $_SESSION['nivel'];
                     Ventas
                 </a>
             </li>
+            <li class="nav-item mb-1">
+                <a class="btn btn-outline-purple w-100 text-start" href="index.php?pagina=reportes">
+                    <i class="fas fa-file-pdf me-2"></i>
+                    Reportes
+                </a>
+            </li>
             <?php endif; ?>
             <?php if ($rolUsuario === 1): ?>
             <li class="nav-item mb-1">

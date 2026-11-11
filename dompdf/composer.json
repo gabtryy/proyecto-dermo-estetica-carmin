@@ -1,0 +1,10 @@
+{
+    "license": "proprietary",
+    "require": {
+        "dompdf/dompdf": "^3.1"
+    },
+    "config": {
+        "vendor-dir": "vendor",
+        "sort-packages": true
+    }
+}

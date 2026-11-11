@@ -181,7 +181,6 @@ function renderTabla(lista) {
             + '<td class="text-nowrap">'
             +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-edit"></i></button>'
             +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            +   '<button class="btn btn-sm btn-info ms-1 btn-detalle" title="Detalle" data-cedula="' + (item.cedulaCliente || '') + '"><i class="fas fa-info-circle"></i></button>'
             + '</td>'
             + '</tr>';
         $tbody.append(fila);
