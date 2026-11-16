@@ -48,6 +48,7 @@
                     <div class="col-md-6">
                         <label class="form-label" for="fecha_cita">Fecha</label>
                         <input class="form-control" type="date" id="fecha_cita" name="fecha_cita" required>
+                        <div class="invalid-feedback">La fecha no puede ser anterior a hoy.</div>
                     </div>
 
                     <div class="col-md-6">
@@ -113,7 +114,7 @@
                     <div class="row g-3">
                         <div class="col-md-6"><label class="form-label" for="editar-cliente">Cliente</label><select class="form-select" name="cedulaCliente" id="editar-cliente" required></select></div>
                         <div class="col-md-6"><label class="form-label" for="editar-esteticista">Esteticista</label><select class="form-select" name="cedulaEsteticista" id="editar-esteticista" required></select></div>
-                        <div class="col-md-6"><label class="form-label" for="editar-fecha">Fecha</label><input class="form-control" type="date" name="fecha_cita" id="editar-fecha" required></div>
+                        <div class="col-md-6"><label class="form-label" for="editar-fecha">Fecha</label><input class="form-control" type="date" name="fecha_cita" id="editar-fecha" required><div class="invalid-feedback">La fecha no puede ser anterior a hoy.</div></div>
                         <div class="col-md-6"><label class="form-label" for="editar-hora">Hora</label><input class="form-control" type="time" name="hora" id="editar-hora" required></div>
                     </div>
                     <div class="mt-4"><label class="form-label fw-semibold">Servicios</label><div id="editar-lista-servicios" class="row g-2"></div></div>

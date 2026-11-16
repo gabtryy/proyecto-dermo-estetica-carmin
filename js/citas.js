@@ -100,6 +100,20 @@ function actualizarTotal() {
     $('#total-cita').text('$' + total.toFixed(2));
 }
 
+function fechaLocalActual() {
+    var hoy = new Date();
+    var mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    var dia = String(hoy.getDate()).padStart(2, '0');
+    return hoy.getFullYear() + '-' + mes + '-' + dia;
+}
+
+function validarFechaCita(selector) {
+    var $fecha = $(selector);
+    var invalida = Boolean($fecha.val()) && $fecha.val() < fechaLocalActual();
+    $fecha.toggleClass('is-invalid', invalida);
+    return !invalida;
+}
+
 function consultar() {
     var datos = new FormData();
     datos.append('accion', 'consultar');
@@ -138,6 +152,10 @@ function consultar() {
 $(document).ready(function () {
     cargarCatalogos();
     consultar();
+
+    $('#fecha_cita, #editar-fecha').on('input change', function () {
+        validarFechaCita(this);
+    });
 
     $('#btn-guardar-cita').on('click', function () {
         $('#formulario_cita').trigger('submit');
@@ -179,6 +197,7 @@ $(document).ready(function () {
         $('#editar-cliente').val(item.cedulaCliente);
         $('#editar-esteticista').val(item.cedulaEsteticista);
         $('#editar-fecha').val(item.fecha_cita);
+        validarFechaCita('#editar-fecha');
         $('#editar-hora').val(item.hora);
         $('#editar-lista-servicios .servicio-check').prop('checked', false).each(function () {
             var idServicio = String($(this).val());
@@ -190,6 +209,9 @@ $(document).ready(function () {
 
     $('#formulario_editar_cita').on('submit', function (e) {
         e.preventDefault();
+        if (!validarFechaCita('#editar-fecha')) {
+            return;
+        }
         if (!$('#formulario_editar_cita .servicio-check:checked').length) {
             Swal.fire('Faltan servicios', 'Selecciona al menos un servicio para la cita.', 'warning');
             return;
@@ -208,6 +230,10 @@ $(document).ready(function () {
 
         if (!$('#cedulaCliente').val() || !$('#cedulaEsteticista').val() || !$('#fecha_cita').val() || !$('#hora').val()) {
             Swal.fire('Faltan datos', 'Debes completar cliente, esteticista, fecha y hora.', 'warning');
+            return;
+        }
+
+        if (!validarFechaCita('#fecha_cita')) {
             return;
         }
 
