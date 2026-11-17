@@ -1,5 +1,5 @@
 (function () {
-    var prefijos = ['0412', '0413', '0414', '0416', '0424', '0426'];
+    var prefijos = ['0412','0414', '0416', '0424', '0426'];
 
     document.addEventListener('input', function (evento) {
         if (!evento.target.matches('.telefono-numero')) {

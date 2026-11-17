@@ -91,9 +91,82 @@ $(document).ready(function () {
         });
     }
 
+    function validarCampoConfiguracion(campo) {
+        var $campo = $('#' + campo);
+        var valor = String($campo.val() || '').trim();
+        var error = '';
+
+        if (campo === 'nombre_moneda' && (!valor || Array.from(valor).length > 50)) {
+            error = 'Ingrese el nombre de la moneda, con un máximo de 50 caracteres.';
+        } else if (campo === 'simbolo' && (!valor || Array.from(valor).length > 5)) {
+            error = 'Ingrese un símbolo de hasta 5 caracteres.';
+        } else if (campo === 'nom_MetodoPago' && (!valor || Array.from(valor).length > 50)) {
+            error = 'Ingrese el nombre del método de pago, con un máximo de 50 caracteres.';
+        } else if (campo === 'monedaTasa') {
+            var opcionValida = $campo.find('option').filter(function () {
+                return this.value === valor && /^[1-9]\d*$/.test(this.value);
+            }).length > 0;
+            if (!opcionValida) {
+                error = 'Seleccione una moneda válida.';
+            }
+        } else if (campo === 'fecha_tasa') {
+            var partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(valor);
+            var fechaValida = false;
+            if (partes) {
+                var fecha = new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]));
+                fechaValida = fecha.getFullYear() === Number(partes[1]) &&
+                    fecha.getMonth() === Number(partes[2]) - 1 &&
+                    fecha.getDate() === Number(partes[3]);
+            }
+            if (!fechaValida || valor > $campo.attr('max')) {
+                error = 'Indique una fecha válida que no sea futura.';
+            }
+        } else if (campo === 'monto_tasa') {
+            var tasa = Number(valor);
+            if (!/^\d{1,6}(?:\.\d{1,4})?$/.test(valor) || !Number.isFinite(tasa) || tasa <= 0) {
+                error = 'La tasa debe ser mayor que cero y tener hasta 4 decimales.';
+            }
+        }
+
+        $('#s' + campo).text(error);
+        $campo.toggleClass('is-invalid', Boolean(error));
+        return !error;
+    }
+
+    function validarFormularioConfiguracion(formulario) {
+        var campos = {
+            formMoneda: ['nombre_moneda', 'simbolo'],
+            formMetodo: ['nom_MetodoPago'],
+            formTasa: ['monedaTasa', 'fecha_tasa', 'monto_tasa']
+        }[formulario.id];
+        var valido = true;
+        campos.forEach(function (campo) {
+            if (!validarCampoConfiguracion(campo)) {
+                valido = false;
+            }
+        });
+        if (!valido) {
+            $(formulario).find('.is-invalid').first().trigger('focus');
+        }
+        return valido;
+    }
+
+    $('#formMoneda, #formMetodo, #formTasa').on('input change', 'input, select', function () {
+        validarCampoConfiguracion(this.id);
+    }).on('reset', function () {
+        var formulario = this;
+        window.setTimeout(function () {
+            $(formulario).find('.is-invalid').removeClass('is-invalid');
+            $(formulario).find('.form-text.text-danger').text('');
+        }, 0);
+    });
+
     $('#formMoneda, #formMetodo, #formTasa').on('submit', function (evento) {
         evento.preventDefault();
         var formulario = this;
+        if (!validarFormularioConfiguracion(formulario) || !formulario.reportValidity()) {
+            return;
+        }
         var datos = new FormData(formulario);
 
         enviar(datos, function (respuesta) {

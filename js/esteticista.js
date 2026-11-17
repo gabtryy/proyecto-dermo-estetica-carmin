@@ -71,7 +71,7 @@ function renderTablaEst(lista) {
     });
 }
 
-function validarFormularioEsteticista(telefono) {
+function obtenerErroresEsteticista(telefono) {
     var campos = {
         cedula: $('#cedula').val().trim(),
         nombres: $('#nombres').val().trim(),
@@ -93,25 +93,35 @@ function validarFormularioEsteticista(telefono) {
         errores.cedula = 'La cédula debe tener entre 6 y 12 dígitos.';
     }
     var longitudNombre = Array.from(campos.nombres).length;
-    if (longitudNombre < 1 || longitudNombre > 100) {
-        errores.nombres = 'El nombre debe tener entre 1 y 100 caracteres.';
+    if (
+        longitudNombre < 1 ||
+        longitudNombre > 100 ||
+        !/^[\p{L}\s'-]+$/u.test(campos.nombres)
+    ) {
+        errores.nombres = 'Use entre 1 y 100 caracteres: solo letras, espacios, apóstrofes o guiones.';
     }
-    if (campos.telefono && (
+    if (!campos.telefono) {
+        errores.telefono = 'El teléfono es obligatorio.';
+    } else if (
         campos.telefono.length > 20 ||
         !/^(?:04(?:12|13|14|16|24|26)\d{7}|\+?58\d{10}|\d{7,15})$/.test(campos.telefono)
-    )) {
+    ) {
         errores.telefono = 'Ingrese un teléfono válido con prefijo móvil venezolano.';
     }
-    if (campos.correo && (
+    if (!campos.correo) {
+        errores.correo = 'El correo electrónico es obligatorio.';
+    } else if (
         Array.from(campos.correo).length > 100 ||
         document.getElementById('correo').validity.typeMismatch ||
         !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(campos.correo)
-    )) {
+    ) {
         errores.correo = 'Ingrese un correo electrónico válido de hasta 100 caracteres.';
     }
-    if (campos.fechaNacimiento && !/^\d{4}-\d{2}-\d{2}$/.test(campos.fechaNacimiento)) {
+    if (!campos.fechaNacimiento) {
+        errores.fechaNacimiento = 'La fecha de nacimiento es obligatoria.';
+    } else if (!/^\d{4}-\d{2}-\d{2}$/.test(campos.fechaNacimiento)) {
         errores.fechaNacimiento = 'Ingrese una fecha de nacimiento válida.';
-    } else if (campos.fechaNacimiento) {
+    } else {
         var partesFecha = campos.fechaNacimiento.split('-').map(Number);
         var fecha = new Date(partesFecha[0], partesFecha[1] - 1, partesFecha[2]);
         if (
@@ -120,16 +130,38 @@ function validarFormularioEsteticista(telefono) {
             fecha.getDate() !== partesFecha[2]
         ) {
             errores.fechaNacimiento = 'Ingrese una fecha de nacimiento válida.';
+        } else {
+            var hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            if (fecha > hoy) {
+                errores.fechaNacimiento = 'La fecha de nacimiento no puede ser futura.';
+            }
         }
     }
     if (!campos.especialidad || !/^[1-9]\d*$/.test(campos.especialidad)) {
         errores.especialidad = 'Seleccione una especialidad válida.';
     }
 
-    Object.keys(errores).forEach(function (campo) {
-        $('#s' + campo).text(errores[campo]);
-    });
+    return errores;
+}
 
+function mostrarErrorEsteticista(campo, error) {
+    $('#s' + campo).text(error || '');
+    $('#' + campo).toggleClass('is-invalid', Boolean(error));
+}
+
+function validarCampoEsteticista(campo) {
+    var telefono = obtenerTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal');
+    var errores = obtenerErroresEsteticista(telefono === null ? 'invalido' : telefono);
+    mostrarErrorEsteticista(campo, errores[campo]);
+    return !errores[campo];
+}
+
+function validarFormularioEsteticista(telefono) {
+    var errores = obtenerErroresEsteticista(telefono);
+    Object.keys(errores).forEach(function (campo) {
+        mostrarErrorEsteticista(campo, errores[campo]);
+    });
     var primerCampoInvalido = Object.keys(errores).find(function (campo) {
         return errores[campo] !== '';
     });
@@ -141,6 +173,44 @@ function validarFormularioEsteticista(telefono) {
 }
 
 $(document).ready(function () {
+    function filtrarEntradaEsteticista(input) {
+        var posicion = input.selectionStart;
+        var antesDelCursor = input.value.slice(0, posicion);
+        var valor = input.value;
+        var limpio;
+        var antesLimpio;
+
+        if (input.id === 'cedula') {
+            limpio = valor.replace(/\D/g, '').slice(0, 12);
+            antesLimpio = antesDelCursor.replace(/\D/g, '').slice(0, 12);
+        } else {
+            limpio = Array.from(valor.replace(/[^\p{L}\s'-]/gu, '')).slice(0, 100).join('');
+            antesLimpio = Array.from(antesDelCursor.replace(/[^\p{L}\s'-]/gu, '')).slice(0, 100).join('');
+        }
+
+        if (input.value !== limpio) {
+            input.value = limpio;
+            var nuevaPosicion = Math.min(antesLimpio.length, limpio.length);
+            input.setSelectionRange(nuevaPosicion, nuevaPosicion);
+        }
+    }
+
+    $('#formulario_esteticista').on('input change blur', 'input, select', function () {
+        if (this.id === 'cedula' || this.id === 'nombres') {
+            filtrarEntradaEsteticista(this);
+        }
+        if (this.id === 'prefijoTelefono') {
+            validarCampoEsteticista('telefono');
+        } else if (['cedula', 'nombres', 'telefono', 'correo', 'fechaNacimiento', 'especialidad'].indexOf(this.id) !== -1) {
+            validarCampoEsteticista(this.id);
+        }
+    });
+
+    document.getElementById('modal1').addEventListener('hidden.bs.modal', function () {
+        $('#formulario_esteticista .is-invalid').removeClass('is-invalid');
+        $('#scedula, #snombres, #stelefono, #scorreo, #sfechaNacimiento, #sespecialidad').text('');
+    });
+
     // Delegación para botón eliminar
     $('#resultadoconsulta').on('click', '.btn-eliminar', function () {
         var cedula = $(this).data('cedula');
@@ -214,6 +284,8 @@ $(document).ready(function () {
         var $modal = $('#modal1');
         // resetear formulario y permitir editar cédula
         $('#formulario_esteticista')[0].reset();
+        $('#formulario_esteticista .is-invalid').removeClass('is-invalid');
+        $('#scedula, #snombres, #stelefono, #scorreo, #sfechaNacimiento, #sespecialidad').text('');
         $('#cedula').prop('readonly', false);
         $('#telefonoOriginal').val('');
         $('#prefijoTelefono').val('0414');
@@ -232,6 +304,7 @@ $(document).ready(function () {
         var telefono = obtenerTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal');
         if (telefono === null) {
             $('#stelefono').text('Ingresa 7 dígitos después del prefijo seleccionado.');
+            $('#telefono').addClass('is-invalid');
             $('#telefono').trigger('focus');
             return;
         }

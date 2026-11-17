@@ -53,17 +53,17 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form method="post" id="formulario_esteticista" autocomplete="off">
+                <form method="post" id="formulario_esteticista" autocomplete="off" novalidate>
                     <input type="hidden" name="accion" id="accion" value="">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label" for="cedula">Cédula</label>
-                            <input class="form-control" type="text" id="cedula" name="cedula" autocomplete="off">
+                            <input class="form-control" type="text" id="cedula" name="cedula" inputmode="numeric" maxlength="12" autocomplete="off">
                             <span class="form-text text-danger" id="scedula"></span>
                         </div>
                         <div class="col-md-8">
                             <label class="form-label" for="nombres">Nombre completo</label>
-                            <input class="form-control" type="text" id="nombres" name="nombres" autocomplete="off">
+                            <input class="form-control" type="text" id="nombres" name="nombres" maxlength="100" autocomplete="off">
                             <span class="form-text text-danger" id="snombres"></span>
                         </div>
                     </div>
@@ -73,27 +73,26 @@
                             <div class="input-group">
                                 <select class="form-select telefono-prefijo" id="prefijoTelefono" aria-label="Prefijo telefónico">
                                     <option value="0412">0412</option>
-                                    <option value="0413">0413</option>
                                     <option value="0414" selected>0414</option>
                                     <option value="0416">0416</option>
                                     <option value="0424">0424</option>
                                     <option value="0426">0426</option>
                                 </select>
-                                <input class="form-control telefono-numero" type="tel" id="telefono" name="telefono" inputmode="numeric" autocomplete="off" maxlength="7" pattern="[0-9]{7}" placeholder="1234567" aria-describedby="stelefono">
+                                <input class="form-control telefono-numero" type="tel" id="telefono" name="telefono" inputmode="numeric" autocomplete="off" maxlength="7" pattern="[0-9]{7}" placeholder="1234567" required aria-describedby="stelefono">
                             </div>
                             <input type="hidden" id="telefonoOriginal" value="">
                             <span class="form-text text-danger" id="stelefono"></span>
                         </div>
                         <div class="col-md-8">
                             <label class="form-label" for="correo">Correo</label>
-                            <input class="form-control" type="email" id="correo" name="correo" autocomplete="off">
+                            <input class="form-control" type="email" id="correo" name="correo" maxlength="100" autocomplete="off" required>
                             <span class="form-text text-danger" id="scorreo"></span>
                         </div>
                     </div>
                     <div class="row g-3 mt-0">
                         <div class="col-md-6">
                             <label class="form-label" for="fechaNacimiento">Fecha de nacimiento</label>
-                            <input class="form-control" type="date" id="fechaNacimiento" name="fechaNacimiento">
+                            <input class="form-control" type="date" id="fechaNacimiento" name="fechaNacimiento" max="<?= htmlspecialchars(date('Y-m-d'), ENT_QUOTES, 'UTF-8') ?>" required>
                             <span class="form-text text-danger" id="sfechaNacimiento"></span>
                         </div>
                         <div class="col-md-6">

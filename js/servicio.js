@@ -62,6 +62,42 @@ function renderTabla(lista) {
 
 $(document).ready(function () {
     var currentEditId = null;
+
+    function validarCampoServicio(campo) {
+        var $campo = $('#' + campo);
+        var valor = String($campo.val() || '').trim();
+        var error = '';
+
+        if (campo === 'nombreServicio' && (Array.from(valor).length < 3 || Array.from(valor).length > 100)) {
+            error = 'El nombre del servicio debe tener entre 3 y 100 caracteres.';
+        } else if (campo === 'precio') {
+            var precio = Number(valor);
+            if (!/^\d{1,8}(?:\.\d{1,2})?$/.test(valor) || !Number.isFinite(precio) || precio <= 0) {
+                error = 'El precio debe ser mayor que cero y tener como máximo dos decimales.';
+            }
+        }
+
+        $('#s' + campo).text(error);
+        $campo.toggleClass('is-invalid', Boolean(error));
+        return !error;
+    }
+
+    function validarFormularioServicio() {
+        var nombreValido = validarCampoServicio('nombreServicio');
+        var precioValido = validarCampoServicio('precio');
+        return nombreValido && precioValido;
+    }
+
+    $('#formulario_servicio').on('input change', 'input:not([type="hidden"]), textarea', function () {
+        if (this.id === 'nombreServicio' || this.id === 'precio') {
+            validarCampoServicio(this.id);
+        }
+    });
+
+    document.getElementById('modal1').addEventListener('hidden.bs.modal', function () {
+        $('#formulario_servicio .is-invalid').removeClass('is-invalid');
+        $('#snombreServicio, #sprecio, #sdescripcion').text('');
+    });
     
     // Delegación para botón eliminar
     $('#resultadoconsulta').on('click', '.btn-eliminar', function () {
@@ -125,14 +161,8 @@ $(document).ready(function () {
     $('#formulario_servicio').on('submit', function (e) {
         e.preventDefault();
         var form = this;
-        var nombre = $('#nombreServicio').val().trim();
-        var precio = Number($('#precio').val());
-        if (nombre.length < 3 || nombre.length > 100) {
-            Swal.fire('Revisa el nombre', 'El nombre del servicio debe tener entre 3 y 100 caracteres.', 'warning');
-            return;
-        }
-        if (!Number.isFinite(precio) || precio <= 0 || precio > 99999999.99) {
-            Swal.fire('Revisa el precio', 'Ingresa un precio mayor que cero y con un máximo de dos decimales.', 'warning');
+        if (!validarFormularioServicio() || !form.reportValidity()) {
+            $('#formulario_servicio .is-invalid').first().trigger('focus');
             return;
         }
 

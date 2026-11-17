@@ -20,7 +20,7 @@ $(function () {
         Swal.fire('Error', mensaje, 'error');
     }
 
-    function validarFormulario() {
+    function obtenerErroresFormulario() {
         var nombre = $('#nombreProducto').val().trim();
         var marca = $('#marca').val().trim();
         var proveedor = $('#idProveedor').val();
@@ -63,9 +63,20 @@ $(function () {
             errores.idProducto = 'El producto seleccionado no es válido.';
         }
 
+        return errores;
+    }
+
+    function mostrarErrorCampo(campo, error) {
+        $('#s' + campo).text(error || '');
+        $('#' + campo).toggleClass('is-invalid', Boolean(error));
+    }
+
+    function validarFormulario() {
+        var errores = obtenerErroresFormulario();
         $('#snombreProducto, #smarca, #sidProveedor, #sprecioProducto, #scantidadActual, #stipoProducto').text('');
+        $('#formulario_producto .is-invalid').removeClass('is-invalid');
         Object.keys(errores).forEach(function (campo) {
-            $('#s' + campo).text(errores[campo]);
+            mostrarErrorCampo(campo, errores[campo]);
         });
 
         if (errores.idProducto) {
@@ -181,6 +192,7 @@ $(function () {
 
     function limpiarFormulario() {
         $('#formulario_producto')[0].reset();
+        $('#formulario_producto .is-invalid').removeClass('is-invalid');
         $('#idProducto').val('');
         $('#accion').val('incluir');
         $('#proceso').text('REGISTRAR');
@@ -268,7 +280,9 @@ $(function () {
     });
 
     $('#formulario_producto').on('input change', 'input, select', function () {
-        $('#s' + this.id).text('');
+        if (this.id) {
+            mostrarErrorCampo(this.id, obtenerErroresFormulario()[this.id] || '');
+        }
     });
 
     document.getElementById('modal1').addEventListener('hidden.bs.modal', limpiarFormulario);
