@@ -23,13 +23,24 @@ if (is_file($ruta_modelo)) {
 
 function validarDatosProveedor(array &$datos): ?string
 {
-    $rif = strtoupper(trim($datos['rif']));
-    $rif = preg_replace('/^J-/i', '', $rif);
-    $rif = str_replace('-', '', $rif);
+    $tipoRif = $datos['tipoRif'] ?? '';
+    if (!is_string($tipoRif)) {
+        return 'Seleccione un tipo de RIF válido.';
+    }
+    $tipoRif = strtoupper(trim($tipoRif));
+    if (!in_array($tipoRif, ['V', 'E', 'J', 'P'], true)) {
+        return 'Seleccione un tipo de RIF válido.';
+    }
+
+    if (!is_string($datos['rif'])) {
+        return 'El RIF debe contener 8 dígitos y un dígito final.';
+    }
+    $rif = str_replace('-', '', trim($datos['rif']));
     if (!preg_match('/^\d{9}$/', $rif)) {
         return 'El RIF debe tener 8 dígitos para el negocio y un dígito final.';
     }
-    $datos['rif'] = 'J-' . substr($rif, 0, 8) . '-' . substr($rif, 8, 1);
+    $datos['tipoRif'] = $tipoRif;
+    $datos['rif'] = $tipoRif . '-' . substr($rif, 0, 8) . '-' . substr($rif, 8, 1);
 
     $nombre = trim($datos['nombreProveedor']);
     if (mb_strlen($nombre, 'UTF-8') < 2 || mb_strlen($nombre, 'UTF-8') > 100 || preg_match('/[\x00-\x1F]/', $nombre)) {
@@ -40,14 +51,32 @@ function validarDatosProveedor(array &$datos): ?string
         return 'Ingrese un correo válido de máximo 30 caracteres.';
     }
 
-    if (
-        $datos['telefono'] !== '' &&
-        !preg_match('/^04(?:12|13|14|16|24|26)\d{7}$/', $datos['telefono'])
-    ) {
+    if ($datos['telefono'] === '') {
+        return 'El teléfono es obligatorio.';
+    }
+    if (!preg_match('/^04(?:12|13|14|16|24|26)\d{7}$/', $datos['telefono'])) {
         return 'Ingrese un teléfono válido: seleccione un prefijo y escriba los 7 dígitos restantes.';
     }
 
-    foreach (['estadoDirProveedor', 'municipioDirProveedor', 'parroquiaDirProveedor'] as $campo) {
+    $estadosPermitidos = [
+        'Amazonas', 'Anzoátegui', 'Apure', 'Aragua', 'Barinas', 'Bolívar',
+        'Carabobo', 'Cojedes', 'Delta Amacuro', 'Distrito Capital', 'Falcón',
+        'Guárico', 'La Guaira', 'Lara', 'Mérida', 'Miranda', 'Monagas',
+        'Nueva Esparta', 'Portuguesa', 'Sucre', 'Táchira', 'Trujillo',
+        'Yaracuy', 'Zulia',
+    ];
+    if (!is_string($datos['estadoDirProveedor'])) {
+        return 'Seleccione un estado válido.';
+    }
+    $datos['estadoDirProveedor'] = trim($datos['estadoDirProveedor']);
+    if (
+        $datos['estadoDirProveedor'] !== '' &&
+        !in_array($datos['estadoDirProveedor'], $estadosPermitidos, true)
+    ) {
+        return 'Seleccione un estado válido.';
+    }
+
+    foreach (['municipioDirProveedor', 'parroquiaDirProveedor'] as $campo) {
         if (mb_strlen($datos[$campo], 'UTF-8') > 100 || preg_match('/[\x00-\x1F]/', $datos[$campo])) {
             return 'Revise los datos de la dirección del proveedor.';
         }
@@ -83,8 +112,9 @@ if ($accion !== '') {
         case 'incluir':
             $datos = [
                 'rif' => trim($_POST['rif'] ?? ''),
+                'tipoRif' => $_POST['tipoRif'] ?? '',
                 'nombreProveedor' => trim($_POST['nombreProveedor'] ?? ''),
-                'estadoDirProveedor' => trim($_POST['estadoDirProveedor'] ?? ''),
+                'estadoDirProveedor' => $_POST['estadoDirProveedor'] ?? '',
                 'municipioDirProveedor' => trim($_POST['municipioDirProveedor'] ?? ''),
                 'parroquiaDirProveedor' => trim($_POST['parroquiaDirProveedor'] ?? ''),
                 'telefono' => trim($_POST['telefono'] ?? ''),
@@ -117,8 +147,9 @@ if ($accion !== '') {
             $modelo->set_idProveedor(trim($_POST['idProveedor'] ?? ''));
             $datos = [
                 'rif' => trim($_POST['rif'] ?? ''),
+                'tipoRif' => $_POST['tipoRif'] ?? '',
                 'nombreProveedor' => trim($_POST['nombreProveedor'] ?? ''),
-                'estadoDirProveedor' => trim($_POST['estadoDirProveedor'] ?? ''),
+                'estadoDirProveedor' => $_POST['estadoDirProveedor'] ?? '',
                 'municipioDirProveedor' => trim($_POST['municipioDirProveedor'] ?? ''),
                 'parroquiaDirProveedor' => trim($_POST['parroquiaDirProveedor'] ?? ''),
                 'telefono' => trim($_POST['telefono'] ?? ''),

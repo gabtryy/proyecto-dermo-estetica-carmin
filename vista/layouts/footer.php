@@ -14,6 +14,9 @@
         <script src="js/home.js" defer></script>
     <?php elseif (in_array($controladorJS, ['clientes', 'esteticistas', 'proveedores'], true)): ?>
         <script src="js/telefono.js" defer></script>
+        <?php if (in_array($controladorJS, ['clientes', 'proveedores'], true)): ?>
+            <script src="js/direcciones.js" defer></script>
+        <?php endif; ?>
         <?php if ($controladorJS === 'clientes'): ?>
             <script src="js/cliente.js" defer></script>
         <?php elseif ($controladorJS === 'esteticistas'): ?>

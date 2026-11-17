@@ -119,6 +119,8 @@ $(document).ready(function () {
                         .addClass('form-control form-control-sm cantidad-carrito')
                         .attr('data-id', id)
                         .val(cantidad)
+                ).append(
+                    $('<span>').addClass('form-text text-danger error-cantidad-carrito')
                 ));
                 $fila.append($('<td>').text('$' + dinero(subtotal)));
                 $fila.append($('<td>').append(
@@ -211,110 +213,159 @@ $(document).ready(function () {
         $('#tasa_cobrada').val('');
         $('#tasa_cobrada_exacta').val('');
         $('#fechaCompra').val(fechaHoraLocal());
+        $('#formVenta .is-invalid').removeClass('is-invalid');
+        $('#formVenta .form-text.text-danger').text('');
         $('#modalVentaLabel').text('Registrar venta');
         $('#guardarVenta').text('Confirmar venta');
         actualizarCarrito();
     }
 
-    function validarFormularioVenta() {
-        function seleccionValida(selector) {
-            var valor = $(selector).val();
-            return /^[1-9]\d*$/.test(valor) &&
-                Number.isSafeInteger(Number(valor)) &&
-                Number(valor) <= 2147483647 &&
-                $(selector + ' option').filter(function () {
-                    return this.value === valor;
-                }).length > 0;
-        }
+    function seleccionarValido(selector) {
+        var valor = $(selector).val();
+        return /^[1-9]\d*$/.test(valor) &&
+            Number.isSafeInteger(Number(valor)) &&
+            Number(valor) <= 2147483647 &&
+            $(selector + ' option').filter(function () {
+                return this.value === valor;
+            }).length > 0;
+    }
 
-        if (!seleccionValida('#cedulaCliente')) {
-            Swal.fire('Venta inválida', 'Seleccione un cliente válido.', 'warning');
-            $('#cedulaCliente').trigger('focus');
-            return false;
-        }
-        if (!seleccionValida('#idMetodoPago')) {
-            Swal.fire('Venta inválida', 'Seleccione un método de pago válido.', 'warning');
-            $('#idMetodoPago').trigger('focus');
-            return false;
-        }
-        if (!seleccionValida('#id_moneda')) {
-            Swal.fire('Venta inválida', 'Seleccione una moneda válida.', 'warning');
-            $('#id_moneda').trigger('focus');
-            return false;
-        }
+    function mostrarErrorVenta(campo, error) {
+        $('#' + campo).toggleClass('is-invalid', Boolean(error));
+        $('#s' + campo).text(error || '');
+        return !error;
+    }
 
-        var fechaEntrada = $('#fechaCompra').val();
-        var partesFecha = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(fechaEntrada);
-        if (partesFecha) {
-            var fecha = new Date(
-                Number(partesFecha[1]),
-                Number(partesFecha[2]) - 1,
-                Number(partesFecha[3]),
-                Number(partesFecha[4]),
-                Number(partesFecha[5])
-            );
+    function validarCampoVenta(campo) {
+        var error = '';
+        if (campo === 'cedulaCliente' && !seleccionarValido('#cedulaCliente')) {
+            error = 'Seleccione un cliente válido.';
+        } else if (campo === 'idMetodoPago' && !seleccionarValido('#idMetodoPago')) {
+            error = 'Seleccione un método de pago válido.';
+        } else if (campo === 'id_moneda' && !seleccionarValido('#id_moneda')) {
+            error = 'Seleccione una moneda válida.';
+        } else if (campo === 'fechaCompra') {
+            var fechaEntrada = $('#fechaCompra').val();
+            var partesFecha = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(fechaEntrada);
+            if (partesFecha) {
+                var fecha = new Date(
+                    Number(partesFecha[1]),
+                    Number(partesFecha[2]) - 1,
+                    Number(partesFecha[3]),
+                    Number(partesFecha[4]),
+                    Number(partesFecha[5])
+                );
+                if (
+                    fecha.getFullYear() !== Number(partesFecha[1]) ||
+                    fecha.getMonth() !== Number(partesFecha[2]) - 1 ||
+                    fecha.getDate() !== Number(partesFecha[3]) ||
+                    fecha.getHours() !== Number(partesFecha[4]) ||
+                    fecha.getMinutes() !== Number(partesFecha[5])
+                ) {
+                    partesFecha = null;
+                }
+            }
+            if (!partesFecha) {
+                error = 'Ingrese una fecha y hora de venta válida.';
+            }
+        } else if (campo === 'tasa_cobrada') {
+            var tasa = $('#tasa_cobrada').val().trim();
+            var tasaNumerica = Number(tasa);
             if (
-                fecha.getFullYear() !== Number(partesFecha[1]) ||
-                fecha.getMonth() !== Number(partesFecha[2]) - 1 ||
-                fecha.getDate() !== Number(partesFecha[3]) ||
-                fecha.getHours() !== Number(partesFecha[4]) ||
-                fecha.getMinutes() !== Number(partesFecha[5])
+                !/^\d+(?:\.\d{1,4})?$/.test(tasa) ||
+                !Number.isFinite(tasaNumerica) ||
+                tasaNumerica <= 0 ||
+                tasaNumerica > 999999.9999
             ) {
-                partesFecha = null;
+                error = 'La tasa debe ser mayor que cero y tener hasta 4 decimales.';
+            }
+            $('#tasa_cobrada_exacta').val(tasa);
+        } else if (campo === 'referencia') {
+            if (new TextEncoder().encode($('#referencia').val()).length > 50) {
+                error = 'La referencia no puede superar los 50 caracteres.';
+            }
+        } else if (campo === 'productoVenta') {
+            var producto = $('#productoVenta').val();
+            if (producto && !productosDisponibles[producto]) {
+                error = 'Seleccione un producto válido.';
+            }
+        } else if (campo === 'cantidadVenta') {
+            var productoSeleccionado = productosDisponibles[$('#productoVenta').val()];
+            var cantidad = $('#cantidadVenta').val().trim();
+            if (cantidad && (!/^\d+$/.test(cantidad) || Number(cantidad) < 1)) {
+                error = 'Ingrese una cantidad entera mayor que cero.';
+            } else if (productoSeleccionado && (!cantidad || Number(cantidad) > stockDisponible(productoSeleccionado.idProducto))) {
+                error = 'La cantidad debe estar entre 1 y las unidades disponibles.';
             }
         }
-        if (!partesFecha) {
-            Swal.fire('Venta inválida', 'Ingrese una fecha y hora de venta válida.', 'warning');
-            $('#fechaCompra').trigger('focus');
-            return false;
-        }
+        return mostrarErrorVenta(campo, error);
+    }
 
-        var tasa = $('#tasa_cobrada').val().trim();
-        var tasaNumerica = Number(tasa);
-        if (
-            !/^\d+(?:\.\d{1,4})?$/.test(tasa) ||
-            !Number.isFinite(tasaNumerica) ||
-            tasaNumerica <= 0 ||
-            tasaNumerica > 999999.9999
-        ) {
-            Swal.fire('Venta inválida', 'La tasa debe ser mayor que cero y tener hasta 4 decimales.', 'warning');
-            $('#tasa_cobrada').trigger('focus');
-            return false;
+    function validarCantidadCarrito(input) {
+        var id = String($(input).attr('data-id'));
+        var cantidad = $(input).val().trim();
+        var disponible = stockDisponible(id);
+        var error = '';
+        if (!/^\d+$/.test(cantidad) || Number(cantidad) < 1 || Number(cantidad) > disponible) {
+            error = 'Ingrese una cantidad entre 1 y ' + disponible + '.';
         }
-        $('#tasa_cobrada_exacta').val(tasa);
+        $(input).toggleClass('is-invalid', Boolean(error));
+        $(input).siblings('.error-cantidad-carrito').text(error);
+        return !error;
+    }
 
-        var referencia = $('#referencia').val();
-        if (new TextEncoder().encode(referencia).length > 50) {
-            Swal.fire('Venta inválida', 'La referencia no puede superar los 50 caracteres.', 'warning');
-            $('#referencia').trigger('focus');
-            return false;
-        }
+    function validarFormularioVenta() {
+        var campos = ['cedulaCliente', 'fechaCompra', 'idMetodoPago', 'id_moneda', 'tasa_cobrada', 'referencia'];
+        var valido = true;
+        campos.forEach(function (campo) {
+            if (!validarCampoVenta(campo)) {
+                valido = false;
+            }
+        });
+        var carritoValido = Object.keys(carrito).length > 0;
 
-        var idsProducto = Object.keys(carrito);
-        if (!idsProducto.length) {
-            Swal.fire('Atención', 'Agregue al menos un producto a la venta.', 'warning');
-            return false;
-        }
-        for (var i = 0; i < idsProducto.length; i++) {
-            var idProducto = idsProducto[i];
-            var cantidad = carrito[idProducto];
+        $('#sproductosVenta').text(carritoValido ? '' : 'Agregue al menos un producto a la venta.');
+        Object.keys(carrito).forEach(function (id) {
+            var cantidad = carrito[id];
             if (
-                !productosDisponibles[idProducto] ||
+                !productosDisponibles[id] ||
                 !Number.isSafeInteger(cantidad) ||
                 cantidad < 1 ||
                 cantidad > 2147483647 ||
-                cantidad > stockDisponible(idProducto)
+                cantidad > stockDisponible(id)
             ) {
-                Swal.fire('Venta inválida', 'Revise los productos y sus cantidades.', 'warning');
-                return false;
+                carritoValido = false;
+                valido = false;
+                $('#sproductosVenta').text('Revise los productos y sus cantidades.');
             }
+        });
+        $('.cantidad-carrito').each(function () {
+            if (!validarCantidadCarrito(this)) {
+                carritoValido = false;
+                valido = false;
+            }
+        });
+
+        if (!carritoValido) {
+            valido = false;
+            if (!Object.keys(carrito).length) {
+                $('#agregarProducto').trigger('focus');
+            } else {
+                $('.cantidad-carrito.is-invalid').first().trigger('focus');
+            }
+        }
+        var campoInvalido = campos.find(function (campo) {
+            return $('#' + campo).hasClass('is-invalid');
+        });
+        if (campoInvalido) {
+            $('#' + campoInvalido).trigger('focus');
         }
 
         if (idVentaEnEdicion && (!/^[1-9]\d*$/.test(idVentaEnEdicion) || Number(idVentaEnEdicion) > 2147483647)) {
             Swal.fire('Venta inválida', 'La venta seleccionada no es válida.', 'warning');
             return false;
         }
-        return true;
+        return valido && carritoValido;
     }
 
     $('#nuevaVenta').on('click', function () {
@@ -326,26 +377,52 @@ $(document).ready(function () {
         var tasa = $(this).find(':selected').attr('data-tasa') || '';
         $('#tasa_cobrada').val(formatearTasa(tasa));
         $('#tasa_cobrada_exacta').val(tasa);
+        validarCampoVenta('id_moneda');
+        validarCampoVenta('tasa_cobrada');
         actualizarMonto(totalCarrito());
     });
 
     $('#tasa_cobrada').on('input', function () {
         $('#tasa_cobrada_exacta').val($(this).val());
+        validarCampoVenta('tasa_cobrada');
         actualizarMonto(totalCarrito());
+    });
+
+    $('#formVenta').on('input change', 'input, select', function () {
+        if (['cedulaCliente', 'fechaCompra', 'idMetodoPago', 'id_moneda', 'tasa_cobrada', 'referencia'].indexOf(this.id) !== -1) {
+            validarCampoVenta(this.id);
+        }
+    });
+
+    $('#productoVenta').on('change', function () {
+        validarCampoVenta('productoVenta');
+        var producto = productosDisponibles[$(this).val()];
+        $('#cantidadVenta').attr('max', producto ? stockDisponible(producto.idProducto) : '');
+        validarCampoVenta('cantidadVenta');
+    });
+
+    $('#cantidadVenta').on('input change', function () {
+        validarCampoVenta('cantidadVenta');
     });
 
     $('#agregarProducto').on('click', function () {
         var id = $('#productoVenta').val();
         var producto = productosDisponibles[id];
         var cantidad = Number($('#cantidadVenta').val());
-        if (!producto || !Number.isInteger(cantidad) || cantidad < 1) {
-            Swal.fire('Atención', 'Seleccione un producto e indique una cantidad válida.', 'warning');
+        if (!producto) {
+            mostrarErrorVenta('productoVenta', 'Seleccione un producto válido.');
+            $('#productoVenta').trigger('focus');
+            return;
+        }
+        if (!validarCampoVenta('cantidadVenta')) {
+            $('#cantidadVenta').trigger('focus');
             return;
         }
         var nuevaCantidad = (carrito[id] || 0) + cantidad;
         var disponible = stockDisponible(id);
         if (nuevaCantidad > disponible) {
-            Swal.fire('Inventario insuficiente', 'Solo hay ' + disponible + ' unidades disponibles.', 'warning');
+            mostrarErrorVenta('cantidadVenta', 'Solo hay ' + disponible + ' unidades disponibles.');
+            $('#cantidadVenta').trigger('focus');
             return;
         }
         carrito[id] = nuevaCantidad;
@@ -354,17 +431,21 @@ $(document).ready(function () {
         }
         $('#productoVenta').val('');
         $('#cantidadVenta').val(1);
+        $('#cantidadVenta').removeAttr('max');
+        mostrarErrorVenta('productoVenta', '');
+        mostrarErrorVenta('cantidadVenta', '');
+        $('#sproductosVenta').text('');
         actualizarCarrito();
+    });
+
+    $('#productosVenta').on('input', '.cantidad-carrito', function () {
+        validarCantidadCarrito(this);
     });
 
     $('#productosVenta').on('change', '.cantidad-carrito', function () {
         var id = String($(this).attr('data-id'));
         var cantidad = Number($(this).val());
-        var producto = productosDisponibles[id];
-        var disponible = stockDisponible(id);
-        if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > disponible) {
-            $(this).val(carrito[id]);
-            Swal.fire('Cantidad inválida', 'Ingrese una cantidad entre 1 y ' + disponible + '.', 'warning');
+        if (!validarCantidadCarrito(this)) {
             return;
         }
         carrito[id] = cantidad;
@@ -391,6 +472,8 @@ $(document).ready(function () {
             }
             $.when(catalogosListos).done(function () {
                 var venta = respuesta.data;
+                $('#formVenta .is-invalid').removeClass('is-invalid');
+                $('#formVenta .form-text.text-danger').text('');
                 idVentaEnEdicion = String(venta.idVenta);
                 carrito = {};
                 preciosCarrito = {};
@@ -461,6 +544,9 @@ $(document).ready(function () {
             return;
         }
 
+        $('.cantidad-carrito').each(function () {
+            carrito[String($(this).attr('data-id'))] = Number($(this).val());
+        });
         var datos = new FormData(this);
         datos.append('accion', idVentaEnEdicion ? 'modificar' : 'registrar');
         if (idVentaEnEdicion) {

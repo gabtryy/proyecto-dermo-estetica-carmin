@@ -53,10 +53,12 @@
                             <select class="form-select" id="cedulaCliente" name="cedulaCliente" required>
                                 <option value="">Seleccione cliente</option>
                             </select>
+                            <span class="form-text text-danger" id="scedulaCliente"></span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="fechaCompra">Fecha y hora de venta</label>
                             <input class="form-control" type="datetime-local" id="fechaCompra" name="fechaCompra" required>
+                            <span class="form-text text-danger" id="sfechaCompra"></span>
                         </div>
                     </div>
 
@@ -67,10 +69,12 @@
                             <select class="form-select" id="productoVenta">
                                 <option value="">Seleccione producto</option>
                             </select>
+                            <span class="form-text text-danger" id="sproductoVenta"></span>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label" for="cantidadVenta">Cantidad</label>
                             <input class="form-control" type="number" id="cantidadVenta" min="1" value="1">
+                            <span class="form-text text-danger" id="scantidadVenta"></span>
                         </div>
                         <div class="col-md-3">
                             <button type="button" class="btn btn-outline-primary w-100" id="agregarProducto">
@@ -78,6 +82,7 @@
                             </button>
                         </div>
                     </div>
+                    <p class="form-text text-danger" id="sproductosVenta"></p>
 
                     <div class="table-responsive">
                         <table class="table table-sm table-bordered align-middle">
@@ -110,21 +115,25 @@
                             <select class="form-select" id="idMetodoPago" name="idMetodoPago" required>
                                 <option value="">Seleccione método</option>
                             </select>
+                            <span class="form-text text-danger" id="sidMetodoPago"></span>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label" for="id_moneda">Moneda</label>
                             <select class="form-select" id="id_moneda" name="id_moneda" required>
                                 <option value="">Seleccione moneda</option>
                             </select>
+                            <span class="form-text text-danger" id="sid_moneda"></span>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label" for="tasa_cobrada">Tasa (unidades de moneda por cada $1)</label>
                             <input class="form-control" type="number" id="tasa_cobrada" min="0.0001" max="999999.9999" step="0.0001" required>
                             <input type="hidden" id="tasa_cobrada_exacta" name="tasa_cobrada">
+                            <span class="form-text text-danger" id="stasa_cobrada"></span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="referencia">Referencia de pago (opcional)</label>
                             <input class="form-control" type="text" id="referencia" name="referencia" maxlength="50">
+                            <span class="form-text text-danger" id="sreferencia"></span>
                         </div>
                         <div class="col-md-6 d-flex align-items-end">
                             <p class="mb-2 text-muted">Monto a cobrar: <strong id="montoPago">0,00</strong></p>

@@ -59,7 +59,12 @@
                         <div class="col-md-6">
                             <label class="form-label" for="rif">RIF</label>
                             <div class="input-group">
-                                <span class="input-group-text">J-</span>
+                                <select class="form-select" id="tipoRif" name="tipoRif" aria-label="Tipo de RIF" required>
+                                    <option value="V">V- Venezolano</option>
+                                    <option value="E">E- Extranjero</option>
+                                    <option value="J" selected>J- Jurídico</option>
+                                    <option value="P">P- Pasaporte</option>
+                                </select>
                                 <input class="form-control" type="text" id="rif" name="rif" inputmode="numeric" autocomplete="off" maxlength="10" pattern="[0-9]{8}-?[0-9]" placeholder="12345678-9" required aria-describedby="srif">
                             </div>
                             <span class="form-text text-danger" id="srif"></span>
@@ -74,18 +79,41 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
                             <label class="form-label" for="estadoDirProveedor">Estado</label>
-                            <input class="form-control" type="text" id="estadoDirProveedor" name="estadoDirProveedor" autocomplete="off">
+                            <select class="form-select" id="estadoDirProveedor" name="estadoDirProveedor" aria-describedby="sestadoDirProveedor">
+                                <option value="">Seleccione un estado</option>
+                                <?php
+                                $estadosProveedor = [
+                                    'Amazonas', 'Anzoátegui', 'Apure', 'Aragua', 'Barinas', 'Bolívar',
+                                    'Carabobo', 'Cojedes', 'Delta Amacuro', 'Distrito Capital', 'Falcón',
+                                    'Guárico', 'La Guaira', 'Lara', 'Mérida', 'Miranda', 'Monagas',
+                                    'Nueva Esparta', 'Portuguesa', 'Sucre', 'Táchira', 'Trujillo',
+                                    'Yaracuy', 'Zulia',
+                                ];
+                                foreach ($estadosProveedor as $estado):
+                                ?>
+                                    <option value="<?php echo htmlspecialchars($estado, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($estado, ENT_QUOTES, 'UTF-8'); ?></option>
+                                <?php endforeach; ?>
+                            </select>
                             <span class="form-text text-danger" id="sestadoDirProveedor"></span>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label" for="municipioDirProveedor">Municipio</label>
-                            <input class="form-control" type="text" id="municipioDirProveedor" name="municipioDirProveedor" autocomplete="off">
+                            <label class="form-label" id="labelMunicipioDirProveedor" for="municipioDirProveedor">Municipio</label>
+                            <input class="form-control" type="text" id="municipioDirProveedor" name="municipioDirProveedor" autocomplete="off" disabled>
+                            <select class="form-select d-none" id="municipioDirProveedorSelect" name="municipioDirProveedor" disabled>
+                                <option value="">Seleccione un municipio</option>
+                            </select>
                             <span class="form-text text-danger" id="smunicipioDirProveedor"></span>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label" for="parroquiaDirProveedor">Parroquia</label>
-                            <input class="form-control" type="text" id="parroquiaDirProveedor" name="parroquiaDirProveedor" autocomplete="off">
+                            <label class="form-label" id="labelParroquiaDirProveedor" for="parroquiaDirProveedor">Parroquia</label>
+                            <input class="form-control" type="text" id="parroquiaDirProveedor" name="parroquiaDirProveedor" autocomplete="off" disabled>
+                            <select class="form-select d-none" id="parroquiaDirProveedorSelect" name="parroquiaDirProveedor" disabled>
+                                <option value="">Seleccione una parroquia</option>
+                            </select>
                             <span class="form-text text-danger" id="sparroquiaDirProveedor"></span>
+                        </div>
+                        <div class="col-12">
+                            <span class="form-text">Elige primero un municipio para cargar sus parroquias. Si un municipio no tiene parroquias en el catálogo, podrás ingresarla manualmente.</span>
                         </div>
                     </div>
 
@@ -101,7 +129,7 @@
                                     <option value="0424">0424</option>
                                     <option value="0426">0426</option>
                                 </select>
-                                <input class="form-control telefono-numero" type="tel" id="telefono" name="telefono" inputmode="numeric" autocomplete="off" maxlength="7" pattern="[0-9]{7}" placeholder="1234567" aria-describedby="stelefono">
+                                <input class="form-control telefono-numero" type="tel" id="telefono" name="telefono" inputmode="numeric" autocomplete="off" maxlength="7" pattern="[0-9]{7}" placeholder="1234567" aria-describedby="stelefono" required>
                             </div>
                             <input type="hidden" id="telefonoOriginal" value="">
                             <span class="form-text text-danger" id="stelefono"></span>

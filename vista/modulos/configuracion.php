@@ -322,10 +322,12 @@
                         <div class="mb-3">
                             <label class="form-label" for="nombre_moneda">Nombre</label>
                             <input class="form-control" id="nombre_moneda" name="nombre_moneda" maxlength="50" required>
+                            <span class="form-text text-danger" id="snombre_moneda"></span>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="simbolo">Símbolo</label>
                             <input class="form-control" id="simbolo" name="simbolo" maxlength="5" required>
+                            <span class="form-text text-danger" id="ssimbolo"></span>
                         </div>
                         <button type="submit" class="btn btn-purple">
                             <i class="fas fa-plus me-1"></i>Agregar moneda
@@ -349,6 +351,7 @@
                         <div class="mb-3">
                             <label class="form-label" for="nom_MetodoPago">Nombre del método</label>
                             <input class="form-control" id="nom_MetodoPago" name="nom_MetodoPago" maxlength="50" required>
+                            <span class="form-text text-danger" id="snom_MetodoPago"></span>
                         </div>
                         <button type="submit" class="btn btn-purple">
                             <i class="fas fa-plus me-1"></i>Agregar método
@@ -374,15 +377,18 @@
                             <select class="form-select" id="monedaTasa" name="id_moneda" required>
                                 <option value="">Cargando monedas...</option>
                             </select>
+                            <span class="form-text text-danger" id="smonedaTasa"></span>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="fecha_tasa">Fecha de la tasa</label>
                             <input class="form-control" type="date" id="fecha_tasa" name="fecha_tasa" value="<?= htmlspecialchars(date('Y-m-d'), ENT_QUOTES, 'UTF-8') ?>" max="<?= htmlspecialchars(date('Y-m-d'), ENT_QUOTES, 'UTF-8') ?>" required>
+                            <span class="form-text text-danger" id="sfecha_tasa"></span>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="monto_tasa">Tasa por cada $1</label>
                             <input class="form-control" type="number" id="monto_tasa" name="monto_tasa" min="0.0001" max="999999.9999" step="0.0001" required>
                             <div class="form-text">Ejemplo: cuántos bolívares equivalen a un dólar. Cada registro conserva el historial y se usará la tasa más reciente de la fecha.</div>
+                            <span class="form-text text-danger" id="smonto_tasa"></span>
                         </div>
                         <button type="submit" class="btn btn-purple">
                             <i class="fas fa-save me-1"></i>Guardar tasa
