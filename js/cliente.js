@@ -273,13 +273,23 @@ function validarParroquia() {
 }
 
 function validarTelefono() {
-    return validarCampo(
-        $('#telefono'),
-        $('#stelefono'),
-        'El teléfono',
-        'Ingrese un teléfono válido. Ejemplo: 04121234567, +584121234567 o 1234567.',
-        /^(?:04(?:12|13|14|16|24|26)\d{7}|\+?58\d{10}|\d{7,15})$/
-    );
+    var telefono = obtenerTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal');
+    var error = '';
+
+    if (telefono === null) {
+        error = 'Ingrese 7 dígitos después del prefijo seleccionado.';
+    } else if (!telefono) {
+        error = 'El teléfono es obligatorio.';
+    } else if (
+        telefono.length > 20 ||
+        !/^(?:04(?:12|13|14|16|24|26)\d{7}|\+?58\d{10}|\d{7,15})$/.test(telefono)
+    ) {
+        error = 'Ingrese 7 dígitos después del prefijo seleccionado.';
+    }
+
+    $('#stelefono').text(error);
+    $('#telefono').toggleClass('is-invalid', Boolean(error));
+    return !error;
 }
 
 function limpiarErrores() {
@@ -309,7 +319,9 @@ function limpia() {
     $("#nombres").val("");
     $("#capital").val("");
     actualizaDireccion();
+    $("#prefijoTelefono").val("0414");
     $("#telefono").val("");
+    $("#telefonoOriginal").val("");
     limpiarErrores();
 }
 
@@ -342,6 +354,7 @@ $(document).ready(function () {
     });
     $('#parroquia').on('change', validarParroquia);
     $('#telefono').on('input', validarTelefono);
+    $('#prefijoTelefono').on('change', validarTelefono);
 
     $('#incluir').on('click', function () {
         limpia();
@@ -395,7 +408,7 @@ $(document).ready(function () {
         $('#parroquia').val(parroquia);
         validarMunicipio();
         validarParroquia();
-        $('#telefono').val(telefono);
+        cargarTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal', telefono);
         limpiarErrores();
 
         $('#proceso').text('MODIFICAR');
@@ -420,7 +433,7 @@ $(document).ready(function () {
                 return;
             }
 
-            var telefono = $('#telefono').val();
+            var telefono = obtenerTelefono('prefijoTelefono', 'telefono', 'telefonoOriginal');
             var datos = new FormData();
             datos.append('accion', accion);
             datos.append('cedula', $('#cedula').val());

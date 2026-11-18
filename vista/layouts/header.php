@@ -10,8 +10,11 @@ $rolUsuario = $_SESSION['nivel'];
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+    <?php if ($paginaActual !== 'home'): ?>
+        <link rel="stylesheet" href="vendor/datatables/css/dataTables.bootstrap5.min.css">
+    <?php endif; ?>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/layout.css?v=2">
     <?php if ($paginaActual === 'home'): ?>
         <link rel="stylesheet" href="css/home.css">
     <?php endif; ?>
@@ -67,6 +70,12 @@ $rolUsuario = $_SESSION['nivel'];
                 <a class="btn btn-outline-purple w-100 text-start" href="index.php?pagina=proveedores">
                     <i class="fas fa-truck me-2"></i>
                     Proveedores
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="btn btn-outline-purple w-100 text-start" href="index.php?pagina=usuarios">
+                    <i class="fas fa-users-cog me-2"></i>
+                    Usuarios
                 </a>
             </li>
             <?php endif; ?>

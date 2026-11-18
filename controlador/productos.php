@@ -64,9 +64,20 @@ switch ($accion) {
             exit;
         }
 
+        $modelo->set_nombreProducto($datos['nombreProducto']);
+        $modelo->set_marca($datos['marca']);
+        $modelo->set_idProveedor((int) $datos['idProveedor']);
+        $modelo->set_precioProducto($datos['precioProducto']);
+        $modelo->set_cantidadActual((int) $datos['cantidadActual']);
+        $modelo->set_idTipo((int) $datos['idTipo']);
+
+        if ($accion === 'modificar') {
+            $modelo->set_idProducto((int) $idProducto);
+        }
+
         $resultado = $accion === 'incluir'
-            ? $modelo->insertar($datos)
-            : $modelo->modificar($idProducto, $datos);
+            ? $modelo->insertar()
+            : $modelo->modificar();
         if (!$resultado['ok']) {
             http_response_code(400);
         }

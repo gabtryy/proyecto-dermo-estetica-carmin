@@ -297,6 +297,27 @@
         .dataTables_wrapper .dataTables_filter input {
             max-width: min(100%, 15rem);
         }
+        .dataTables_wrapper .dataTables_paginate .page-link {
+            color: var(--purple-strong);
+            border-color: #e3d8eb;
+        }
+        .dataTables_wrapper .dataTables_paginate .page-link:hover,
+        .dataTables_wrapper .dataTables_paginate .page-link:focus {
+            color: #ffffff;
+            background-color: var(--purple-strong);
+            border-color: var(--purple-strong);
+            box-shadow: 0 0 0 0.2rem rgba(56, 23, 77, 0.18);
+        }
+        .dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+            color: #ffffff;
+            background-color: var(--purple-strong);
+            border-color: var(--purple-strong);
+        }
+        .dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link {
+            color: #9b8ba5;
+            background-color: #f8f4fb;
+            border-color: #e9dff0;
+        }
         .table-responsive {
             -webkit-overflow-scrolling: touch;
         }

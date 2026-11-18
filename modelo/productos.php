@@ -82,19 +82,6 @@ class Productos extends Conexion
         return $this->idTipo;
     }
 
-    private function asignarDatos(array $datos, ?int $idProducto = null): void
-    {
-        $this->set_nombreProducto((string) ($datos['nombreProducto'] ?? ''));
-        $this->set_marca((string) ($datos['marca'] ?? ''));
-        $this->set_idProveedor((int) ($datos['idProveedor'] ?? 0));
-        $this->set_precioProducto((string) ($datos['precioProducto'] ?? ''));
-        $this->set_cantidadActual((int) ($datos['cantidadActual'] ?? 0));
-        $this->set_idTipo((int) ($datos['idTipo'] ?? 0));
-        if ($idProducto !== null) {
-            $this->set_idProducto($idProducto);
-        }
-    }
-
     public function listar(): array
     {
         $sql = "SELECT p.idProducto, p.nombreProducto, p.marca, p.precioProducto,
@@ -110,8 +97,6 @@ class Productos extends Conexion
 
     public function catalogos(): array
     {
-        $this->asegurarTiposPredeterminados();
-
         return [
             'proveedores' => $this->pdo->query(
                 "SELECT idProveedor, nombreProveedor FROM proveedor ORDER BY nombreProveedor"
@@ -123,53 +108,8 @@ class Productos extends Conexion
         ];
     }
 
-    private function asegurarTiposPredeterminados(): void
+    public function insertar(): array
     {
-        $this->pdo->beginTransaction();
-        try {
-            $categoria = $this->pdo->prepare(
-                "SELECT id_categoria FROM categoria
-                 WHERE nombre_categoria = 'General' ORDER BY id_categoria LIMIT 1 FOR UPDATE"
-            );
-            $categoria->execute();
-            $idCategoria = $categoria->fetchColumn();
-
-            if (!$idCategoria) {
-                $insertarCategoria = $this->pdo->prepare(
-                    "INSERT INTO categoria (nombre_categoria) VALUES ('General')"
-                );
-                $insertarCategoria->execute();
-                $idCategoria = $this->pdo->lastInsertId();
-            }
-
-            $insertarTipo = $this->pdo->prepare(
-                "INSERT INTO tipo_producto (id_categoria, nombre_tipo)
-                 SELECT :idCategoria, :nombreTipo
-                 WHERE NOT EXISTS (
-                     SELECT 1 FROM tipo_producto WHERE id_categoria = :idCategoriaCheck
-                       AND LOWER(nombre_tipo) = LOWER(:nombreTipoCheck)
-                 )"
-            );
-            foreach (['Venta', 'Insumo'] as $nombreTipo) {
-                $insertarTipo->execute([
-                    ':idCategoria' => $idCategoria,
-                    ':nombreTipo' => $nombreTipo,
-                    ':idCategoriaCheck' => $idCategoria,
-                    ':nombreTipoCheck' => $nombreTipo,
-                ]);
-            }
-            $this->pdo->commit();
-        } catch (Throwable $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
-            }
-            throw $e;
-        }
-    }
-
-    public function insertar(array $datos): array
-    {
-        $this->asignarDatos($datos);
         try {
             $sql = "INSERT INTO producto
                         (nombreProducto, marca, precioCosto, precioProducto, idProveedor, cantidadActual, id_tipo)
@@ -192,9 +132,8 @@ class Productos extends Conexion
         }
     }
 
-    public function modificar(int $idProducto, array $datos): array
+    public function modificar(): array
     {
-        $this->asignarDatos($datos, $idProducto);
         try {
             $sql = "UPDATE producto
                     SET nombreProducto = :nombreProducto,
@@ -239,19 +178,12 @@ class Productos extends Conexion
             }
 
             $enUso = $this->pdo->prepare(
-                "SELECT
-                    EXISTS(SELECT 1 FROM detalle_venta WHERE idProducto = :idVenta) AS enVenta,
-                    EXISTS(SELECT 1 FROM detalleproductoservicio WHERE idProducto = :idServicio) AS enServicio"
+                "SELECT EXISTS(
+                    SELECT 1 FROM detalleproductoservicio WHERE idProducto = :idServicio
+                ) AS enServicio"
             );
-            $enUso->execute([
-                ':idVenta' => $idProducto,
-                ':idServicio' => $idProducto,
-            ]);
+            $enUso->execute([':idServicio' => $idProducto]);
             $referencias = $enUso->fetch(PDO::FETCH_ASSOC);
-            if ($referencias['enVenta']) {
-                $this->pdo->rollBack();
-                return ['ok' => false, 'mensaje' => 'No se puede eliminar un producto incluido en ventas registradas.'];
-            }
             if ($referencias['enServicio']) {
                 $this->pdo->rollBack();
                 return ['ok' => false, 'mensaje' => 'No se puede eliminar un producto asociado a un servicio.'];

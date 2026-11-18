@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 06-11-2026 a las 05:11:25
+-- Tiempo de generación: 18-11-2026 a las 03:18:04
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `antecedentes` (
   `id_antecedente` int(11) NOT NULL,
   `cedulaCliente` int(11) NOT NULL,
-  `id_tipo_antecedente` int(11) NOT NULL,
+  `id_tipo_antecedente` int(11) DEFAULT NULL,
   `descripcion_antecedente` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -39,9 +39,11 @@ CREATE TABLE `antecedentes` (
 --
 
 INSERT INTO `antecedentes` (`id_antecedente`, `cedulaCliente`, `id_tipo_antecedente`, `descripcion_antecedente`) VALUES
-(44, 17555666, 1, ''),
-(45, 17555666, 4, ''),
-(46, 17555666, 3, '');
+(47, 14222333, 1, ''),
+(48, 15333444, 1, ''),
+(49, 15333444, 4, ''),
+(50, 15333444, 3, ''),
+(51, 15333444, 2, '');
 
 -- --------------------------------------------------------
 
@@ -69,8 +71,8 @@ INSERT INTO `categoria` (`id_categoria`, `nombre_categoria`) VALUES
 
 CREATE TABLE `citas` (
   `idCita` int(11) NOT NULL,
-  `cedulaEsteticista` int(11) NOT NULL,
-  `cedulaCliente` int(11) NOT NULL,
+  `cedulaEsteticista` int(11) DEFAULT NULL,
+  `cedulaCliente` int(11) DEFAULT NULL,
   `hora_cita` time NOT NULL,
   `fecha_cita` date NOT NULL,
   `estado_cita` varchar(50) DEFAULT NULL
@@ -82,12 +84,11 @@ CREATE TABLE `citas` (
 
 INSERT INTO `citas` (`idCita`, `cedulaEsteticista`, `cedulaCliente`, `hora_cita`, `fecha_cita`, `estado_cita`) VALUES
 (1, 87654321, 23456789, '10:00:00', '2026-06-22', 'Confirmada'),
-(2, 98765432, 34567890, '14:30:00', '2026-06-23', 'Pendiente'),
-(5, 98765432, 34567890, '08:00:00', '2026-08-19', NULL),
-(8, 98765432, 17555666, '19:27:00', '2026-09-25', 'pendiente'),
-(9, 76543210, 17555666, '22:32:00', '2026-09-22', 'pendiente'),
-(10, 98765432, 34567890, '12:32:00', '2026-10-23', 'pendiente'),
-(11, 76543210, 14222333, '12:03:00', '2026-10-24', 'pendiente');
+(8, 98765432, NULL, '19:27:00', '2026-09-25', 'pendiente'),
+(9, 76543210, NULL, '22:32:00', '2026-09-22', 'pendiente'),
+(11, 76543210, 14222333, '12:03:00', '2026-10-24', 'pendiente'),
+(12, 98765432, NULL, '23:57:00', '2026-11-19', 'pendiente'),
+(15, 98765432, NULL, '19:42:00', '2026-11-20', 'pendiente');
 
 -- --------------------------------------------------------
 
@@ -112,9 +113,7 @@ INSERT INTO `cliente` (`cedulaCliente`, `nombreCliente`, `fechaNacimiento`, `est
 (14222333, 'Gabriel Pérez', '2001-05-14', 'Distrito Capital', 'Libertador', 'El Recreo'),
 (15333444, 'José Silva', '1998-11-23', 'Miranda', 'Chacao', 'Chacao'),
 (16444555, 'Leomar Bastidas', '1996-03-30', 'Aragua', 'Girardot', 'Joaquín Crespo'),
-(17555666, 'Edixon Torrealba', '2000-08-12', 'Distrito Capital', 'Libertador', 'Altagracia'),
-(23456789, 'Laura Valentina Gómez', '1995-08-19', 'Distrito Capital', 'Libertador', 'Altagracia'),
-(34567890, 'Asdndrés Ignacio Pérez', '1990-03-05', 'Miranda', 'Chacao', 'Chacato');
+(23456789, 'Laura Valentina Gómez', '1995-08-19', 'Distrito Capital', 'Libertador', 'Altagracia');
 
 -- --------------------------------------------------------
 
@@ -127,14 +126,6 @@ CREATE TABLE `detalleproductoservicio` (
   `idProducto` int(11) NOT NULL,
   `cantidad` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `detalleproductoservicio`
---
-
-INSERT INTO `detalleproductoservicio` (`idServicio`, `idProducto`, `cantidad`) VALUES
-(1, 1, 1),
-(2, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -153,20 +144,11 @@ CREATE TABLE `detalle_citas` (
 
 INSERT INTO `detalle_citas` (`idServicio`, `idCita`) VALUES
 (1, 1),
-(1, 5),
 (1, 8),
 (1, 9),
-(2, 2),
-(2, 5),
 (2, 9),
-(2, 10),
 (2, 11),
-(3, 5),
-(3, 8),
-(3, 9),
-(3, 10),
-(3, 11),
-(4, 5);
+(2, 15);
 
 -- --------------------------------------------------------
 
@@ -186,8 +168,8 @@ CREATE TABLE `detalle_venta` (
 --
 
 INSERT INTO `detalle_venta` (`idVenta`, `idProducto`, `cantidad`, `precioUnitario`) VALUES
-(1, 1, 1, 25.50),
-(1, 3, 3, 32.00);
+(1, 3, 3, 32.00),
+(2, 4, 1, 22.50);
 
 -- --------------------------------------------------------
 
@@ -198,7 +180,7 @@ INSERT INTO `detalle_venta` (`idVenta`, `idProducto`, `cantidad`, `precioUnitari
 CREATE TABLE `diagnostico` (
   `idDiagnostico` int(11) NOT NULL,
   `cedulaCliente` int(11) NOT NULL,
-  `idPiel` int(11) NOT NULL,
+  `idPiel` int(11) DEFAULT NULL,
   `fecha_diagnostico` date NOT NULL,
   `frente` varchar(255) DEFAULT NULL,
   `nariz` varchar(255) DEFAULT NULL,
@@ -215,8 +197,6 @@ INSERT INTO `diagnostico` (`idDiagnostico`, `cedulaCliente`, `idPiel`, `fecha_di
 (3, 14222333, 3, '2026-05-10', NULL, NULL, NULL, NULL, NULL),
 (4, 15333444, 5, '2026-05-15', NULL, NULL, NULL, NULL, NULL),
 (5, 16444555, 1, '2026-06-01', NULL, NULL, NULL, NULL, NULL),
-(6, 17555666, 6, '2026-06-05', NULL, NULL, NULL, NULL, NULL),
-(7, 34567890, 2, '2026-09-06', NULL, NULL, NULL, NULL, NULL),
 (9, 14222333, 2, '2026-09-10', 'dasda9osinds', 'sin detalle', 'dasdasd', 'sin detalle', 'sin detalle');
 
 -- --------------------------------------------------------
@@ -251,7 +231,7 @@ CREATE TABLE `esteticista` (
   `cedulaEsteticista` int(11) NOT NULL,
   `nombreEsteticista` varchar(100) NOT NULL,
   `correoElectronico` varchar(100) DEFAULT NULL,
-  `idEspecialidad` int(11) NOT NULL,
+  `idEspecialidad` int(11) DEFAULT NULL,
   `fechaNacimiento` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -316,8 +296,8 @@ INSERT INTO `moneda` (`id_moneda`, `nombre_moneda`, `simbolo`) VALUES
 CREATE TABLE `pago_venta` (
   `id_pago` int(11) NOT NULL,
   `idVenta` int(11) NOT NULL,
-  `idMetodoPago` int(11) NOT NULL,
-  `id_moneda` int(11) NOT NULL,
+  `idMetodoPago` int(11) DEFAULT NULL,
+  `id_moneda` int(11) DEFAULT NULL,
   `monto_pagado` decimal(10,2) NOT NULL,
   `tasa_cobrada` decimal(10,4) NOT NULL,
   `fecha_pago` datetime NOT NULL,
@@ -329,7 +309,8 @@ CREATE TABLE `pago_venta` (
 --
 
 INSERT INTO `pago_venta` (`id_pago`, `idVenta`, `idMetodoPago`, `id_moneda`, `monto_pagado`, `tasa_cobrada`, `fecha_pago`, `referencia`) VALUES
-(1, 1, 1, 2, 72900.00, 600.0000, '2026-10-06 12:59:00', NULL);
+(1, 1, 1, 2, 72900.00, 600.0000, '2026-10-06 12:59:00', NULL),
+(2, 2, 1, 2, 26461.50, 299.0000, '2026-11-16 23:51:32', NULL);
 
 -- --------------------------------------------------------
 
@@ -366,7 +347,7 @@ CREATE TABLE `producto` (
   `marca` varchar(50) DEFAULT NULL,
   `precioCosto` decimal(12,0) NOT NULL,
   `precioProducto` decimal(10,2) NOT NULL,
-  `idProveedor` int(11) NOT NULL,
+  `idProveedor` int(11) DEFAULT NULL,
   `cantidadActual` int(11) NOT NULL,
   `id_tipo` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -376,10 +357,9 @@ CREATE TABLE `producto` (
 --
 
 INSERT INTO `producto` (`idProducto`, `nombreProducto`, `marca`, `precioCosto`, `precioProducto`, `idProveedor`, `cantidadActual`, `id_tipo`) VALUES
-(1, 'Gel Limpiador Purificante 200ml', 'Bioderma', 0, 25.50, 1, 39, NULL),
 (2, 'Sérum de Ácido Hialurónico', 'La Roche-Posay', 0, 38.00, 3, 25, NULL),
 (3, 'Protector Solar FPS 50+ toque seco', 'Isdin', 0, 32.00, 3, 47, NULL),
-(4, 'Crema Hidratante Intensiva', 'CeraVe', 0, 22.50, 3, 30, NULL);
+(4, 'Crema Hidratante Intensiva', 'CeraVe', 0, 22.50, 3, 29, 2);
 
 -- --------------------------------------------------------
 
@@ -447,8 +427,8 @@ CREATE TABLE `servicio` (
 INSERT INTO `servicio` (`idServicio`, `nombreServicio`, `precio`, `descripcion`) VALUES
 (1, 'Limpieza Facial Profunda', 45.00, 'Extracción de impurezas y mascarilla hidratante.'),
 (2, 'Peeling Químico Renovador', 65.00, 'Aplicación de ácidos controlados para renovación celular.'),
-(3, 'Hidratación Profunda con Colágeno', 55.00, 'Protocolo intensivo para pieles deshidratadas utilizando velo de colágeno puro.'),
-(4, 'Tratamiento Fototerapéutico Anti-Acné', 70.00, 'Uso de luz LED azul combinada con activos reguladores del sebo.');
+(4, 'Tratamiento Fototerapéutico Anti-Acné', 70.00, 'Uso de luz LED azul combinada con activos reguladores del sebo.'),
+(6, 'Limpieza facial profunda', 100.00, 'limpieza profunda con químicos');
 
 -- --------------------------------------------------------
 
@@ -488,11 +468,9 @@ CREATE TABLE `telefonocliente` (
 
 INSERT INTO `telefonocliente` (`idTelefonoCliente`, `cedulaCliente`, `numTelefonoCliente`) VALUES
 (1, 23456789, '+584165554433'),
-(2, 34567890, '04241110027'),
 (3, 14222333, '+584125556677'),
 (4, 15333444, '+584248889900'),
-(5, 16444555, '+584161112233'),
-(6, 17555666, '+584144445566');
+(5, 16444555, '+584161112233');
 
 -- --------------------------------------------------------
 
@@ -566,7 +544,7 @@ INSERT INTO `tipo_antecedente` (`id_tipo_antecedente`, `nom_tipo_antecedente`) V
 
 CREATE TABLE `tipo_producto` (
   `id_tipo` int(11) NOT NULL,
-  `id_categoria` int(11) NOT NULL,
+  `id_categoria` int(11) DEFAULT NULL,
   `nombre_tipo` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -586,7 +564,7 @@ INSERT INTO `tipo_producto` (`id_tipo`, `id_categoria`, `nombre_tipo`) VALUES
 
 CREATE TABLE `usuario` (
   `cedula` int(11) NOT NULL,
-  `rol` int(11) NOT NULL,
+  `rol` int(11) DEFAULT NULL,
   `usuario` varchar(32) NOT NULL,
   `clave` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -608,7 +586,7 @@ INSERT INTO `usuario` (`cedula`, `rol`, `usuario`, `clave`) VALUES
 
 CREATE TABLE `venta` (
   `idVenta` int(11) NOT NULL,
-  `cedulaCliente` int(11) NOT NULL,
+  `cedulaCliente` int(11) DEFAULT NULL,
   `fechaCompra` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -617,7 +595,8 @@ CREATE TABLE `venta` (
 --
 
 INSERT INTO `venta` (`idVenta`, `cedulaCliente`, `fechaCompra`) VALUES
-(1, 16444555, '2026-10-06 12:59:00');
+(1, 16444555, '2026-10-06 12:59:00'),
+(2, 14222333, '2026-11-16 23:50:00');
 
 --
 -- Índices para tablas volcadas
@@ -810,7 +789,7 @@ ALTER TABLE `venta`
 -- AUTO_INCREMENT de la tabla `antecedentes`
 --
 ALTER TABLE `antecedentes`
-  MODIFY `id_antecedente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id_antecedente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT de la tabla `categoria`
@@ -822,7 +801,7 @@ ALTER TABLE `categoria`
 -- AUTO_INCREMENT de la tabla `citas`
 --
 ALTER TABLE `citas`
-  MODIFY `idCita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `idCita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `diagnostico`
@@ -852,7 +831,7 @@ ALTER TABLE `moneda`
 -- AUTO_INCREMENT de la tabla `pago_venta`
 --
 ALTER TABLE `pago_venta`
-  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `piel`
@@ -864,7 +843,7 @@ ALTER TABLE `piel`
 -- AUTO_INCREMENT de la tabla `producto`
 --
 ALTER TABLE `producto`
-  MODIFY `idProducto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `idProducto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedor`
@@ -882,7 +861,7 @@ ALTER TABLE `rol`
 -- AUTO_INCREMENT de la tabla `servicio`
 --
 ALTER TABLE `servicio`
-  MODIFY `idServicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `idServicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `tasa_moneda`
@@ -894,7 +873,7 @@ ALTER TABLE `tasa_moneda`
 -- AUTO_INCREMENT de la tabla `telefonocliente`
 --
 ALTER TABLE `telefonocliente`
-  MODIFY `idTelefonoCliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `idTelefonoCliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `telefonoesteticista`
@@ -924,7 +903,7 @@ ALTER TABLE `tipo_producto`
 -- AUTO_INCREMENT de la tabla `venta`
 --
 ALTER TABLE `venta`
-  MODIFY `idVenta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `idVenta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Restricciones para tablas volcadas
@@ -934,106 +913,106 @@ ALTER TABLE `venta`
 -- Filtros para la tabla `antecedentes`
 --
 ALTER TABLE `antecedentes`
-  ADD CONSTRAINT `antecedentes_ibfk_1` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE CASCADE,
-  ADD CONSTRAINT `antecedentes_ibfk_2` FOREIGN KEY (`id_tipo_antecedente`) REFERENCES `tipo_antecedente` (`id_tipo_antecedente`) ON DELETE CASCADE;
+  ADD CONSTRAINT `antecedentes_ibfk_1` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `antecedentes_ibfk_2` FOREIGN KEY (`id_tipo_antecedente`) REFERENCES `tipo_antecedente` (`id_tipo_antecedente`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `citas`
 --
 ALTER TABLE `citas`
-  ADD CONSTRAINT `citas_ibfk_1` FOREIGN KEY (`cedulaEsteticista`) REFERENCES `esteticista` (`cedulaEsteticista`) ON DELETE CASCADE,
-  ADD CONSTRAINT `citas_ibfk_2` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE CASCADE;
+  ADD CONSTRAINT `citas_ibfk_1` FOREIGN KEY (`cedulaEsteticista`) REFERENCES `esteticista` (`cedulaEsteticista`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `citas_ibfk_2` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `detalleproductoservicio`
 --
 ALTER TABLE `detalleproductoservicio`
-  ADD CONSTRAINT `detalleproductoservicio_ibfk_1` FOREIGN KEY (`idServicio`) REFERENCES `servicio` (`idServicio`) ON DELETE CASCADE,
-  ADD CONSTRAINT `detalleproductoservicio_ibfk_2` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE CASCADE;
+  ADD CONSTRAINT `detalleproductoservicio_ibfk_1` FOREIGN KEY (`idServicio`) REFERENCES `servicio` (`idServicio`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `detalleproductoservicio_ibfk_2` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `detalle_citas`
 --
 ALTER TABLE `detalle_citas`
-  ADD CONSTRAINT `detalle_citas_ibfk_1` FOREIGN KEY (`idServicio`) REFERENCES `servicio` (`idServicio`) ON DELETE CASCADE,
-  ADD CONSTRAINT `detalle_citas_ibfk_2` FOREIGN KEY (`idCita`) REFERENCES `citas` (`idCita`) ON DELETE CASCADE;
+  ADD CONSTRAINT `detalle_citas_ibfk_1` FOREIGN KEY (`idServicio`) REFERENCES `servicio` (`idServicio`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `detalle_citas_ibfk_2` FOREIGN KEY (`idCita`) REFERENCES `citas` (`idCita`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `detalle_venta`
 --
 ALTER TABLE `detalle_venta`
-  ADD CONSTRAINT `fk_detalle_producto` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_detalle_venta` FOREIGN KEY (`idVenta`) REFERENCES `venta` (`idVenta`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_detalle_producto` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_detalle_venta` FOREIGN KEY (`idVenta`) REFERENCES `venta` (`idVenta`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `diagnostico`
 --
 ALTER TABLE `diagnostico`
-  ADD CONSTRAINT `diagnostico_ibfk_1` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE CASCADE,
-  ADD CONSTRAINT `diagnostico_ibfk_2` FOREIGN KEY (`idPiel`) REFERENCES `piel` (`idPiel`) ON DELETE CASCADE;
+  ADD CONSTRAINT `diagnostico_ibfk_1` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `diagnostico_ibfk_2` FOREIGN KEY (`idPiel`) REFERENCES `piel` (`idPiel`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `esteticista`
 --
 ALTER TABLE `esteticista`
-  ADD CONSTRAINT `esteticista_ibfk_1` FOREIGN KEY (`idEspecialidad`) REFERENCES `especialidad` (`idEspecialidad`) ON DELETE CASCADE;
+  ADD CONSTRAINT `esteticista_ibfk_1` FOREIGN KEY (`idEspecialidad`) REFERENCES `especialidad` (`idEspecialidad`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `pago_venta`
 --
 ALTER TABLE `pago_venta`
-  ADD CONSTRAINT `fk_pago_metodo` FOREIGN KEY (`idMetodoPago`) REFERENCES `metodo_pago` (`idMetodoPago`),
-  ADD CONSTRAINT `fk_pago_moneda` FOREIGN KEY (`id_moneda`) REFERENCES `moneda` (`id_moneda`),
-  ADD CONSTRAINT `fk_pago_venta` FOREIGN KEY (`idVenta`) REFERENCES `venta` (`idVenta`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_pago_metodo` FOREIGN KEY (`idMetodoPago`) REFERENCES `metodo_pago` (`idMetodoPago`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_pago_moneda` FOREIGN KEY (`id_moneda`) REFERENCES `moneda` (`id_moneda`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_pago_venta` FOREIGN KEY (`idVenta`) REFERENCES `venta` (`idVenta`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `producto`
 --
 ALTER TABLE `producto`
-  ADD CONSTRAINT `fk_producto_tipo` FOREIGN KEY (`id_tipo`) REFERENCES `tipo_producto` (`id_tipo`) ON DELETE CASCADE,
-  ADD CONSTRAINT `producto_ibfk_1` FOREIGN KEY (`idProveedor`) REFERENCES `proveedor` (`idProveedor`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_producto_tipo` FOREIGN KEY (`id_tipo`) REFERENCES `tipo_producto` (`id_tipo`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `producto_ibfk_1` FOREIGN KEY (`idProveedor`) REFERENCES `proveedor` (`idProveedor`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `tasa_moneda`
 --
 ALTER TABLE `tasa_moneda`
-  ADD CONSTRAINT `fk_tasa_moneda` FOREIGN KEY (`id_moneda`) REFERENCES `moneda` (`id_moneda`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_tasa_moneda` FOREIGN KEY (`id_moneda`) REFERENCES `moneda` (`id_moneda`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `telefonocliente`
 --
 ALTER TABLE `telefonocliente`
-  ADD CONSTRAINT `telefonocliente_ibfk_1` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE CASCADE;
+  ADD CONSTRAINT `telefonocliente_ibfk_1` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `telefonoesteticista`
 --
 ALTER TABLE `telefonoesteticista`
-  ADD CONSTRAINT `telefonoesteticista_ibfk_1` FOREIGN KEY (`cedulaEsteticista`) REFERENCES `esteticista` (`cedulaEsteticista`) ON DELETE CASCADE;
+  ADD CONSTRAINT `telefonoesteticista_ibfk_1` FOREIGN KEY (`cedulaEsteticista`) REFERENCES `esteticista` (`cedulaEsteticista`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `telefonoproveedor`
 --
 ALTER TABLE `telefonoproveedor`
-  ADD CONSTRAINT `telefonoproveedor_ibfk_1` FOREIGN KEY (`idProveedor`) REFERENCES `proveedor` (`idProveedor`) ON DELETE CASCADE;
+  ADD CONSTRAINT `telefonoproveedor_ibfk_1` FOREIGN KEY (`idProveedor`) REFERENCES `proveedor` (`idProveedor`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `tipo_producto`
 --
 ALTER TABLE `tipo_producto`
-  ADD CONSTRAINT `fk_tipo_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_tipo_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  ADD CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`rol`) REFERENCES `rol` (`id_rol`) ON DELETE CASCADE;
+  ADD CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`rol`) REFERENCES `rol` (`id_rol`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `venta`
 --
 ALTER TABLE `venta`
-  ADD CONSTRAINT `fk_venta_cliente` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_venta_cliente` FOREIGN KEY (`cedulaCliente`) REFERENCES `cliente` (`cedulaCliente`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

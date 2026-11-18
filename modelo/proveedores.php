@@ -80,6 +80,17 @@ class Proveedor extends Conexion {
     public function insertar(): array 
     {
         try {
+            $consulta = $this->pdo->prepare(
+                "SELECT 1 FROM proveedor WHERE rif = :rif LIMIT 1"
+            );
+            $consulta->execute([':rif' => $this->rif]);
+            if ($consulta->fetchColumn()) {
+                return [
+                    'resultado' => 'error',
+                    'mensaje' => 'Ya existe un proveedor registrado con ese RIF.'
+                ];
+            }
+
             $sql = "INSERT INTO proveedor (rif, nombreProveedor, estadoDirProveedor, municipioDirProveedor, parroquiaDirProveedor, telefono, correo)
                     VALUES (:rif, :nombreProveedor, :estadoDirProveedor, :municipioDirProveedor, :parroquiaDirProveedor, :telefono, :correo)";
             $stmt = $this->pdo->prepare($sql);

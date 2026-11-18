@@ -99,62 +99,59 @@ $(function () {
         datos.append('accion', 'consultar');
         enviaAjax(datos, function (respuesta) {
             if (!respuesta.ok) {
-                $('#resultadoconsulta').empty().append(
-                    $('<tr>').append($('<td>').attr('colspan', 7).addClass('text-center text-danger')
-                        .text(respuesta.mensaje || 'No se pudieron consultar los productos.'))
+                actualizarTablaDataTable(
+                    '#resultadoconsulta',
+                    null,
+                    respuesta.mensaje || 'No se pudieron consultar los productos.'
                 );
                 return;
             }
             renderTabla(respuesta.data || []);
         }, function (xhr) {
-            $('#resultadoconsulta').empty().append(
-                $('<tr>').append($('<td>').attr('colspan', 7).addClass('text-center text-danger')
-                    .text('No se pudieron consultar los productos. Verifique la conexión e intente nuevamente.'))
+            actualizarTablaDataTable(
+                '#resultadoconsulta',
+                null,
+                'No se pudieron consultar los productos. Verifique la conexión e intente nuevamente.'
             );
             console.error(xhr.responseText || xhr.statusText);
         });
     }
 
     function renderTabla(lista) {
-        var $tbody = $('#resultadoconsulta').empty();
         productos = {};
-        if (!lista.length) {
-            $tbody.append(
-                $('<tr>').append($('<td>').attr('colspan', 7).addClass('text-center text-muted').text('Sin registros'))
-            );
-            return;
-        }
 
-        lista.forEach(function (producto) {
-            productos[String(producto.idProducto)] = producto;
-            var $fila = $('<tr>');
-            var $acciones = $('<td>').addClass('text-nowrap');
-            $acciones.append(
-                $('<button>').attr({
-                    type: 'button',
-                    title: 'Modificar',
-                    'aria-label': 'Modificar ' + producto.nombreProducto,
-                    'data-id-producto': producto.idProducto
-                }).addClass('btn btn-sm btn-purple me-1 btn-editar')
-                    .append($('<i>').addClass('fas fa-edit'))
-            );
-            $acciones.append(
-                $('<button>').attr({
-                    type: 'button',
-                    title: 'Eliminar',
-                    'aria-label': 'Eliminar ' + producto.nombreProducto,
-                    'data-id-producto': producto.idProducto
-                }).addClass('btn btn-sm btn-outline-danger btn-eliminar')
-                    .append($('<i>').addClass('fas fa-trash-alt'))
-            );
-            $fila.append($('<td>').text(producto.nombreProducto || ''));
-            $fila.append($('<td>').text(producto.marca || '—'));
-            $fila.append($('<td>').text(Number(producto.precioProducto).toFixed(2)));
-            $fila.append($('<td>').text(producto.nombreProveedor || ''));
-            $fila.append($('<td>').text(producto.cantidadActual));
-            $fila.append($('<td>').text(producto.tipoProducto || 'Sin clasificar'));
-            $fila.append($acciones);
-            $tbody.append($fila);
+        actualizarTablaDataTable('#resultadoconsulta', function ($tbody) {
+            lista.forEach(function (producto) {
+                productos[String(producto.idProducto)] = producto;
+                var $fila = $('<tr>');
+                var $acciones = $('<td>').addClass('text-nowrap');
+                $acciones.append(
+                    $('<button>').attr({
+                        type: 'button',
+                        title: 'Modificar',
+                        'aria-label': 'Modificar ' + producto.nombreProducto,
+                        'data-id-producto': producto.idProducto
+                    }).addClass('btn btn-sm btn-purple me-1 btn-editar')
+                        .append($('<i>').addClass('fas fa-edit'))
+                );
+                $acciones.append(
+                    $('<button>').attr({
+                        type: 'button',
+                        title: 'Eliminar',
+                        'aria-label': 'Eliminar ' + producto.nombreProducto,
+                        'data-id-producto': producto.idProducto
+                    }).addClass('btn btn-sm btn-outline-danger btn-eliminar')
+                        .append($('<i>').addClass('fas fa-trash-alt'))
+                );
+                $fila.append($('<td>').text(producto.nombreProducto || ''));
+                $fila.append($('<td>').text(producto.marca || '—'));
+                $fila.append($('<td>').text(Number(producto.precioProducto).toFixed(2)));
+                $fila.append($('<td>').text(producto.nombreProveedor || ''));
+                $fila.append($('<td>').text(producto.cantidadActual));
+                $fila.append($('<td>').text(producto.tipoProducto || 'Sin clasificar'));
+                $fila.append($acciones);
+                $tbody.append($fila);
+            });
         });
     }
 

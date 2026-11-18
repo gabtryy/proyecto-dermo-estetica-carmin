@@ -11,8 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $clave = isset($_POST['clave']) && is_string($_POST['clave']) ? $_POST['clave'] : '';
 
     try {
-        require_once 'modelo/Usuario.php';
-        $modeloUsuario = new Usuario();
+        require_once 'modelo/usuarios.php';
+        $modeloUsuario = new Usuarios();
         $usuario = $modeloUsuario->autenticar($nombreUsuario, $clave);
 
         if ($usuario !== false) {
