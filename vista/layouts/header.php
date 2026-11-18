@@ -9,6 +9,9 @@ $rolUsuario = $_SESSION['nivel'];
     <title><?= htmlspecialchars($paginaActual, ENT_QUOTES, 'UTF-8') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <?php if ($paginaActual === 'esteticistas'): ?>
+        <link rel="stylesheet" href="vendor/datatables/css/dataTables.bootstrap5.min.css">
+    <?php endif; ?>
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/layout.css">
