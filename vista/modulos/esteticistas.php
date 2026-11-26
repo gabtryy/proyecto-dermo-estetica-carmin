@@ -19,7 +19,7 @@
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table
-                    class="table table-striped table-hover table-bordered align-middle mb-0"
+                    class="table table-striped table-hover table-bordered align-middle mb-0 esteticistas-table"
                     id="tablausuarios"
                     aria-describedby="tabla-esteticistas-desc"
                 >

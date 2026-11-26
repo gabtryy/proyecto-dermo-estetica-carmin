@@ -297,6 +297,85 @@
         .dataTables_wrapper .dataTables_filter input {
             max-width: min(100%, 15rem);
         }
+        #tablausuarios_wrapper {
+            padding: 1rem 1.25rem 1.1rem;
+            color: #5c4767;
+        }
+        #tablausuarios_wrapper > .row:first-child {
+            padding-bottom: 0.85rem;
+        }
+        #tablausuarios_wrapper .dataTables_length label,
+        #tablausuarios_wrapper .dataTables_filter label {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin: 0;
+            color: #5c4767;
+            font-size: 0.875rem;
+        }
+        #tablausuarios_wrapper .dataTables_filter label {
+            justify-content: flex-end;
+        }
+        #tablausuarios_wrapper .dataTables_length select,
+        #tablausuarios_wrapper .dataTables_filter input {
+            min-height: 2.45rem;
+            margin: 0;
+            border: 1px solid #ded4e8;
+            border-radius: 0.65rem;
+            background-color: #ffffff;
+        }
+        #tablausuarios_wrapper .dataTables_length select {
+            min-width: 4.25rem;
+            padding: 0.35rem 1.9rem 0.35rem 0.7rem;
+        }
+        #tablausuarios_wrapper .dataTables_filter input {
+            width: min(100%, 16rem);
+            padding: 0.45rem 0.75rem;
+        }
+        #tablausuarios_wrapper .dataTables_length select:focus,
+        #tablausuarios_wrapper .dataTables_filter input:focus {
+            border-color: var(--purple-muted);
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(107, 45, 134, 0.14);
+        }
+        .esteticistas-table.table-striped > tbody > tr:nth-of-type(odd) > * {
+            background-color: #fbf8fd !important;
+        }
+        .esteticistas-table.table-hover > tbody > tr:hover > * {
+            background-color: #f3eafb !important;
+        }
+        .esteticistas-table .btn-editar,
+        .esteticistas-table .btn-eliminar {
+            display: inline-flex;
+            width: 2.15rem;
+            height: 2.15rem;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border-radius: 0.6rem;
+        }
+        #tablausuarios_wrapper .dataTables_info {
+            padding-top: 0.55rem;
+            color: #725d7d;
+            font-size: 0.85rem;
+        }
+        #tablausuarios_wrapper .dataTables_paginate .pagination {
+            gap: 0.2rem;
+            margin-bottom: 0;
+        }
+        #tablausuarios_wrapper .dataTables_paginate .page-link {
+            color: var(--purple);
+            border-color: #e7deed;
+            border-radius: 0.5rem;
+        }
+        #tablausuarios_wrapper .dataTables_paginate .page-item.active .page-link {
+            color: #ffffff;
+            background-color: var(--purple);
+            border-color: var(--purple);
+        }
+        #tablausuarios_wrapper .dataTables_paginate .page-link:focus {
+            box-shadow: 0 0 0 0.2rem rgba(107, 45, 134, 0.14);
+        }
         .dataTables_wrapper .dataTables_paginate .page-link {
             color: var(--purple-strong);
             border-color: #e3d8eb;
@@ -425,6 +504,20 @@
             box-shadow: 0 0 0 0.2rem rgba(107, 45, 134, 0.2);
         }
         @media (max-width: 575.98px) {
+            #tablausuarios_wrapper {
+                padding: 0.85rem 0.75rem;
+            }
+            #tablausuarios_wrapper .dataTables_filter label {
+                justify-content: flex-start;
+            }
+            #tablausuarios_wrapper .dataTables_filter input {
+                flex: 1 1 auto;
+                width: auto;
+                min-width: 0;
+            }
+            #tablausuarios_wrapper .dataTables_info {
+                white-space: normal;
+            }
             .pagina-modulo .modal-body {
                 padding: 1.1rem;
             }

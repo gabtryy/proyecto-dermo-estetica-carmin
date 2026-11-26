@@ -1,4 +1,6 @@
-// Función centralizada para enviar AJAX (mismo patrón que cliente.js)
+// Función centralizada para enviar AJAX 
+var tablaEsteticistas = null;
+
 function enviaAjaxEst({datos, done, fail, always, url = 'index.php?pagina=esteticistas', type = 'POST', dataType = 'json'}) {
     $.ajax({
         url: url,
@@ -45,29 +47,37 @@ function cargarEspecialidades(selectedId) {
 }
 
 function renderTablaEst(lista) {
-    var $tbody = $('#resultadoconsulta');
-    $tbody.empty();
-
-    if (!lista.length) {
-        $tbody.append('<tr><td colspan="7" class="text-center text-muted">Sin registros</td></tr>');
-        return;
-    }
-
+    if (!tablaEsteticistas) return;
+    tablaEsteticistas.clear();
     lista.forEach(function (item) {
-        var fila = ''
-            + '<tr>'
-            + '<td>' + (item.cedula_esteticista || '') + '</td>'
-            + '<td>' + (item.nombre_esteticista || '') + '</td>'
-            + '<td>' + (item.telefono_esteticista || '') + '</td>'
-            + '<td>' + (item.correo || '') + '</td>'
-            + '<td>' + (item.fecha_nacimiento || '') + '</td>'
-            + '<td>' + (item.especialidad || '') + '</td>'
-            + '<td class="text-nowrap">'
-            +   '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-cedula="' + (item.cedula_esteticista || '') + '" data-especialidad-id="' + (item.id_especialidad || '') + '"><i class="fas fa-edit"></i></button>'
-            +   '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + (item.cedula_esteticista || '') + '"><i class="fas fa-trash-alt"></i></button>'
-            + '</td>'
-            + '</tr>';
-        $tbody.append(fila);
+        var cedula = escaparHtmlEst(item.cedula_esteticista);
+        var especialidadId = escaparHtmlEst(item.id_especialidad);
+        var acciones = ''
+            + '<button class="btn btn-sm btn-purple me-1 btn-editar" title="Modificar" data-cedula="' + cedula + '" data-especialidad-id="' + especialidadId + '"><i class="fas fa-edit"></i></button>'
+            + '<button class="btn btn-sm btn-danger btn-eliminar" title="Eliminar" data-cedula="' + cedula + '"><i class="fas fa-trash-alt"></i></button>';
+
+        tablaEsteticistas.row.add([
+            escaparHtmlEst(item.cedula_esteticista),
+            escaparHtmlEst(item.nombre_esteticista),
+            escaparHtmlEst(item.telefono_esteticista),
+            escaparHtmlEst(item.correo),
+            escaparHtmlEst(item.fecha_nacimiento),
+            escaparHtmlEst(item.especialidad),
+            acciones
+        ]);
+    });
+    tablaEsteticistas.draw();
+}
+
+function escaparHtmlEst(valor) {
+    return String(valor == null ? '' : valor).replace(/[&<>"']/g, function (caracter) {
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[caracter];
     });
 }
 
@@ -173,6 +183,35 @@ function validarFormularioEsteticista(telefono) {
 }
 
 $(document).ready(function () {
+    tablaEsteticistas = $('#tablausuarios').DataTable({
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50],
+        order: [[1, 'asc']],
+        columnDefs: [{
+            targets: 6,
+            className: 'text-nowrap text-center',
+            orderable: false,
+            searchable: false
+        }],
+        language: {
+            emptyTable: 'Sin registros',
+            info: 'Mostrando _START_ a _END_ de _TOTAL_ esteticistas',
+            infoEmpty: 'Mostrando 0 a 0 de 0 esteticistas',
+            infoFiltered: '(filtrado de _MAX_ esteticistas)',
+            lengthMenu: 'Mostrar _MENU_ esteticistas',
+            loadingRecords: 'Cargando...',
+            processing: 'Procesando...',
+            search: 'Buscar:',
+            zeroRecords: 'No se encontraron esteticistas',
+            paginate: {
+                first: 'Primero',
+                last: 'Último',
+                next: 'Siguiente',
+                previous: 'Anterior'
+            }
+        }
+    });
+
     function filtrarEntradaEsteticista(input) {
         var posicion = input.selectionStart;
         var antesDelCursor = input.value.slice(0, posicion);
