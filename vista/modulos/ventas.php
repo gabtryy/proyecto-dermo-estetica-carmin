@@ -30,7 +30,6 @@
                         </tr>
                     </thead>
                     <tbody id="listaVentas">
-                        <tr><td colspan="8" class="text-center text-muted">Cargando ventas...</td></tr>
                     </tbody>
                 </table>
             </div>

@@ -157,10 +157,14 @@ $(document).ready(function () {
         enviar(datos, function (respuesta) {
             var $tbody = $('#listaVentas').empty();
             if (!respuesta.ok || !respuesta.data.length) {
-                $tbody.append($('<tr>').append(
-                    $('<td>').attr('colspan', 8).addClass('text-center text-muted')
-                        .text(respuesta.ok ? 'Todavía no hay ventas registradas.' : 'No se pudieron cargar las ventas.')
-                ));
+                var $filaSinVentas = $('<tr>');
+                $filaSinVentas.append($('<td>')
+                    .addClass('text-center text-muted')
+                    .text(respuesta.ok ? 'Todavía no hay ventas registradas.' : 'No se pudieron cargar las ventas.'));
+                for (var i = 1; i < 8; i++) {
+                    $filaSinVentas.append($('<td>').html('&nbsp;'));
+                }
+                $tbody.append($filaSinVentas);
                 return;
             }
 
@@ -198,9 +202,13 @@ $(document).ready(function () {
                 $tbody.append($fila);
             });
         }, function () {
-            $('#listaVentas').empty().append($('<tr>').append(
-                $('<td>').attr('colspan', 8).addClass('text-center text-danger').text('Error al consultar las ventas.')
-            ));
+            var $filaError = $('<tr>').append(
+                $('<td>').addClass('text-center text-danger').text('Error al consultar las ventas.')
+            );
+            for (var i = 1; i < 8; i++) {
+                $filaError.append($('<td>').html('&nbsp;'));
+            }
+            $('#listaVentas').empty().append($filaError);
         });
     }
 

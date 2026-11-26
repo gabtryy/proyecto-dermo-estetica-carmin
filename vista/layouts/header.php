@@ -51,6 +51,7 @@ $rolUsuario = $_SESSION['nivel'];
                     Productos
                 </a>
             </li>
+            
             <?php if (in_array($rolUsuario, [1, 2], true)): ?>
             <li class="nav-item mb-1">
                 <a class="btn btn-outline-purple w-100 text-start" href="index.php?pagina=ventas">
@@ -58,12 +59,7 @@ $rolUsuario = $_SESSION['nivel'];
                     Ventas
                 </a>
             </li>
-            <li class="nav-item mb-1">
-                <a class="btn btn-outline-purple w-100 text-start" href="index.php?pagina=reportes">
-                    <i class="fas fa-file-pdf me-2"></i>
-                    Reportes
-                </a>
-            </li>
+           
             <?php endif; ?>
             <?php if ($rolUsuario === 1): ?>
             <li class="nav-item mb-1">
@@ -72,12 +68,7 @@ $rolUsuario = $_SESSION['nivel'];
                     Proveedores
                 </a>
             </li>
-            <li class="nav-item mb-1">
-                <a class="btn btn-outline-purple w-100 text-start" href="index.php?pagina=usuarios">
-                    <i class="fas fa-users-cog me-2"></i>
-                    Usuarios
-                </a>
-            </li>
+          
             <?php endif; ?>
             <?php if (in_array($rolUsuario, [1, 2], true)): ?>
             <li class="nav-item mb-1">
@@ -112,11 +103,31 @@ $rolUsuario = $_SESSION['nivel'];
             </li>
             <?php endif; ?>
             <?php if ($rolUsuario === 1): ?>
+           
+                 <li class="nav-item mb-1">
+                <a class="btn btn-outline-purple w-100 text-start" href="index.php?pagina=usuarios">
+                    <i class="fas fa-users-cog me-2"></i>
+                    Usuarios
+                </a>
+            </li>
+             <li class="nav-item mb-1">
+                <a class="btn btn-outline-purple w-100 text-start" href="index.php?pagina=reportes">
+                    <i class="fas fa-file-pdf me-2"></i>
+                    Reportes
+                </a>
+            
+            </li>
+            <li class="nav-item mb-1">
+                <a class="btn btn-outline-purple w-100 text-start" href="index.php?pagina=ayuda">
+                    <i class="fas fa-circle-question me-2"></i>
+                    Ayuda
+                </a>
+            </li> 
             <li class="nav-item mb-1">
                 <a class="btn btn-outline-purple w-100 text-start" href="index.php?pagina=configuracion">
                     <i class="fas fa-cog me-2"></i>
                     Configuración
-                </a>
+                </a> 
             </li>
             <?php endif; ?>
         </ul>

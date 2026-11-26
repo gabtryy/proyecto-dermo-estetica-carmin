@@ -52,6 +52,9 @@
         if (!tabla.tHead || !$.fn.dataTable || $.fn.dataTable.isDataTable(tabla)) {
             return;
         }
+        if ($(tabla).find('tbody td[colspan]').length) {
+            return;
+        }
 
         var api = $(tabla).DataTable(opcionesTabla(tabla));
         tabla.__contenidoDataTable = obtenerContenido(tabla);
