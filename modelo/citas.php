@@ -66,6 +66,20 @@ class Citas extends Conexion
         }
     }
 
+    public function obtenerTasaBolivar(): ?array
+    {
+        $stmt = $this->pdo->query(
+            "SELECT tm.monto_tasa, tm.fecha_tasa
+             FROM tasa_moneda tm
+             INNER JOIN moneda m ON m.id_moneda = tm.id_moneda
+             WHERE m.simbolo = 'Bs'
+             ORDER BY tm.id_tasa DESC
+             LIMIT 1"
+        );
+        $tasa = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $tasa ?: null;
+    }
+
     public function consultar(): array
     {
         try {

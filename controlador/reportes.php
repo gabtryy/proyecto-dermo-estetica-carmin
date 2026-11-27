@@ -12,10 +12,24 @@ $fechaInicioPredeterminada = $fechaHoy->modify('first day of this month')->forma
 $fechaFinPredeterminada = $fechaHoy->format('Y-m-d');
 $fechaInicio = (string) ($_POST['fechaInicio'] ?? $fechaInicioPredeterminada);
 $fechaFin = (string) ($_POST['fechaFin'] ?? $fechaFinPredeterminada);
+$cedulaClienteReporte = (string) ($_POST['cedulaCliente'] ?? '');
+$cedulaEsteticistaReporte = (string) ($_POST['cedulaEsteticista'] ?? '');
 $errorReporte = '';
 $datosReporte = [];
+$clientesReporte = [];
+$esteticistasReporte = [];
 
-if (!in_array($tipoReporte, ['ventas', 'citas'], true)) {
+try {
+    $modeloReportes = new Reportes();
+    $clientesReporte = $modeloReportes->listarClientes();
+    $esteticistasReporte = $modeloReportes->listarEsteticistas();
+} catch (Throwable $e) {
+    error_log('No se pudieron cargar las personas para los reportes: ' . $e->getMessage());
+    $errorReporte = 'No se pudieron cargar los clientes y esteticistas.';
+    http_response_code(500);
+}
+
+if (!in_array($tipoReporte, ['ventas', 'citas', 'usuarios', 'esteticistas'], true)) {
     $tipoReporte = 'ventas';
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errorReporte = 'El tipo de reporte seleccionado no es válido.';
@@ -36,15 +50,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generar']) && $errorR
         $errorReporte = 'Indica fechas válidas para generar el reporte.';
     } elseif ($fechaInicio > $fechaFin) {
         $errorReporte = 'La fecha inicial no puede ser posterior a la fecha final.';
+    } elseif ($tipoReporte === 'usuarios' && (
+        !ctype_digit($cedulaClienteReporte)
+        || !in_array($cedulaClienteReporte, array_map(
+            static function (array $cliente): string {
+                return (string) $cliente['cedulaCliente'];
+            },
+            $clientesReporte
+        ), true)
+    )) {
+        $errorReporte = 'Selecciona un cliente válido.';
+    } elseif ($tipoReporte === 'esteticistas' && (
+        !ctype_digit($cedulaEsteticistaReporte)
+        || !in_array($cedulaEsteticistaReporte, array_map(
+            static function (array $esteticista): string {
+                return (string) $esteticista['cedulaEsteticista'];
+            },
+            $esteticistasReporte
+        ), true)
+    )) {
+        $errorReporte = 'Selecciona un esteticista válido.';
     }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generar']) && $errorReporte === '') {
     try {
-        $modeloReportes = new Reportes();
-        $datosReporte = $tipoReporte === 'ventas'
-            ? $modeloReportes->ventas($fechaInicio, $fechaFin)
-            : $modeloReportes->citas($fechaInicio, $fechaFin);
+        if ($tipoReporte === 'ventas') {
+            $datosReporte = $modeloReportes->ventas($fechaInicio, $fechaFin);
+        } elseif ($tipoReporte === 'citas') {
+            $datosReporte = $modeloReportes->citas($fechaInicio, $fechaFin);
+        } elseif ($tipoReporte === 'usuarios') {
+            $datosReporte = $modeloReportes->usuarios($fechaInicio, $fechaFin, $cedulaClienteReporte);
+        } else {
+            $datosReporte = $modeloReportes->esteticistas($fechaInicio, $fechaFin, $cedulaEsteticistaReporte);
+        }
     } catch (Throwable $e) {
         error_log('No se pudo generar el reporte: ' . $e->getMessage());
         $errorReporte = 'No se pudo generar el reporte. Inténtalo nuevamente.';
@@ -60,7 +99,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generar']) && $errorR
         }
 
         require_once $autoload;
-        $nombreReporte = $tipoReporte === 'ventas' ? 'Ventas' : 'Citas';
+        $nombreReporte = [
+            'ventas' => 'Ventas',
+            'citas' => 'Citas',
+            'usuarios' => 'Reporte de cliente',
+            'esteticistas' => 'Esteticistas',
+        ][$tipoReporte];
+        $personaReporte = '';
+        if ($tipoReporte === 'usuarios' && $datosReporte) {
+            $personaReporte = $datosReporte[0]['nombreCliente'];
+        } elseif ($tipoReporte === 'esteticistas' && $datosReporte) {
+            $personaReporte = $datosReporte[0]['nombreEsteticista'];
+        }
         ob_start();
         require 'vista/reportes_pdf.php';
         $htmlPdf = ob_get_clean();
@@ -70,7 +120,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generar']) && $errorR
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
         $dompdf->stream(
-            'reporte-' . $tipoReporte . '-' . $fechaInicio . '-' . $fechaFin . '.pdf',
+            'reporte-' . $tipoReporte . '-' . ($cedulaClienteReporte ?: $cedulaEsteticistaReporte ?: 'general')
+                . '-' . $fechaInicio . '-' . $fechaFin . '.pdf',
             ['Attachment' => false]
         );
         exit;

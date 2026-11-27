@@ -30,7 +30,7 @@ function renderTabla(lista) {
     $tbody.empty();
 
     if (!lista.length) {
-        $tbody.append('<tr><td colspan="4" class="text-center text-muted">Sin registros</td></tr>');
+        $tbody.append('<tr><td colspan="5" class="text-center text-muted">Sin registros</td></tr>');
         return;
     }
 
@@ -39,14 +39,20 @@ function renderTabla(lista) {
         $fila.append($('<td>').text(item.nombreServicio || ''));
         $fila.append($('<td>').text(item.precio || ''));
         $fila.append($('<td>').text(item.descripcion || ''));
+        var productos = item.productos || [];
+        $fila.append($('<td>').text(productos.map(function (producto) {
+            return producto.nombreProducto;
+        }).join(', ') || '-'));
+        var $editar = $('<button>').attr({
+            type: 'button',
+            title: 'Modificar',
+            'aria-label': 'Modificar ' + (item.nombreServicio || 'servicio'),
+            'data-id-servicio': item.idServicio || ''
+        }).addClass('btn btn-sm btn-purple me-1 btn-editar')
+            .append($('<i>').addClass('fas fa-edit'))
+            .data('productos', productos);
         $fila.append($('<td>').addClass('text-nowrap').append(
-            $('<button>').attr({
-                type: 'button',
-                title: 'Modificar',
-                'aria-label': 'Modificar ' + (item.nombreServicio || 'servicio'),
-                'data-id-servicio': item.idServicio || ''
-            }).addClass('btn btn-sm btn-purple me-1 btn-editar')
-                .append($('<i>').addClass('fas fa-edit'))
+            $editar
         ).append(
             $('<button>').attr({
                 type: 'button',
@@ -62,6 +68,72 @@ function renderTabla(lista) {
 
 $(document).ready(function () {
     var currentEditId = null;
+    var catalogoProductos = [];
+    var productosCatalogoCargado = false;
+    var seleccionProductosPendiente = [];
+
+    function renderProductosServicio(seleccionados) {
+        seleccionProductosPendiente = seleccionados || [];
+        var $tbody = $('#productos_servicio').empty();
+        if (!productosCatalogoCargado) {
+            $tbody.append('<tr><td colspan="3" class="text-center text-muted">Cargando productos...</td></tr>');
+            return;
+        }
+        if (!catalogoProductos.length) {
+            $tbody.append('<tr><td colspan="3" class="text-center text-muted">No hay productos registrados.</td></tr>');
+            return;
+        }
+
+        var productosSeleccionados = {};
+        seleccionProductosPendiente.forEach(function (producto) {
+            productosSeleccionados[String(producto.idProducto)] = true;
+        });
+
+        catalogoProductos.forEach(function (producto) {
+            var idProducto = String(producto.idProducto);
+            var seleccionado = Object.prototype.hasOwnProperty.call(productosSeleccionados, idProducto);
+            var $checkbox = $('<input>').attr({
+                type: 'checkbox',
+                'aria-label': 'Usar ' + producto.nombreProducto
+            }).addClass('form-check-input producto-servicio-check')
+                .val(idProducto)
+                .prop('checked', seleccionado);
+            var $fila = $('<tr>').attr('data-id-producto', idProducto);
+            $fila.append($('<td>').append($checkbox));
+            $fila.append($('<td>').text(producto.nombreProducto || ''));
+            $fila.append($('<td>').text(producto.marca || '-'));
+            $tbody.append($fila);
+        });
+    }
+
+    function consultarProductosServicio() {
+        var datos = new FormData();
+        datos.append('accion', 'productos');
+        enviaAjax({
+            datos: datos,
+            done: function (resp) {
+                if (!resp || !resp.ok || !Array.isArray(resp.data)) {
+                    $('#productos_servicio').html(
+                        '<tr><td colspan="3" class="text-center text-danger">No se pudieron cargar los productos.</td></tr>'
+                    );
+                    Swal.fire('Error', (resp && resp.mensaje) || 'No se pudieron cargar los productos disponibles.', 'error');
+                    return;
+                }
+                catalogoProductos = resp.data;
+                productosCatalogoCargado = true;
+                renderProductosServicio(seleccionProductosPendiente);
+            },
+            fail: function (xhr) {
+                var mensaje = xhr.responseJSON && xhr.responseJSON.mensaje
+                    ? xhr.responseJSON.mensaje
+                    : 'No se pudieron cargar los productos disponibles.';
+                $('#productos_servicio').html(
+                    '<tr><td colspan="3" class="text-center text-danger">No se pudieron cargar los productos.</td></tr>'
+                );
+                Swal.fire('Error', mensaje, 'error');
+            }
+        });
+    }
 
     function validarCampoServicio(campo) {
         var $campo = $('#' + campo);
@@ -145,6 +217,7 @@ $(document).ready(function () {
         $('#nombreServicio').val($fila.find('td:eq(0)').text().trim());
         $('#precio').val($fila.find('td:eq(1)').text().trim());
         $('#descripcion').val($fila.find('td:eq(2)').text().trim());
+        renderProductosServicio($(this).data('productos') || []);
         $('#proceso').text('MODIFICAR');
         $('#accion').val('modificar');
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1')).show();
@@ -153,6 +226,7 @@ $(document).ready(function () {
     $('#incluir').on('click', function () {
         currentEditId = null;
         $('#formulario_servicio')[0].reset();
+        renderProductosServicio([]);
         $('#proceso').text('REGISTRAR');
         $('#accion').val('incluir');
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1')).show();
@@ -161,6 +235,10 @@ $(document).ready(function () {
     $('#formulario_servicio').on('submit', function (e) {
         e.preventDefault();
         var form = this;
+        if (!productosCatalogoCargado) {
+            Swal.fire('Error', 'Espera a que se carguen los productos e inténtalo nuevamente.', 'error');
+            return;
+        }
         if (!validarFormularioServicio() || !form.reportValidity()) {
             $('#formulario_servicio .is-invalid').first().trigger('focus');
             return;
@@ -170,6 +248,12 @@ $(document).ready(function () {
         if ($('#accion').val() === 'modificar' && currentEditId) {
             datos.set('idServicio', currentEditId);
         }
+        $('#productos_servicio tr[data-id-producto]').each(function (indice) {
+            var $fila = $(this);
+            if ($fila.find('.producto-servicio-check').is(':checked')) {
+                datos.append('productos[]', $fila.attr('data-id-producto'));
+            }
+        });
 
         enviaAjax({
             datos: datos,
@@ -194,4 +278,5 @@ $(document).ready(function () {
     });
 
     consultar();
+    consultarProductosServicio();
 });

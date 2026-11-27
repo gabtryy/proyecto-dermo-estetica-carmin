@@ -1,3 +1,7 @@
+var tasaBolivar = null;
+var fechaTasaBolivar = null;
+var mensajeTasaBolivar = 'Consultando la tasa de bolívares...';
+
 function enviaAjax(datos, onDone, onFail) {
     $.ajax({
         url: 'index.php?pagina=citas',
@@ -92,12 +96,65 @@ function renderServicios(selector, servicios, seleccionados) {
     });
 }
 
+function formatearMonto(valor, decimales) {
+    return valor.toFixed(decimales).replace(/0+$/, '').replace(/\.$/, '');
+}
+
 function actualizarTotal() {
     var total = 0;
     $('#lista-servicios .servicio-check:checked').each(function () {
         total += Number($(this).data('precio') || 0);
     });
-    $('#total-cita').text('$' + total.toFixed(2));
+    if (tasaBolivar === null) {
+        $('#total-cita').text('$' + formatearMonto(total, 2) + ' (tasa Bs no disponible)');
+        $('#tasa-cita').text(mensajeTasaBolivar);
+        return;
+    }
+    $('#total-cita').text(
+        'Bs. ' + formatearMonto(total * tasaBolivar, 2) + ' / $' + formatearMonto(total, 2)
+    );
+    var tasaFormateada = formatearMonto(tasaBolivar, 4);
+    mensajeTasaBolivar = 'Tasa usada: Bs. ' + tasaFormateada + ' por $1 (' + fechaTasaBolivar + ')';
+    $('#tasa-cita').text(mensajeTasaBolivar);
+}
+
+function cargarTasaBolivar() {
+    $.ajax({
+        url: 'index.php?pagina=citas',
+        type: 'POST',
+        data: { accion: 'tasa' },
+        dataType: 'json'
+    }).done(function (respuesta) {
+        if (!respuesta || !respuesta.ok) {
+            tasaBolivar = null;
+            fechaTasaBolivar = null;
+            mensajeTasaBolivar = respuesta && respuesta.mensaje
+                ? respuesta.mensaje
+                : 'No se pudo consultar la tasa de bolívares.';
+            actualizarTotal();
+            return;
+        }
+        if (!respuesta.data) {
+            tasaBolivar = null;
+            fechaTasaBolivar = null;
+            mensajeTasaBolivar = 'No hay una tasa de bolívares registrada.';
+            actualizarTotal();
+            return;
+        }
+        var tasa = Number(respuesta.data.monto_tasa);
+        var fecha = respuesta.data.fecha_tasa;
+        tasaBolivar = Number.isFinite(tasa) && tasa > 0 && fecha ? tasa : null;
+        fechaTasaBolivar = tasaBolivar === null ? null : fecha;
+        mensajeTasaBolivar = tasaBolivar === null
+            ? 'La tasa de bolívares registrada no es válida.'
+            : '';
+        actualizarTotal();
+    }).fail(function () {
+        tasaBolivar = null;
+        fechaTasaBolivar = null;
+        mensajeTasaBolivar = 'No se pudo consultar la tasa de bolívares.';
+        actualizarTotal();
+    });
 }
 
 function fechaLocalActual() {
@@ -151,6 +208,7 @@ function consultar() {
 
 $(document).ready(function () {
     cargarCatalogos();
+    cargarTasaBolivar();
     consultar();
 
     $('#fecha_cita, #editar-fecha').on('input change', function () {

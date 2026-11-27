@@ -26,6 +26,7 @@ $(function () {
         var proveedor = $('#idProveedor').val();
         var precio = $('#precioProducto').val().trim();
         var cantidad = $('#cantidadActual').val().trim();
+        var unidadMedida = $('#unidad_medida').val();
         var tipo = $('#tipoProducto').val();
         var accion = $('#accion').val();
         var idProducto = $('#idProducto').val();
@@ -53,8 +54,11 @@ $(function () {
         ) {
             errores.precioProducto = 'Ingrese un precio mayor que cero, con hasta 2 decimales.';
         }
-        if (!/^\d+$/.test(cantidad) || Number(cantidad) > 2147483647) {
-            errores.cantidadActual = 'Ingrese una cantidad entera entre 0 y 2147483647.';
+        if (!/^\d+(?:\.\d{1,2})?$/.test(cantidad) || Number(cantidad) > 99999999.99) {
+            errores.cantidadActual = 'Ingrese una cantidad entre 0 y 99999999.99, con hasta 2 decimales.';
+        }
+        if (['und', 'ml', 'L', 'g', 'kg'].indexOf(unidadMedida) === -1) {
+            errores.unidad_medida = 'Seleccione una unidad de medida válida.';
         }
         if (!/^[1-9]\d*$/.test(tipo) || Number(tipo) > 2147483647 || !tipoExiste) {
             errores.tipoProducto = 'Seleccione un tipo de producto válido.';
@@ -73,7 +77,7 @@ $(function () {
 
     function validarFormulario() {
         var errores = obtenerErroresFormulario();
-        $('#snombreProducto, #smarca, #sidProveedor, #sprecioProducto, #scantidadActual, #stipoProducto').text('');
+        $('#snombreProducto, #smarca, #sidProveedor, #sprecioProducto, #scantidadActual, #sunidad_medida, #stipoProducto').text('');
         $('#formulario_producto .is-invalid').removeClass('is-invalid');
         Object.keys(errores).forEach(function (campo) {
             mostrarErrorCampo(campo, errores[campo]);
@@ -148,6 +152,7 @@ $(function () {
                 $fila.append($('<td>').text(Number(producto.precioProducto).toFixed(2)));
                 $fila.append($('<td>').text(producto.nombreProveedor || ''));
                 $fila.append($('<td>').text(producto.cantidadActual));
+                $fila.append($('<td>').text(producto.unidad_medida || 'und'));
                 $fila.append($('<td>').text(producto.tipoProducto || 'Sin clasificar'));
                 $fila.append($acciones);
                 $tbody.append($fila);
@@ -194,7 +199,7 @@ $(function () {
         $('#accion').val('incluir');
         $('#proceso').text('REGISTRAR');
         $('#modal1Label').text('Añadir producto');
-        $('#snombreProducto, #smarca, #sidProveedor, #sprecioProducto, #scantidadActual, #stipoProducto').text('');
+        $('#snombreProducto, #smarca, #sidProveedor, #sprecioProducto, #scantidadActual, #sunidad_medida, #stipoProducto').text('');
     }
 
     $('#incluir').on('click', function () {
@@ -217,6 +222,7 @@ $(function () {
         $('#idProveedor').val(producto.idProveedor);
         $('#precioProducto').val(producto.precioProducto);
         $('#cantidadActual').val(producto.cantidadActual);
+        $('#unidad_medida').val(producto.unidad_medida || 'und');
         $('#tipoProducto').val(producto.idTipo || '');
         $('#accion').val('modificar');
         $('#proceso').text('GUARDAR CAMBIOS');

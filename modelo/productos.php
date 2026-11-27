@@ -8,7 +8,8 @@ class Productos extends Conexion
     private $marca = '';
     private $idProveedor = 0;
     private $precioProducto = '';
-    private $cantidadActual = 0;
+    private $cantidadActual = '0';
+    private $unidadMedida = 'und';
     private $idTipo = 0;
     private $ultimoError;
 
@@ -62,14 +63,24 @@ class Productos extends Conexion
         return $this->precioProducto;
     }
 
-    public function set_cantidadActual(int $valor): void
+    public function set_cantidadActual(string $valor): void
     {
         $this->cantidadActual = $valor;
     }
 
-    public function get_cantidadActual(): int
+    public function get_cantidadActual(): string
     {
         return $this->cantidadActual;
+    }
+
+    public function set_unidadMedida(string $valor): void
+    {
+        $this->unidadMedida = $valor;
+    }
+
+    public function get_unidadMedida(): string
+    {
+        return $this->unidadMedida;
     }
 
     public function set_idTipo(int $valor): void
@@ -85,7 +96,7 @@ class Productos extends Conexion
     public function listar(): array
     {
         $sql = "SELECT p.idProducto, p.nombreProducto, p.marca, p.precioProducto,
-                       p.cantidadActual, p.idProveedor, p.id_tipo AS idTipo,
+                       p.cantidadActual, p.unidad_medida, p.idProveedor, p.id_tipo AS idTipo,
                        COALESCE(t.nombre_tipo, 'Sin clasificar') AS tipoProducto,
                        prov.nombreProveedor
                 FROM producto p
@@ -112,9 +123,9 @@ class Productos extends Conexion
     {
         try {
             $sql = "INSERT INTO producto
-                        (nombreProducto, marca, precioCosto, precioProducto, idProveedor, cantidadActual, id_tipo)
+                        (nombreProducto, marca, precioCosto, precioProducto, idProveedor, cantidadActual, unidad_medida, id_tipo)
                     VALUES
-                        (:nombreProducto, :marca, 0, :precioProducto, :idProveedor, :cantidadActual, :idTipo)";
+                        (:nombreProducto, :marca, 0, :precioProducto, :idProveedor, :cantidadActual, :unidadMedida, :idTipo)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 ':nombreProducto' => $this->get_nombreProducto(),
@@ -122,6 +133,7 @@ class Productos extends Conexion
                 ':precioProducto' => $this->get_precioProducto(),
                 ':idProveedor' => $this->get_idProveedor(),
                 ':cantidadActual' => $this->get_cantidadActual(),
+                ':unidadMedida' => $this->get_unidadMedida(),
                 ':idTipo' => $this->get_idTipo(),
             ]);
             return ['ok' => true, 'insertId' => (int) $this->pdo->lastInsertId()];
@@ -141,6 +153,7 @@ class Productos extends Conexion
                         precioProducto = :precioProducto,
                         idProveedor = :idProveedor,
                         cantidadActual = :cantidadActual,
+                        unidad_medida = :unidadMedida,
                         id_tipo = :idTipo
                     WHERE idProducto = :idProducto";
             $stmt = $this->pdo->prepare($sql);
@@ -150,6 +163,7 @@ class Productos extends Conexion
                 ':precioProducto' => $this->get_precioProducto(),
                 ':idProveedor' => $this->get_idProveedor(),
                 ':cantidadActual' => $this->get_cantidadActual(),
+                ':unidadMedida' => $this->get_unidadMedida(),
                 ':idTipo' => $this->get_idTipo(),
                 ':idProducto' => $this->get_idProducto(),
             ]);

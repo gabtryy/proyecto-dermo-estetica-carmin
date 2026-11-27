@@ -28,6 +28,7 @@
                             <th scope="col">Nombre Servicio</th>
                             <th scope="col">Precio</th>
                             <th scope="col">Descripción</th>
+                            <th scope="col">Productos utilizados</th>
                             <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>
@@ -69,6 +70,25 @@
                             <textarea class="form-control" id="descripcion" name="descripcion" rows="3" autocomplete="off"></textarea>
                             <span class="form-text text-danger" id="sdescripcion"></span>
                         </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="form-label">Productos utilizados</div>
+                        <div class="table-responsive border rounded">
+                            <table class="table table-sm table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Usar</th>
+                                        <th scope="col">Producto</th>
+                                        <th scope="col">Marca</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productos_servicio">
+                                    <tr><td colspan="3" class="text-center text-muted">Cargando productos...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="form-text">Selecciona los productos que forman parte del servicio.</div>
                     </div>
                 </div>
                 <div class="modal-footer bg-light">

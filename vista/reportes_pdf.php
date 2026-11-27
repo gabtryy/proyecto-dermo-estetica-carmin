@@ -18,6 +18,9 @@ $escapar = static function ($valor): string {
 <body>
     <h2>Reporte de <?= $escapar($nombreReporte) ?></h2>
     <p>Desde <?= $escapar($fechaInicio) ?> hasta <?= $escapar($fechaFin) ?></p>
+    <?php if ($personaReporte !== ''): ?>
+        <p><?= $escapar($personaReporte) ?></p>
+    <?php endif; ?>
     <table>
         <?php if ($tipoReporte === 'ventas'): ?>
             <thead>
@@ -37,7 +40,7 @@ $escapar = static function ($valor): string {
                     </tr>
                 <?php endforeach; ?>
             </tbody>
-        <?php else: ?>
+        <?php elseif ($tipoReporte === 'citas'): ?>
             <thead>
                 <tr>
                     <th>Fecha</th><th>Hora</th><th>Cliente</th>
@@ -55,11 +58,44 @@ $escapar = static function ($valor): string {
                     </tr>
                 <?php endforeach; ?>
             </tbody>
+        <?php elseif ($tipoReporte === 'usuarios'): ?>
+            <thead>
+                <tr>
+                    <th>Cédula</th><th>Usuario/Cliente</th>
+                    <th>Compras</th><th>Citas y estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($datosReporte as $usuario): ?>
+                    <tr>
+                        <td><?= $escapar($usuario['cedulaCliente']) ?></td>
+                        <td><?= $escapar($usuario['nombreCliente']) ?></td>
+                        <td><?= (int) $usuario['cantidadCompras'] ?><br><?= $escapar($usuario['compras']) ?></td>
+                        <td><?= (int) $usuario['cantidadCitas'] ?><br><?= $escapar($usuario['citasAsistidas']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        <?php else: ?>
+            <thead>
+                <tr>
+                    <th>Cédula</th><th>Esteticista</th>
+                    <th>Citas y estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($datosReporte as $esteticista): ?>
+                    <tr>
+                        <td><?= $escapar($esteticista['cedulaEsteticista']) ?></td>
+                        <td><?= $escapar($esteticista['nombreEsteticista']) ?></td>
+                        <td><?= (int) $esteticista['cantidadCitas'] ?><br><?= $escapar($esteticista['citasAsistidas']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
         <?php endif; ?>
         <?php if (!$datosReporte): ?>
             <tbody>
                 <tr>
-                    <td colspan="5">No hay registros en el período seleccionado.</td>
+                    <td colspan="<?= $tipoReporte === 'ventas' || $tipoReporte === 'citas' ? 5 : ($tipoReporte === 'usuarios' ? 4 : 3) ?>">No hay registros en el período seleccionado.</td>
                 </tr>
             </tbody>
         <?php endif; ?>

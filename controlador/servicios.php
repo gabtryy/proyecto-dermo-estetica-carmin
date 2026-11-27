@@ -50,35 +50,86 @@ if ($accion !== '') {
             }
             break;
 
-        case 'incluir':
-            $modelo->set_nombreServicio(trim($_POST['nombreServicio'] ?? ''));
-            $modelo->set_precio(trim($_POST['precio'] ?? ''));
-            $modelo->set_descripcion(trim($_POST['descripcion'] ?? ''));
-
-         
-            $res = $modelo->insertar(); 
-            
-            if ($res['resultado'] === 'exito') {
-                echo json_encode(['ok' => true, 'mensaje' => 'Servicio registrado con éxito.']);
-            } else {
-                http_response_code(400);
-                echo json_encode(['ok' => false, 'mensaje' => 'Error al registrar: ' . $res['mensaje']]);
+        case 'productos':
+            try {
+                echo json_encode([
+                    'ok' => true,
+                    'data' => $modelo->listarProductos()
+                ]);
+            } catch (Throwable $e) {
+                error_log('No se pudieron consultar los productos para servicios: ' . $e->getMessage());
+                http_response_code(500);
+                echo json_encode([
+                    'ok' => false,
+                    'mensaje' => 'No se pudieron cargar los productos disponibles.'
+                ]);
             }
             break;
 
+        case 'incluir':
         case 'modificar':
-            $modelo->set_idServicio(trim($_POST['idServicio'] ?? ''));
-            $modelo->set_nombreServicio(trim($_POST['nombreServicio'] ?? ''));
-            $modelo->set_precio(trim($_POST['precio'] ?? ''));
-            $modelo->set_descripcion(trim($_POST['descripcion'] ?? ''));
+            $productosRecibidos = $_POST['productos'] ?? [];
+            if (!is_array($productosRecibidos)) {
+                http_response_code(400);
+                echo json_encode(['ok' => false, 'mensaje' => 'La selección de productos no es válida.']);
+                break;
+            }
 
-            $res = $modelo->modificar(); 
+            $productos = [];
+            $productosSeleccionados = [];
+            foreach ($productosRecibidos as $idRecibido) {
+                if (is_array($idRecibido)) {
+                    $productos = false;
+                    break;
+                }
+
+                $idProducto = filter_var($idRecibido, FILTER_VALIDATE_INT);
+                if (!$idProducto || $idProducto < 1 || isset($productosSeleccionados[$idProducto])) {
+                    $productos = false;
+                    break;
+                }
+                $productosSeleccionados[$idProducto] = true;
+                $productos[] = [
+                    'idProducto' => $idProducto,
+                    'cantidad' => 1,
+                ];
+            }
+
+            if ($productos === false) {
+                http_response_code(400);
+                echo json_encode(['ok' => false, 'mensaje' => 'Revise los productos seleccionados.']);
+                break;
+            }
+
+            $modelo->set_productos($productos);
+            if ($accion === 'incluir') {
+                $modelo->set_nombreServicio(trim($_POST['nombreServicio'] ?? ''));
+                $modelo->set_precio(trim($_POST['precio'] ?? ''));
+                $modelo->set_descripcion(trim($_POST['descripcion'] ?? ''));
+
+                $res = $modelo->insertar();
+            } else {
+                $modelo->set_idServicio(trim($_POST['idServicio'] ?? ''));
+                $modelo->set_nombreServicio(trim($_POST['nombreServicio'] ?? ''));
+                $modelo->set_precio(trim($_POST['precio'] ?? ''));
+                $modelo->set_descripcion(trim($_POST['descripcion'] ?? ''));
+                $res = $modelo->modificar();
+            }
 
             if ($res['resultado'] === 'exito') {
-                echo json_encode(['ok' => true, 'mensaje' => 'Servicio modificado correctamente.']);
+                echo json_encode([
+                    'ok' => true,
+                    'mensaje' => $accion === 'incluir'
+                        ? 'Servicio registrado con éxito.'
+                        : 'Servicio modificado correctamente.'
+                ]);
             } else {
                 http_response_code(400);
-                echo json_encode(['ok' => false, 'mensaje' => 'Error al modificar: ' . $res['mensaje']]);
+                echo json_encode([
+                    'ok' => false,
+                    'mensaje' => ($accion === 'incluir' ? 'Error al registrar: ' : 'Error al modificar: ')
+                        . $res['mensaje']
+                ]);
             }
             break;
 

@@ -35,6 +35,17 @@ if (!empty($_POST)) {
         exit;
     }
 
+    if ($accion === 'tasa') {
+        try {
+            echo json_encode(['ok' => true, 'data' => $modelo->obtenerTasaBolivar()]);
+        } catch (Throwable $e) {
+            error_log('No se pudo consultar la tasa para las citas: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['ok' => false, 'mensaje' => 'No se pudo consultar la tasa de bolívares.']);
+        }
+        exit;
+    }
+
     if ($accion === 'incluir') {
         $servicios = $_POST['servicios'] ?? ($_POST['servicios[]'] ?? []);
         $modelo->set_cedulaCliente(trim($_POST['cedulaCliente'] ?? ''));

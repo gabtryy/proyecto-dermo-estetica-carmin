@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-11-2026 a las 03:18:04
+-- Tiempo de generación: 27-11-2026 a las 03:38:34
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -124,7 +124,7 @@ INSERT INTO `cliente` (`cedulaCliente`, `nombreCliente`, `fechaNacimiento`, `est
 CREATE TABLE `detalleproductoservicio` (
   `idServicio` int(11) NOT NULL,
   `idProducto` int(11) NOT NULL,
-  `cantidad` int(11) NOT NULL
+  `cantidad` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -169,7 +169,7 @@ CREATE TABLE `detalle_venta` (
 
 INSERT INTO `detalle_venta` (`idVenta`, `idProducto`, `cantidad`, `precioUnitario`) VALUES
 (1, 3, 3, 32.00),
-(2, 4, 1, 22.50);
+(3, 3, 6, 32.00);
 
 -- --------------------------------------------------------
 
@@ -310,7 +310,7 @@ CREATE TABLE `pago_venta` (
 
 INSERT INTO `pago_venta` (`id_pago`, `idVenta`, `idMetodoPago`, `id_moneda`, `monto_pagado`, `tasa_cobrada`, `fecha_pago`, `referencia`) VALUES
 (1, 1, 1, 2, 72900.00, 600.0000, '2026-10-06 12:59:00', NULL),
-(2, 2, 1, 2, 26461.50, 299.0000, '2026-11-16 23:51:32', NULL);
+(3, 3, 1, 1, 127872.00, 666.0000, '2026-11-26 07:42:05', NULL);
 
 -- --------------------------------------------------------
 
@@ -348,7 +348,8 @@ CREATE TABLE `producto` (
   `precioCosto` decimal(12,0) NOT NULL,
   `precioProducto` decimal(10,2) NOT NULL,
   `idProveedor` int(11) DEFAULT NULL,
-  `cantidadActual` int(11) NOT NULL,
+  `cantidadActual` decimal(10,2) NOT NULL,
+  `unidad_medida` enum('und','ml','L','g','kg') NOT NULL DEFAULT 'und',
   `id_tipo` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -356,10 +357,10 @@ CREATE TABLE `producto` (
 -- Volcado de datos para la tabla `producto`
 --
 
-INSERT INTO `producto` (`idProducto`, `nombreProducto`, `marca`, `precioCosto`, `precioProducto`, `idProveedor`, `cantidadActual`, `id_tipo`) VALUES
-(2, 'Sérum de Ácido Hialurónico', 'La Roche-Posay', 0, 38.00, 3, 25, NULL),
-(3, 'Protector Solar FPS 50+ toque seco', 'Isdin', 0, 32.00, 3, 47, NULL),
-(4, 'Crema Hidratante Intensiva', 'CeraVe', 0, 22.50, 3, 29, 2);
+INSERT INTO `producto` (`idProducto`, `nombreProducto`, `marca`, `precioCosto`, `precioProducto`, `idProveedor`, `cantidadActual`, `unidad_medida`, `id_tipo`) VALUES
+(2, 'Sérum de Ácido Hialurónico', 'La Roche-Posay', 0, 38.00, 3, 25.00, 'und', NULL),
+(3, 'Protector Solar FPS 50+ toque seco', 'Isdin', 0, 32.00, 3, 41.00, 'und', NULL),
+(4, 'Crema Hidratante Intensiva', 'CeraVe', 0, 22.50, 3, 30.00, 'und', 2);
 
 -- --------------------------------------------------------
 
@@ -596,7 +597,7 @@ CREATE TABLE `venta` (
 
 INSERT INTO `venta` (`idVenta`, `cedulaCliente`, `fechaCompra`) VALUES
 (1, 16444555, '2026-10-06 12:59:00'),
-(2, 14222333, '2026-11-16 23:50:00');
+(3, 14222333, '2026-11-19 07:41:00');
 
 --
 -- Índices para tablas volcadas
@@ -831,7 +832,7 @@ ALTER TABLE `moneda`
 -- AUTO_INCREMENT de la tabla `pago_venta`
 --
 ALTER TABLE `pago_venta`
-  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `piel`
@@ -903,7 +904,7 @@ ALTER TABLE `tipo_producto`
 -- AUTO_INCREMENT de la tabla `venta`
 --
 ALTER TABLE `venta`
-  MODIFY `idVenta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idVenta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Restricciones para tablas volcadas

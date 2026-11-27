@@ -30,6 +30,7 @@
                             <th scope="col">Precio del producto</th>
                             <th scope="col">Proveedor</th>
                             <th scope="col">Cantidad actual</th>
+                            <th scope="col">Unidad de medida</th>
                             <th scope="col">Tipo de producto</th>
                             <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
@@ -83,10 +84,21 @@
                             <input class="form-control" type="number" min="0.01" max="99999999.99" step="0.01" id="precioProducto" name="precioProducto" required>
                             <span class="form-text text-danger" id="sprecioProducto"></span>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-4">
                             <label class="form-label" for="cantidadActual">Cantidad actual</label>
-                            <input class="form-control" type="number" min="0" max="2147483647" step="1" id="cantidadActual" name="cantidadActual" required>
+                            <input class="form-control" type="number" min="0" max="99999999.99" step="0.01" id="cantidadActual" name="cantidadActual" required>
                             <span class="form-text text-danger" id="scantidadActual"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="unidad_medida">Unidad de medida</label>
+                            <select class="form-select" id="unidad_medida" name="unidad_medida" required>
+                                <option value="und">Unidad (und)</option>
+                                <option value="ml">Mililitros (ml)</option>
+                                <option value="L">Litros (L)</option>
+                                <option value="g">Gramos (g)</option>
+                                <option value="kg">Kilogramos (kg)</option>
+                            </select>
+                            <span class="form-text text-danger" id="sunidad_medida"></span>
                         </div>
                     </div>
                     

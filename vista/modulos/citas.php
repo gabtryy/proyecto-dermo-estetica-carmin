@@ -62,9 +62,10 @@
                     <div id="lista-servicios" class="row g-2"></div>
                     <div class="mt-3 small text-muted">Seleccione uno o varios servicios para la cita.</div>
                     <div class="mt-3 d-flex align-items-center gap-2">
-                        <span class="fw-semibold">Total estimado:</span>
+                        <span class="fw-semibold">Total de referencia:</span>
                         <span id="total-cita" class="badge bg-success-subtle text-success fs-6 px-3 py-2">$0.00</span>
                     </div>
+                    <small id="tasa-cita" class="text-muted d-block mt-1">Consultando la tasa de bolívares...</small>
                 </div>
 
                 <div class="d-flex justify-content-end mt-4">

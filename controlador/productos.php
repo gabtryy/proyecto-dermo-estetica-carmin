@@ -41,7 +41,8 @@ switch ($accion) {
             'marca' => trim((string) ($_POST['marca'] ?? '')),
             'idProveedor' => filter_var($_POST['idProveedor'] ?? null, FILTER_VALIDATE_INT),
             'precioProducto' => trim((string) ($_POST['precioProducto'] ?? '')),
-            'cantidadActual' => filter_var($_POST['cantidadActual'] ?? null, FILTER_VALIDATE_INT),
+            'cantidadActual' => trim((string) ($_POST['cantidadActual'] ?? '')),
+            'unidadMedida' => trim((string) ($_POST['unidad_medida'] ?? '')),
             'idTipo' => filter_var($_POST['tipoProducto'] ?? null, FILTER_VALIDATE_INT),
         ];
 
@@ -53,14 +54,15 @@ switch ($accion) {
             !preg_match('/^\d+(?:\.\d{1,2})?$/', $datos['precioProducto']) ||
             (float) $datos['precioProducto'] <= 0 ||
             (float) $datos['precioProducto'] > 99999999.99 ||
-            $datos['cantidadActual'] === false ||
-            $datos['cantidadActual'] < 0 ||
+            !preg_match('/^\d+(?:\.\d{1,2})?$/', $datos['cantidadActual']) ||
+            (float) $datos['cantidadActual'] > 99999999.99 ||
+            !in_array($datos['unidadMedida'], ['und', 'ml', 'L', 'g', 'kg'], true) ||
             $datos['idTipo'] === false ||
             $datos['idTipo'] < 1 ||
             ($accion === 'modificar' && (!$idProducto || $idProducto < 1))
         ) {
             http_response_code(400);
-            echo json_encode(['ok' => false, 'mensaje' => 'Revise nombre, marca, proveedor, precio, cantidad y tipo de producto.']);
+            echo json_encode(['ok' => false, 'mensaje' => 'Revise nombre, marca, proveedor, precio, cantidad, unidad de medida y tipo de producto.']);
             exit;
         }
 
@@ -68,7 +70,8 @@ switch ($accion) {
         $modelo->set_marca($datos['marca']);
         $modelo->set_idProveedor((int) $datos['idProveedor']);
         $modelo->set_precioProducto($datos['precioProducto']);
-        $modelo->set_cantidadActual((int) $datos['cantidadActual']);
+        $modelo->set_cantidadActual($datos['cantidadActual']);
+        $modelo->set_unidadMedida($datos['unidadMedida']);
         $modelo->set_idTipo((int) $datos['idTipo']);
 
         if ($accion === 'modificar') {

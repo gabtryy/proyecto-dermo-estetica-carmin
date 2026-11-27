@@ -32,7 +32,7 @@
     <?php elseif ($controladorJS === 'citas'): ?>
         <script src="js/citas.js" defer></script>
     <?php elseif ($controladorJS === 'productos'): ?>
-        <script src="js/productos.js" defer></script>
+        <script src="js/productos.js?v=2" defer></script>
     <?php elseif ($controladorJS === 'ventas'): ?>
         <script src="js/ventas.js" defer></script>
     <?php elseif ($controladorJS === 'configuracion'): ?>

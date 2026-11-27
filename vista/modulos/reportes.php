@@ -23,7 +23,39 @@
                     <select class="form-select" id="tipoReporte" name="tipo">
                         <option value="ventas" <?= $tipoReporte === 'ventas' ? 'selected' : '' ?>>Ventas</option>
                         <option value="citas" <?= $tipoReporte === 'citas' ? 'selected' : '' ?>>Citas</option>
+                        <option value="usuarios" <?= $tipoReporte === 'usuarios' ? 'selected' : '' ?>>Cliente: compras y citas</option>
+                        <option value="esteticistas" <?= $tipoReporte === 'esteticistas' ? 'selected' : '' ?>>Esteticista: citas atendidas</option>
                     </select>
+                </div>
+                <div class="col-12" id="seccionCliente" <?= $tipoReporte === 'usuarios' ? '' : 'hidden' ?>>
+                    <div class="border rounded p-3">
+                        <h2 class="h6 mb-2">Reporte por cliente</h2>
+                        <label class="form-label" for="cedulaClienteReporte">Selecciona un cliente</label>
+                        <select class="form-select" id="cedulaClienteReporte" name="cedulaCliente">
+                            <option value="">Selecciona un cliente</option>
+                            <?php foreach ($clientesReporte as $cliente): ?>
+                                <option value="<?= htmlspecialchars((string) $cliente['cedulaCliente'], ENT_QUOTES, 'UTF-8') ?>"
+                                    <?= $cedulaClienteReporte === (string) $cliente['cedulaCliente'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($cliente['nombreCliente'] . ' (' . $cliente['cedulaCliente'] . ')', ENT_QUOTES, 'UTF-8') ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12" id="seccionEsteticista" <?= $tipoReporte === 'esteticistas' ? '' : 'hidden' ?>>
+                    <div class="border rounded p-3">
+                        <h2 class="h6 mb-2">Reporte por esteticista</h2>
+                        <label class="form-label" for="cedulaEsteticistaReporte">Selecciona un esteticista</label>
+                        <select class="form-select" id="cedulaEsteticistaReporte" name="cedulaEsteticista">
+                            <option value="">Selecciona un esteticista</option>
+                            <?php foreach ($esteticistasReporte as $esteticista): ?>
+                                <option value="<?= htmlspecialchars((string) $esteticista['cedulaEsteticista'], ENT_QUOTES, 'UTF-8') ?>"
+                                    <?= $cedulaEsteticistaReporte === (string) $esteticista['cedulaEsteticista'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($esteticista['nombreEsteticista'] . ' (' . $esteticista['cedulaEsteticista'] . ')', ENT_QUOTES, 'UTF-8') ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="fechaInicio">Desde</label>
@@ -44,5 +76,21 @@
         </div>
     </section>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var tipoReporte = document.getElementById('tipoReporte');
+        var seccionCliente = document.getElementById('seccionCliente');
+        var seccionEsteticista = document.getElementById('seccionEsteticista');
+
+        function actualizarSeccionesReporte() {
+            seccionCliente.hidden = tipoReporte.value !== 'usuarios';
+            seccionEsteticista.hidden = tipoReporte.value !== 'esteticistas';
+        }
+
+        tipoReporte.addEventListener('change', actualizarSeccionesReporte);
+        actualizarSeccionesReporte();
+    });
+</script>
 
 <?php require_once 'vista/layouts/footer.php'; ?>
