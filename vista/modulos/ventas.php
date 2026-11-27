@@ -23,9 +23,9 @@
                             <th>Fecha</th>
                             <th>Cliente</th>
                             <th>Productos</th>
-                            <th>Total</th>
+                            <th>Total (Bs)</th>
                             <th>Pago</th>
-                            <th>Monto pagado</th>
+                            <th>Monto pagado (Bs)</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -88,9 +88,9 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Producto</th>
-                                    <th>Precio unitario</th>
+                                    <th>Precio unitario (Bs)</th>
                                     <th style="width: 130px">Cantidad</th>
-                                    <th>Subtotal</th>
+                                    <th>Subtotal (Bs)</th>
                                     <th style="width: 70px">Quitar</th>
                                 </tr>
                             </thead>
@@ -99,15 +99,15 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="3" class="text-end">Total de la venta</th>
-                                    <th id="totalVenta">$0.00</th>
+                                    <th colspan="3" class="text-end">Total de la venta (Bs)</th>
+                                    <th id="totalVenta">Bs 0,00</th>
                                     <th></th>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
 
-                    <h3 class="h6 mt-4">Pago único</h3>
+                    <h3 class="h6 mt-4">Pago único en bolívares</h3>
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label" for="idMetodoPago">Método de pago</label>
@@ -116,29 +116,18 @@
                             </select>
                             <span class="form-text text-danger" id="sidMetodoPago"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="id_moneda">Moneda</label>
-                            <select class="form-select" id="id_moneda" name="id_moneda" required>
-                                <option value="">Seleccione moneda</option>
-                            </select>
-                            <span class="form-text text-danger" id="sid_moneda"></span>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="tasa_cobrada">Tasa (unidades de moneda por cada $1)</label>
-                            <input class="form-control" type="number" id="tasa_cobrada" min="0.0001" max="999999.9999" step="0.0001" required>
-                            <input type="hidden" id="tasa_cobrada_exacta" name="tasa_cobrada">
-                            <span class="form-text text-danger" id="stasa_cobrada"></span>
-                        </div>
                         <div class="col-md-6">
                             <label class="form-label" for="referencia">Referencia de pago (opcional)</label>
                             <input class="form-control" type="text" id="referencia" name="referencia" maxlength="50">
                             <span class="form-text text-danger" id="sreferencia"></span>
                         </div>
                         <div class="col-md-6 d-flex align-items-end">
-                            <p class="mb-2 text-muted">Monto a cobrar: <strong id="montoPago">0,00</strong></p>
+                            <p class="mb-2 text-muted">Monto a cobrar: <strong id="montoPago">Bs 0,00</strong></p>
                         </div>
                     </div>
-                    <p class="small text-muted mt-3 mb-0">Los precios de los productos se toman como base en dólares. El inventario se descuenta al confirmar la venta.</p>
+                    <input type="hidden" id="id_moneda" name="id_moneda">
+                    <input type="hidden" id="tasa_cobrada_exacta" name="tasa_cobrada" value="">
+                    <p class="small text-muted mt-3 mb-0">Los precios del catálogo se guardan en USD; las ventas se cobran en bolívares según la tasa de hoy. La equivalencia en dólares es referencial. El inventario se descuenta al confirmar la venta.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>

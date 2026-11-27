@@ -180,9 +180,9 @@ $ultimoDiaSemana = new DateTimeImmutable($diasSemana[6]['fecha']);
                         <input class="form-control" type="date" id="fechaTasaDia" name="fecha_tasa" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="montoTasaDia">Tasa por cada $1</label>
+                        <label class="form-label" for="montoTasaDia">Tasa en Bs por 1 unidad</label>
                         <input class="form-control" type="number" id="montoTasaDia" name="monto_tasa" min="0.0001" max="999999.9999" step="0.0001" required>
-                        <div class="form-text">Indica cuántos bolívares equivalen a un dólar. Las tasas anteriores se conservarán.</div>
+                        <div class="form-text">Indica cuántos bolívares equivalen a 1 dólar o 1 euro. Las tasas anteriores se conservarán.</div>
                     </div>
                     <div id="mensajeTasaDia" class="alert d-none mb-0" role="status" aria-live="polite"></div>
                 </div>

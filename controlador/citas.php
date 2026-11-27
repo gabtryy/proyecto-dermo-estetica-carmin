@@ -31,7 +31,18 @@ if (!empty($_POST)) {
     }
 
     if ($accion === 'servicios') {
-        echo json_encode(['ok' => true, 'data' => $modelo->listarServicios()]);
+        try {
+            echo json_encode(['ok' => true, 'data' => $modelo->listarServicios()]);
+        } catch (Throwable $e) {
+            error_log('No se pudieron cargar los servicios para citas: ' . $e->getMessage());
+            http_response_code($e instanceof DomainException ? 400 : 500);
+            echo json_encode([
+                'ok' => false,
+                'mensaje' => $e instanceof DomainException
+                    ? $e->getMessage()
+                    : 'No se pudieron cargar los precios de los servicios.',
+            ]);
+        }
         exit;
     }
 
@@ -72,6 +83,17 @@ if (!empty($_POST)) {
     if ($accion === 'eliminar') {
         $modelo->set_idCita((int) ($_POST['idCita'] ?? 0));
         $respuesta = $modelo->eliminar();
+        if (!$respuesta['ok']) {
+            http_response_code(400);
+        }
+        echo json_encode($respuesta);
+        exit;
+    }
+
+    if ($accion === 'actualizarEstado') {
+        $idCita = filter_var($_POST['idCita'] ?? null, FILTER_VALIDATE_INT);
+        $estado = trim((string) ($_POST['estado'] ?? ''));
+        $respuesta = $modelo->actualizarEstado($idCita ?: 0, $estado);
         if (!$respuesta['ok']) {
             http_response_code(400);
         }

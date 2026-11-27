@@ -40,7 +40,9 @@
                 <h2 class="modal-title fs-5" id="modal1Label">Añadir usuario</h2>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <form method="post" id="formulario_usuario" autocomplete="off" novalidate>
+            <form method="post" id="formulario_usuario" autocomplete="off" novalidate
+                  data-confirmacion-registro
+                  data-mensaje-confirmacion="La cédula del usuario no se puede cambiar después de crearlo. Verifica que sea correcta.">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label" for="cedula">Cédula</label>

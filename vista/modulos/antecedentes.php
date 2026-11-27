@@ -10,11 +10,11 @@
         </a>
     </div>
 
-    <h1 class="h3 mb-3">Antecedentes</h1>
+    <h1 class="h3 mb-3">Ficha clínica</h1>
 
     <div class="card shadow-sm border-0">
         <div class="card-header border-bottom py-3">
-            <span class="fw-semibold">Listado de antecedentes por cliente</span>
+            <span class="fw-semibold">Ficha clínica por cliente</span>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -26,7 +26,7 @@
                     <thead>
                         <tr>
                             <th scope="col">Cliente</th>
-                            <th scope="col">Antecedentes</th>
+                            <th scope="col">Ficha clínica</th>
                             <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>
@@ -42,7 +42,7 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header text-bg-info">
-                <h2 class="modal-title fs-5" id="modal1Label">Añadir antecedentes</h2>
+                <h2 class="modal-title fs-5" id="modal1Label">Añadir ficha clínica</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
@@ -62,7 +62,7 @@
 
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Tipos de antecedentes</label>
+                            <label class="form-label fw-semibold">Información clínica</label>
                             <div id="listaTiposAntecedentes" class="border rounded p-3 bg-light"></div>
                         </div>
                     </div>

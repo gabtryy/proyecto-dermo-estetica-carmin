@@ -1,6 +1,7 @@
 <?php
 
 require_once 'modelo/conexion.php';
+require_once 'modelo/productos.php';
 
 class Venta extends Conexion
 {
@@ -138,31 +139,75 @@ class Venta extends Conexion
 
     public function catalogos(): array
     {
+     $productosModelo = new Productos();
+     $productosModelo->asegurarConfiguracionCatalogo();
+     $monedaBolivar = $this->pdo->query(
+         "SELECT id_moneda FROM moneda
+          WHERE LOWER(nombre_moneda) IN ('bolívar', 'bolivar')
+          ORDER BY id_moneda LIMIT 1"
+     )->fetchColumn();
+     $tasaDolarStmt = $this->pdo->query(
+         "SELECT tm.monto_tasa
+          FROM tasa_moneda tm
+          INNER JOIN moneda m ON m.id_moneda = tm.id_moneda
+          WHERE LOWER(m.nombre_moneda) IN ('dólar', 'dolar')
+            AND tm.fecha_tasa = CURDATE()
+          ORDER BY tm.id_tasa DESC LIMIT 1"
+     );
+     $tasaDolar = (float) ($tasaDolarStmt->fetchColumn() ?: 0);
+     $productos = $this->pdo->query(
+          "SELECT p.idProducto, p.nombreProducto, p.marca, p.precioProducto, p.cantidadActual
+           FROM producto p
+           INNER JOIN tipo_producto tp ON tp.id_tipo = p.id_tipo
+           WHERE LOWER(tp.nombre_tipo) IN ('venta', 'ambos')
+           ORDER BY p.nombreProducto"
+     )->fetchAll(PDO::FETCH_ASSOC);
+     foreach ($productos as &$producto) {
+          $producto['precioUSD'] = (float) $producto['precioProducto'];
+          $producto['precioBs'] = $tasaDolar > 0
+              ? round($producto['precioUSD'] * $tasaDolar, 2)
+              : null;
+     }
+     unset($producto);
      return [
          'clientes' => $this->pdo->query(
              "SELECT cedulaCliente, nombreCliente FROM cliente ORDER BY nombreCliente"
          )->fetchAll(PDO::FETCH_ASSOC),
-         'productos' => $this->pdo->query(
-             "SELECT idProducto, nombreProducto, marca, precioProducto, cantidadActual
-             FROM producto ORDER BY nombreProducto"
-         )->fetchAll(PDO::FETCH_ASSOC),
+         'productos' => $productos,
+         'tasaDolar' => $tasaDolar,
+         'idMonedaBolivar' => $monedaBolivar ? (int) $monedaBolivar : null,
          'metodosPago' => $this->pdo->query(
              "SELECT idMetodoPago, nom_MetodoPago FROM metodo_pago ORDER BY nom_MetodoPago"
          )->fetchAll(PDO::FETCH_ASSOC),
-         'monedas' => $this->pdo->query(
-             "SELECT m.id_moneda, m.nombre_moneda, m.simbolo,
-                     CASE WHEN m.id_moneda = 1 THEN COALESCE(
-                         (SELECT tm.monto_tasa FROM tasa_moneda tm
-                          WHERE tm.id_moneda = m.id_moneda
-                          ORDER BY tm.fecha_tasa DESC, tm.id_tasa DESC LIMIT 1), 1)
-                         ELSE (SELECT tm.monto_tasa FROM tasa_moneda tm
-                               WHERE tm.id_moneda = m.id_moneda
-                               ORDER BY tm.fecha_tasa DESC, tm.id_tasa DESC LIMIT 1)
-                     END AS tasa_actual
-              FROM moneda m
-              ORDER BY m.nombre_moneda"
-         )->fetchAll(PDO::FETCH_ASSOC),
      ];
+    }
+
+    private function obtenerIdMonedaBolivar(): int
+    {
+        $stmt = $this->pdo->query(
+            "SELECT id_moneda FROM moneda
+             WHERE LOWER(nombre_moneda) IN ('bolívar', 'bolivar')
+             ORDER BY id_moneda LIMIT 1"
+        );
+        $idMoneda = (int) $stmt->fetchColumn();
+        if ($idMoneda < 1) {
+            throw new DomainException('Registra la moneda Bolívar en Configuración antes de guardar ventas.');
+        }
+        return $idMoneda;
+    }
+
+    private function obtenerTasaDolarHoy(): float
+    {
+        $stmt = $this->pdo->query(
+            "SELECT tm.monto_tasa
+             FROM tasa_moneda tm
+             INNER JOIN moneda m ON m.id_moneda = tm.id_moneda
+             WHERE LOWER(m.nombre_moneda) IN ('dólar', 'dolar')
+               AND tm.fecha_tasa = CURDATE()
+             ORDER BY tm.id_tasa DESC
+             LIMIT 1"
+        );
+        return (float) ($stmt->fetchColumn() ?: 0);
     }
 
     public function obtener(int $idVenta): ?array
@@ -182,7 +227,7 @@ class Venta extends Conexion
 
         $detalle = $this->pdo->prepare(
             "SELECT dv.idProducto, dv.cantidad, dv.precioUnitario, p.nombreProducto,
-                    p.precioProducto, p.cantidadActual
+                   p.precioProducto, p.cantidadActual
              FROM detalle_venta dv
              INNER JOIN producto p ON p.idProducto = dv.idProducto
              WHERE dv.idVenta = :idVenta
@@ -200,12 +245,19 @@ class Venta extends Conexion
         $cedulaCliente = $this->get_cedulaCliente();
         $fechaCompra = $this->get_fechaCompra();
         $idMetodoPago = $this->get_idMetodoPago();
-        $idMoneda = $this->get_idMoneda();
-        $tasa = $this->get_tasaCobrada();
         $referencia = $this->get_referencia();
         $cantidades = $this->get_productos();
 
      try {
+         (new Productos())->asegurarConfiguracionCatalogo();
+         if (!$cantidades) {
+             return ['ok' => false, 'mensaje' => 'Agrega al menos un producto a la venta.'];
+         }
+         $idMoneda = $this->obtenerIdMonedaBolivar();
+         $tasa = $this->obtenerTasaDolarHoy();
+         if ($tasa <= 0) {
+             return ['ok' => false, 'mensaje' => 'Registra la tasa del dólar de hoy en Configuración antes de registrar ventas.'];
+         }
          $this->pdo->beginTransaction();
 
          $verificar = $this->pdo->prepare(
@@ -227,8 +279,11 @@ class Venta extends Conexion
 
          $marcadores = implode(',', array_fill(0, count($cantidades), '?'));
          $bloquear = $this->pdo->prepare(
-             "SELECT idProducto, nombreProducto, precioProducto, cantidadActual
-              FROM producto WHERE idProducto IN ($marcadores) FOR UPDATE"
+             "SELECT p.idProducto, p.nombreProducto, p.precioProducto, p.cantidadActual,
+                     LOWER(tp.nombre_tipo) AS tipoProducto
+              FROM producto p
+              LEFT JOIN tipo_producto tp ON tp.id_tipo = p.id_tipo
+              WHERE p.idProducto IN ($marcadores) FOR UPDATE"
          );
          $bloquear->execute(array_keys($cantidades));
          $productos = $bloquear->fetchAll(PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
@@ -241,14 +296,19 @@ class Venta extends Conexion
          $total = 0.0;
          foreach ($cantidades as $idProducto => $cantidad) {
              $producto = $productos[$idProducto];
-             if ((int) $producto['cantidadActual'] < $cantidad) {
+             if (!in_array($producto['tipoProducto'], ['venta', 'ambos'], true)) {
+                 $this->pdo->rollBack();
+                 return ['ok' => false, 'mensaje' => 'Solo se pueden vender productos clasificados como Venta o Ambos.'];
+             }
+             if ((float) $producto['cantidadActual'] < $cantidad) {
                  $this->pdo->rollBack();
                  return ['ok' => false, 'mensaje' => 'Inventario insuficiente para ' . $producto['nombreProducto'] . '.'];
              }
-             $total += (float) $producto['precioProducto'] * $cantidad;
+             $productos[$idProducto]['precioVentaBs'] = round((float) $producto['precioProducto'] * $tasa, 2);
+             $total += $productos[$idProducto]['precioVentaBs'] * $cantidad;
          }
          $total = round($total, 2);
-         $montoPagado = round($total * $tasa, 2);
+         $montoPagado = $total;
 
          $insertarVenta = $this->pdo->prepare(
              "INSERT INTO venta (cedulaCliente, fechaCompra) VALUES (:cedulaCliente, :fechaCompra)"
@@ -274,7 +334,7 @@ class Venta extends Conexion
                  ':idVenta' => $idVenta,
                  ':idProducto' => $idProducto,
                  ':cantidad' => $cantidad,
-                 ':precioUnitario' => $productos[$idProducto]['precioProducto'],
+                 ':precioUnitario' => $productos[$idProducto]['precioVentaBs'],
              ]);
              $actualizarStock->execute([
                  ':cantidad' => $cantidad,
@@ -306,7 +366,12 @@ class Venta extends Conexion
              $this->pdo->rollBack();
          }
          error_log('No se pudo registrar la venta: ' . $e->getMessage());
-         return ['ok' => false, 'mensaje' => 'No se pudo registrar la venta. Verifique los datos e intente nuevamente.'];
+         return [
+             'ok' => false,
+             'mensaje' => $e instanceof DomainException
+                 ? $e->getMessage()
+                 : 'No se pudo registrar la venta. Verifique los datos e intente nuevamente.',
+         ];
      }
     }
 
@@ -317,12 +382,19 @@ class Venta extends Conexion
         $idVenta = $this->get_idVenta();
         $cedulaCliente = $this->get_cedulaCliente();
         $idMetodoPago = $this->get_idMetodoPago();
-        $idMoneda = $this->get_idMoneda();
-        $tasa = $this->get_tasaCobrada();
         $referencia = $this->get_referencia();
         $cantidades = $this->get_productos();
 
         try {
+            (new Productos())->asegurarConfiguracionCatalogo();
+            if (!$cantidades) {
+                return ['ok' => false, 'mensaje' => 'La venta debe conservar al menos un producto.'];
+            }
+            $idMoneda = $this->obtenerIdMonedaBolivar();
+            $tasa = $this->obtenerTasaDolarHoy();
+            if ($tasa <= 0) {
+                return ['ok' => false, 'mensaje' => 'Registra la tasa del dólar de hoy en Configuración antes de modificar ventas.'];
+            }
             $this->pdo->beginTransaction();
 
             $ventaStmt = $this->pdo->prepare(
@@ -365,8 +437,11 @@ class Venta extends Conexion
             sort($idsProducto, SORT_NUMERIC);
             $marcadores = implode(',', array_fill(0, count($idsProducto), '?'));
             $bloquear = $this->pdo->prepare(
-                "SELECT idProducto, nombreProducto, precioProducto, cantidadActual
-                 FROM producto WHERE idProducto IN ($marcadores) ORDER BY idProducto FOR UPDATE"
+                "SELECT p.idProducto, p.nombreProducto, p.precioProducto, p.cantidadActual,
+                        LOWER(tp.nombre_tipo) AS tipoProducto
+                 FROM producto p
+                 LEFT JOIN tipo_producto tp ON tp.id_tipo = p.id_tipo
+                 WHERE p.idProducto IN ($marcadores) ORDER BY p.idProducto FOR UPDATE"
             );
             $bloquear->execute($idsProducto);
             $productos = $bloquear->fetchAll(PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
@@ -377,20 +452,27 @@ class Venta extends Conexion
 
             $total = 0.0;
             foreach ($cantidades as $idProducto => $cantidad) {
-                $disponiblesTrasRestaurar = (int) $productos[$idProducto]['cantidadActual']
+                if (!in_array($productos[$idProducto]['tipoProducto'], ['venta', 'ambos'], true)) {
+                    $cantidadAnterior = (int) ($detalleAnterior[$idProducto]['cantidad'] ?? 0);
+                    if ($cantidadAnterior < 1 || $cantidad > $cantidadAnterior) {
+                        $this->pdo->rollBack();
+                        return ['ok' => false, 'mensaje' => 'Solo se pueden agregar productos clasificados como Venta o Ambos.'];
+                    }
+                }
+                $disponiblesTrasRestaurar = (float) $productos[$idProducto]['cantidadActual']
                     + (int) ($detalleAnterior[$idProducto]['cantidad'] ?? 0);
                 if ($disponiblesTrasRestaurar < $cantidad) {
                     $this->pdo->rollBack();
                     return ['ok' => false, 'mensaje' => 'Inventario insuficiente para ' . $productos[$idProducto]['nombreProducto'] . '.'];
                 }
-                $precio = isset($detalleAnterior[$idProducto])
+                $precioBs = isset($detalleAnterior[$idProducto])
                     ? (float) $detalleAnterior[$idProducto]['precioUnitario']
-                    : (float) $productos[$idProducto]['precioProducto'];
-                $productos[$idProducto]['precioVenta'] = $precio;
-                $total += $precio * $cantidad;
+                    : round((float) $productos[$idProducto]['precioProducto'] * $tasa, 2);
+                $productos[$idProducto]['precioVentaBs'] = $precioBs;
+                $total += $precioBs * $cantidad;
             }
             $total = round($total, 2);
-            $montoPagado = round($total * $tasa, 2);
+            $montoPagado = $total;
 
             $restaurarStock = $this->pdo->prepare(
                 "UPDATE producto SET cantidadActual = cantidadActual + :cantidad WHERE idProducto = :idProducto"
@@ -427,7 +509,7 @@ class Venta extends Conexion
                     ':idVenta' => $idVenta,
                     ':idProducto' => $idProducto,
                     ':cantidad' => $cantidad,
-                    ':precioUnitario' => $productos[$idProducto]['precioVenta'],
+                    ':precioUnitario' => $productos[$idProducto]['precioVentaBs'],
                 ]);
                 $descontarStock->execute([
                     ':cantidad' => $cantidad,
@@ -481,7 +563,12 @@ class Venta extends Conexion
                 $this->pdo->rollBack();
             }
             error_log('No se pudo modificar la venta: ' . $e->getMessage());
-            return ['ok' => false, 'mensaje' => 'No se pudo modificar la venta. Verifique los datos e intente nuevamente.'];
+            return [
+                'ok' => false,
+                'mensaje' => $e instanceof DomainException
+                    ? $e->getMessage()
+                    : 'No se pudo modificar la venta. Verifique los datos e intente nuevamente.',
+            ];
         }
     }
 

@@ -64,27 +64,38 @@ function cargarCatalogos() {
 
         actualizarTotal();
     }).fail(function () {
-        Swal.fire('Error', 'No se pudieron cargar los datos de clientes, esteticistas o servicios.', 'error');
+        var xhr = arguments[0];
+        var mensaje = xhr && xhr.responseJSON && xhr.responseJSON.mensaje
+            ? xhr.responseJSON.mensaje
+            : 'No se pudieron cargar los datos de clientes, esteticistas o servicios.';
+        Swal.fire('Error', mensaje, 'error');
     });
 }
 
+var tasaDolarCita = 0;
+
 function renderServicios(selector, servicios, seleccionados) {
     var $lista = $(selector).empty();
+    tasaDolarCita = servicios.length ? Number(servicios[0].tasaDolar) || 0 : 0;
     if (!servicios.length) {
         $lista.append('<div class="col-12 text-muted">No hay servicios registrados.</div>');
         return;
     }
 
     servicios.forEach(function (servicio) {
-        var precio = Number(servicio.precio || 0);
+        var precioBs = servicio.precioBs === null ? null : Number(servicio.precioBs);
         var seleccionado = seleccionados.indexOf(String(servicio.idServicio)) !== -1 ? ' checked' : '';
         var card = $(
             '<div class="col-md-6">' +
             '  <label class="border rounded p-3 d-flex align-items-start gap-2 h-100 bg-light">' +
-            '    <input type="checkbox" class="form-check-input mt-1 servicio-check" name="servicios[]" value="' + (servicio.idServicio || '') + '" data-precio="' + precio + '"' + seleccionado + '>' +
+            '    <input type="checkbox" class="form-check-input mt-1 servicio-check" name="servicios[]" value="' + (servicio.idServicio || '') + '" data-precio="' + (precioBs === null ? '' : precioBs) + '"' + seleccionado + '>' +
             '    <span><strong>' + (servicio.nombreServicio || '') + '</strong><br>' +
             '      <small class="text-muted">' + (servicio.descripcion || 'Sin descripción') + '</small><br>' +
-            '      <span class="text-success fw-semibold">$' + precio.toFixed(2) + '</span></span>' +
+            '      <span class="text-success fw-semibold">' +
+            (precioBs === null
+                ? 'Tasa USD de hoy no registrada'
+                : 'Bs ' + precioBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})) +
+            '</span></span>' +
             '  </label>' +
             '</div>'
         );
@@ -97,7 +108,9 @@ function actualizarTotal() {
     $('#lista-servicios .servicio-check:checked').each(function () {
         total += Number($(this).data('precio') || 0);
     });
-    $('#total-cita').text('$' + total.toFixed(2));
+    $('#total-cita').text(tasaDolarCita <= 0
+        ? 'Tasa USD de hoy no registrada'
+        : 'Bs ' + total.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 }
 
 function fechaLocalActual() {
@@ -125,28 +138,66 @@ function consultar() {
         $tbody.empty();
 
         if (!lista.length) {
-            $tbody.append('<tr><td colspan="6" class="text-center text-muted">Sin registros</td></tr>');
+            $tbody.append('<tr><td colspan="7" class="text-center text-muted">Sin registros</td></tr>');
             return;
         }
 
         lista.forEach(function (item) {
-            var fila = ''
-                + '<tr>'
-                + '  <td>' + (item.nombreCliente || '') + '</td>'
-                + '  <td>' + (item.nombreEsteticista || '') + '</td>'
-                + '  <td>' + (item.fecha_cita || '') + '</td>'
-                + '  <td>' + (item.hora || '') + '</td>'
-                + '  <td>' + (item.servicios || 'Sin servicios') + '</td>'
-                + '  <td class="text-nowrap">'
-                + '    <button type="button" class="btn btn-sm btn-purple me-1 btn-editar-cita" title="Modificar" data-id-cita="' + item.idCita + '"><i class="fas fa-edit"></i></button>'
-                + '    <button type="button" class="btn btn-sm btn-danger btn-eliminar-cita" title="Eliminar" data-id-cita="' + item.idCita + '"><i class="fas fa-trash-alt"></i></button>'
-                + '  </td>'
-                + '</tr>';
-            $tbody.append(fila);
+            var estado = String(item.estado_cita || 'pendiente').toLowerCase();
+            var $fila = $('<tr>');
+            $fila.append($('<td>').text(item.nombreCliente || ''));
+            $fila.append($('<td>').text(item.nombreEsteticista || ''));
+            $fila.append($('<td>').text(item.fecha_cita || ''));
+            $fila.append($('<td>').text(item.hora || ''));
+            $fila.append($('<td>').text(item.servicios || 'Sin servicios'));
+            $fila.append($('<td>').append(
+                $('<span>').addClass('badge ' + ({
+                    finalizada: 'text-bg-success',
+                    pagada: 'text-bg-primary',
+                    cancelada: 'text-bg-danger'
+                }[estado] || 'text-bg-secondary')).text(estado.charAt(0).toUpperCase() + estado.slice(1))
+            ));
+
+            var $acciones = $('<td>').addClass('text-nowrap');
+            if (!['pagada', 'cancelada', 'finalizada'].includes(estado)) {
+                $acciones.append($('<button>').attr({
+                    type: 'button',
+                    title: 'Modificar cita',
+                    'data-id-cita': item.idCita
+                }).addClass('btn btn-sm btn-purple me-1 btn-editar-cita')
+                    .append($('<i>').addClass('fas fa-edit')));
+                $acciones.append(
+                    crearBotonEstado(item.idCita, 'finalizada', 'Finalizar', 'fa-check', 'btn-success'),
+                    crearBotonEstado(item.idCita, 'cancelada', 'Cancelar cita', 'fa-ban', 'btn-warning')
+                );
+                $acciones.append($('<button>').attr({
+                    type: 'button',
+                    title: 'Eliminar cita',
+                    'data-id-cita': item.idCita
+                }).addClass('btn btn-sm btn-danger btn-eliminar-cita ms-1')
+                    .append($('<i>').addClass('fas fa-trash-alt')));
+            } else if (estado === 'finalizada') {
+                $acciones.append(
+                    crearBotonEstado(item.idCita, 'pagada', 'Marcar pagada', 'fa-coins', 'btn-primary')
+                );
+            }
+            $fila.append($acciones);
+            $tbody.append($fila);
         });
     }, function () {
-        $('#resultadoconsulta').html('<tr><td colspan="6" class="text-center text-danger">No se pudo consultar las citas.</td></tr>');
+        $('#resultadoconsulta').html('<tr><td colspan="7" class="text-center text-danger">No se pudo consultar las citas.</td></tr>');
     });
+}
+
+function crearBotonEstado(idCita, estado, etiqueta, icono, clase) {
+    return $('<button>').attr({
+        type: 'button',
+        title: etiqueta,
+        'aria-label': etiqueta + ' para la cita ' + idCita,
+        'data-id-cita': idCita,
+        'data-estado': estado
+    }).addClass('btn btn-sm ' + clase + ' me-1 btn-estado-cita')
+        .append($('<i>').addClass('fas ' + icono));
 }
 
 $(document).ready(function () {
@@ -183,6 +234,38 @@ $(document).ready(function () {
                 Swal.fire('Éxito', respuesta.mensaje, 'success');
                 consultar();
             }, function (mensaje) { Swal.fire('Error', mensaje, 'error'); });
+        });
+    });
+
+    $('#resultadoconsulta').on('click', '.btn-estado-cita', function () {
+        var idCita = $(this).attr('data-id-cita');
+        var estado = $(this).attr('data-estado');
+        var etiquetas = {
+            finalizada: 'finalizada',
+            cancelada: 'cancelada',
+            pagada: 'pagada'
+        };
+        Swal.fire({
+            title: '¿Marcar cita como ' + etiquetas[estado] + '?',
+            text: estado === 'finalizada'
+                ? 'Se descontarán del inventario los insumos usados por los servicios de esta cita.'
+                : 'Confirma que deseas actualizar el estado de esta cita.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, actualizar',
+            cancelButtonText: 'Volver'
+        }).then(function (resultado) {
+            if (!resultado.isConfirmed) return;
+            var datos = new FormData();
+            datos.append('accion', 'actualizarEstado');
+            datos.append('idCita', idCita);
+            datos.append('estado', estado);
+            enviaAjax(datos, function (respuesta) {
+                Swal.fire('Estado actualizado', respuesta.mensaje, 'success');
+                consultar();
+            }, function (mensaje) {
+                Swal.fire('Error', mensaje, 'error');
+            });
         });
     });
 

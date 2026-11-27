@@ -53,7 +53,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form method="post" id="formulario_esteticista" autocomplete="off" novalidate>
+                <form method="post" id="formulario_esteticista" autocomplete="off" novalidate
+                      data-confirmacion-registro
+                      data-mensaje-confirmacion="La cédula de la esteticista no se puede cambiar después de registrarla. Verifica que sea correcta.">
                     <input type="hidden" name="accion" id="accion" value="">
                     <div class="row g-3">
                         <div class="col-md-4">

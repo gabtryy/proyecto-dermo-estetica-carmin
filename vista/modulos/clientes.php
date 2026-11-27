@@ -49,7 +49,9 @@
                 <h2 class="modal-title fs-5" id="modal1Label">Añadir cliente</h2>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <form method="post" id="formulario_cliente" autocomplete="off" novalidate>
+            <form method="post" id="formulario_cliente" autocomplete="off" novalidate
+                  data-confirmacion-registro
+                  data-mensaje-confirmacion="La cédula del cliente no se puede cambiar después de registrarlo. Verifica que sea correcta.">
                 <div class="modal-body">
                     <input type="hidden" name="accion" id="accion" value="">
 

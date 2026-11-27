@@ -4,6 +4,8 @@ $(document).ready(function () {
     var preciosCarrito = {};
     var cantidadesOriginales = {};
     var idVentaEnEdicion = null;
+    var tasaDolar = 0;
+    var idMonedaBolivar = '';
     var catalogosListos = $.Deferred();
     var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalVenta'));
 
@@ -23,12 +25,6 @@ $(document).ready(function () {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
-    }
-
-    function formatearTasa(valor) {
-        return valor === '' || valor === null || valor === undefined
-            ? ''
-            : Number(valor).toFixed(4).replace(/\.?0+$/, '');
     }
 
     function fechaHoraLocal() {
@@ -54,38 +50,41 @@ $(document).ready(function () {
             productosDisponibles = {};
             $('#cedulaCliente').empty().append($('<option>').val('').text('Seleccione cliente'));
             $('#idMetodoPago').empty().append($('<option>').val('').text('Seleccione método'));
-            $('#id_moneda').empty().append($('<option>').val('').text('Seleccione moneda'));
             $('#productoVenta').empty().append($('<option>').val('').text('Seleccione producto'));
+            tasaDolar = Number(data.tasaDolar) || 0;
+            idMonedaBolivar = data.idMonedaBolivar ? String(data.idMonedaBolivar) : '';
+            $('#id_moneda').val(idMonedaBolivar);
+            $('#tasa_cobrada_exacta').val(tasaDolar > 0 ? tasaDolar : '');
             data.clientes.forEach(function (cliente) {
                 $('#cedulaCliente').append($('<option>').val(cliente.cedulaCliente).text(cliente.nombreCliente));
             });
             data.metodosPago.forEach(function (metodo) {
                 $('#idMetodoPago').append($('<option>').val(metodo.idMetodoPago).text(metodo.nom_MetodoPago));
             });
-            data.monedas.forEach(function (moneda) {
-                $('#id_moneda').append(
-                    $('<option>')
-                        .val(moneda.id_moneda)
-                        .attr('data-tasa', moneda.tasa_actual === null ? '' : moneda.tasa_actual)
-                        .text(moneda.nombre_moneda + ' (' + moneda.simbolo + ')')
-                );
-            });
             data.productos.forEach(function (producto) {
                 producto.idProducto = Number(producto.idProducto);
                 producto.precioProducto = Number(producto.precioProducto);
+                producto.precioUSD = Number(producto.precioUSD);
+                producto.precioBs = producto.precioBs === null ? null : Number(producto.precioBs);
                 producto.cantidadActual = Number(producto.cantidadActual);
                 productosDisponibles[producto.idProducto] = producto;
                 $('#productoVenta').append(
                     $('<option>').val(producto.idProducto).text(
-                        producto.nombreProducto + ' — $' + dinero(producto.precioProducto) +
+                        producto.nombreProducto + ' — ' +
+                        (producto.precioBs === null
+                            ? 'Bs — tasa de hoy no registrada'
+                            : 'Bs ' + dinero(producto.precioBs) + ' ($ ' + dinero(producto.precioUSD) + ')') +
                         ' (disponibles: ' + producto.cantidadActual + ')'
                     )
                 );
             });
             catalogosListos.resolve();
-        }, function () {
+        }, function (xhr) {
             catalogosListos.reject();
-            Swal.fire('Error', 'No fue posible cargar clientes, productos y métodos de pago.', 'error');
+            var mensaje = xhr.responseJSON && xhr.responseJSON.mensaje
+                ? xhr.responseJSON.mensaje
+                : 'No fue posible cargar clientes, productos y métodos de pago.';
+            Swal.fire('Error', mensaje, 'error');
         });
     }
 
@@ -107,13 +106,13 @@ $(document).ready(function () {
             cantidadItems.forEach(function (id) {
                 var producto = productosDisponibles[id];
                 var cantidad = carrito[id];
-                var precio = preciosCarrito[id] === undefined ? producto.precioProducto : preciosCarrito[id];
+                var precio = preciosCarrito[id] === undefined ? producto.precioBs : preciosCarrito[id];
                 var subtotal = precio * cantidad;
                 total += subtotal;
 
                 var $fila = $('<tr>');
                 $fila.append($('<td>').text(producto.nombreProducto));
-                $fila.append($('<td>').text('$' + dinero(precio)));
+                $fila.append($('<td>').text('Bs ' + dinero(precio)));
                 $fila.append($('<td>').append(
                     $('<input>').attr({type: 'number', min: 1, max: stockDisponible(id)})
                         .addClass('form-control form-control-sm cantidad-carrito')
@@ -122,7 +121,7 @@ $(document).ready(function () {
                 ).append(
                     $('<span>').addClass('form-text text-danger error-cantidad-carrito')
                 ));
-                $fila.append($('<td>').text('$' + dinero(subtotal)));
+                $fila.append($('<td>').text('Bs ' + dinero(subtotal)));
                 $fila.append($('<td>').append(
                     $('<button>').attr({type: 'button', 'data-id': id, 'aria-label': 'Quitar producto'})
                         .addClass('btn btn-sm btn-outline-danger quitar-producto')
@@ -132,23 +131,24 @@ $(document).ready(function () {
             });
         }
 
-        $('#totalVenta').text('$' + dinero(total));
+        $('#totalVenta').text('Bs ' + dinero(total));
         actualizarMonto(total);
     }
 
     function totalCarrito() {
         return Object.keys(carrito).reduce(function (suma, id) {
             var precio = preciosCarrito[id] === undefined
-                ? productosDisponibles[id].precioProducto
+                ? productosDisponibles[id].precioBs
                 : preciosCarrito[id];
             return suma + precio * carrito[id];
         }, 0);
     }
 
     function actualizarMonto(total) {
-        var tasa = Number($('#tasa_cobrada_exacta').val()) || 0;
-        var moneda = $('#id_moneda option:selected').text();
-        $('#montoPago').text((moneda && !$('#id_moneda').val() ? '' : moneda + ' ') + dinero(total * tasa));
+        var equivalenciaUSD = tasaDolar > 0
+            ? ' (≈ $ ' + dinero(total / tasaDolar) + ')'
+            : '';
+        $('#montoPago').text('Bs ' + dinero(total) + equivalenciaUSD);
     }
 
     function consultarVentas() {
@@ -193,10 +193,10 @@ $(document).ready(function () {
                 $fila.append($('<td>').text(venta.fechaCompra));
                 $fila.append($('<td>').text(venta.nombreCliente));
                 $fila.append($('<td>').text(venta.productos));
-                $fila.append($('<td>').text('$' + dinero(venta.totalVenta)));
+                $fila.append($('<td>').text('Bs ' + dinero(venta.totalVenta)));
                 $fila.append($('<td>').text(venta.nom_MetodoPago || '—'));
                 $fila.append($('<td>').text(
-                    venta.monto_pagado === null ? '—' : (venta.simbolo || '') + ' ' + dinero(venta.monto_pagado)
+                    venta.monto_pagado === null ? '—' : 'Bs ' + dinero(venta.monto_pagado)
                 ));
                 $fila.append($acciones);
                 $tbody.append($fila);
@@ -217,9 +217,12 @@ $(document).ready(function () {
         carrito = {};
         preciosCarrito = {};
         cantidadesOriginales = {};
+        $('#productoVenta option[data-historico="true"]').each(function () {
+            delete productosDisponibles[String(this.value)];
+        }).remove();
         $('#formVenta')[0].reset();
-        $('#tasa_cobrada').val('');
-        $('#tasa_cobrada_exacta').val('');
+        $('#id_moneda').val(idMonedaBolivar);
+        $('#tasa_cobrada_exacta').val(tasaDolar > 0 ? tasaDolar : '');
         $('#fechaCompra').val(fechaHoraLocal());
         $('#formVenta .is-invalid').removeClass('is-invalid');
         $('#formVenta .form-text.text-danger').text('');
@@ -250,8 +253,6 @@ $(document).ready(function () {
             error = 'Seleccione un cliente válido.';
         } else if (campo === 'idMetodoPago' && !seleccionarValido('#idMetodoPago')) {
             error = 'Seleccione un método de pago válido.';
-        } else if (campo === 'id_moneda' && !seleccionarValido('#id_moneda')) {
-            error = 'Seleccione una moneda válida.';
         } else if (campo === 'fechaCompra') {
             var fechaEntrada = $('#fechaCompra').val();
             var partesFecha = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(fechaEntrada);
@@ -276,18 +277,6 @@ $(document).ready(function () {
             if (!partesFecha) {
                 error = 'Ingrese una fecha y hora de venta válida.';
             }
-        } else if (campo === 'tasa_cobrada') {
-            var tasa = $('#tasa_cobrada').val().trim();
-            var tasaNumerica = Number(tasa);
-            if (
-                !/^\d+(?:\.\d{1,4})?$/.test(tasa) ||
-                !Number.isFinite(tasaNumerica) ||
-                tasaNumerica <= 0 ||
-                tasaNumerica > 999999.9999
-            ) {
-                error = 'La tasa debe ser mayor que cero y tener hasta 4 decimales.';
-            }
-            $('#tasa_cobrada_exacta').val(tasa);
         } else if (campo === 'referencia') {
             if (new TextEncoder().encode($('#referencia').val()).length > 50) {
                 error = 'La referencia no puede superar los 50 caracteres.';
@@ -303,7 +292,7 @@ $(document).ready(function () {
             if (cantidad && (!/^\d+$/.test(cantidad) || Number(cantidad) < 1)) {
                 error = 'Ingrese una cantidad entera mayor que cero.';
             } else if (productoSeleccionado && (!cantidad || Number(cantidad) > stockDisponible(productoSeleccionado.idProducto))) {
-                error = 'La cantidad debe estar entre 1 y las unidades disponibles.';
+                error = 'La cantidad supera la existencia disponible del producto.';
             }
         }
         return mostrarErrorVenta(campo, error);
@@ -323,7 +312,7 @@ $(document).ready(function () {
     }
 
     function validarFormularioVenta() {
-        var campos = ['cedulaCliente', 'fechaCompra', 'idMetodoPago', 'id_moneda', 'tasa_cobrada', 'referencia'];
+        var campos = ['cedulaCliente', 'fechaCompra', 'idMetodoPago', 'referencia'];
         var valido = true;
         campos.forEach(function (campo) {
             if (!validarCampoVenta(campo)) {
@@ -331,6 +320,10 @@ $(document).ready(function () {
             }
         });
         var carritoValido = Object.keys(carrito).length > 0;
+        if (tasaDolar <= 0) {
+            valido = false;
+            Swal.fire('Tasa no registrada', 'Registra la tasa del dólar de hoy en Configuración antes de guardar la venta.', 'warning');
+        }
 
         $('#sproductosVenta').text(carritoValido ? '' : 'Agregue al menos un producto a la venta.');
         Object.keys(carrito).forEach(function (id) {
@@ -381,23 +374,8 @@ $(document).ready(function () {
         modal.show();
     });
 
-    $('#id_moneda').on('change', function () {
-        var tasa = $(this).find(':selected').attr('data-tasa') || '';
-        $('#tasa_cobrada').val(formatearTasa(tasa));
-        $('#tasa_cobrada_exacta').val(tasa);
-        validarCampoVenta('id_moneda');
-        validarCampoVenta('tasa_cobrada');
-        actualizarMonto(totalCarrito());
-    });
-
-    $('#tasa_cobrada').on('input', function () {
-        $('#tasa_cobrada_exacta').val($(this).val());
-        validarCampoVenta('tasa_cobrada');
-        actualizarMonto(totalCarrito());
-    });
-
     $('#formVenta').on('input change', 'input, select', function () {
-        if (['cedulaCliente', 'fechaCompra', 'idMetodoPago', 'id_moneda', 'tasa_cobrada', 'referencia'].indexOf(this.id) !== -1) {
+        if (['cedulaCliente', 'fechaCompra', 'idMetodoPago', 'referencia'].indexOf(this.id) !== -1) {
             validarCampoVenta(this.id);
         }
     });
@@ -422,6 +400,10 @@ $(document).ready(function () {
             $('#productoVenta').trigger('focus');
             return;
         }
+        if (tasaDolar <= 0 || producto.precioBs === null) {
+            Swal.fire('Tasa no registrada', 'Registra la tasa del dólar de hoy en Configuración para calcular el precio en bolívares.', 'warning');
+            return;
+        }
         if (!validarCampoVenta('cantidadVenta')) {
             $('#cantidadVenta').trigger('focus');
             return;
@@ -435,7 +417,7 @@ $(document).ready(function () {
         }
         carrito[id] = nuevaCantidad;
         if (preciosCarrito[id] === undefined) {
-            preciosCarrito[id] = producto.precioProducto;
+            preciosCarrito[id] = producto.precioBs;
         }
         $('#productoVenta').val('');
         $('#cantidadVenta').val(1);
@@ -488,6 +470,23 @@ $(document).ready(function () {
                 cantidadesOriginales = {};
                 (venta.productos || []).forEach(function (item) {
                     var id = String(item.idProducto);
+                    if (!productosDisponibles[id]) {
+                        productosDisponibles[id] = {
+                            idProducto: Number(item.idProducto),
+                            nombreProducto: item.nombreProducto,
+                            precioProducto: Number(item.precioProducto),
+                            precioUSD: Number(item.precioProducto),
+                            precioBs: tasaDolar > 0
+                                ? Number(item.precioProducto) * tasaDolar
+                                : null,
+                            cantidadActual: Number(item.cantidadActual)
+                        };
+                        $('#productoVenta').append(
+                            $('<option>').val(id).attr('data-historico', 'true').text(
+                                item.nombreProducto + ' — producto de una venta anterior'
+                            )
+                        );
+                    }
                     carrito[id] = Number(item.cantidad);
                     preciosCarrito[id] = Number(item.precioUnitario);
                     cantidadesOriginales[id] = Number(item.cantidad);
@@ -495,10 +494,8 @@ $(document).ready(function () {
                 $('#cedulaCliente').val(venta.cedulaCliente);
                 $('#fechaCompra').val(String(venta.fechaCompra).replace(' ', 'T').slice(0, 16));
                 $('#idMetodoPago').val(venta.idMetodoPago || '');
-                $('#id_moneda').val(venta.id_moneda || '');
-                var tasa = venta.tasa_cobrada || '1';
-                $('#tasa_cobrada').val(formatearTasa(tasa));
-                $('#tasa_cobrada_exacta').val(tasa);
+                $('#id_moneda').val(idMonedaBolivar);
+                $('#tasa_cobrada_exacta').val(tasaDolar > 0 ? tasaDolar : '');
                 $('#referencia').val(venta.referencia || '');
                 $('#modalVentaLabel').text('Editar venta #' + venta.idVenta);
                 $('#guardarVenta').text('Guardar cambios');

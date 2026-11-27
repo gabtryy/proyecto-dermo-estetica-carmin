@@ -33,29 +33,47 @@ if ($accion !== '') {
 
     switch ($accion) {
         case 'consultar':
-          
-            $datos = $modelo->listar();
-            
-            if (is_array($datos)) {
-                echo json_encode([
-                    'ok' => true,
-                    'data' => $datos
-                ]);
-            } else {
+            try {
+                echo json_encode(['ok' => true, 'data' => $modelo->listar()]);
+            } catch (Throwable $e) {
+                error_log('No se pudieron consultar los servicios: ' . $e->getMessage());
+                http_response_code($e instanceof DomainException ? 400 : 500);
                 echo json_encode([
                     'ok' => false,
-                    'mensaje' => 'No se pudieron extraer los servicios registrados.',
-                    'data' => []
+                    'mensaje' => $e instanceof DomainException
+                        ? $e->getMessage()
+                        : 'No se pudieron extraer los servicios registrados.',
+                ]);
+            }
+            break;
+
+        case 'catalogos':
+            try {
+                echo json_encode(['ok' => true, 'data' => $modelo->catalogosProductosServicio()]);
+            } catch (Throwable $e) {
+                error_log('No se pudieron cargar los insumos de servicios: ' . $e->getMessage());
+                http_response_code($e instanceof DomainException ? 400 : 500);
+                echo json_encode([
+                    'ok' => false,
+                    'mensaje' => $e instanceof DomainException
+                        ? $e->getMessage()
+                        : 'No se pudieron cargar los productos para servicios.',
                 ]);
             }
             break;
 
         case 'incluir':
+            $productosServicio = json_decode((string) ($_POST['productosServicio'] ?? '{}'), true);
+            if (!is_array($productosServicio)) {
+                http_response_code(400);
+                echo json_encode(['ok' => false, 'mensaje' => 'La lista de insumos del servicio no es válida.']);
+                break;
+            }
             $modelo->set_nombreServicio(trim($_POST['nombreServicio'] ?? ''));
             $modelo->set_precio(trim($_POST['precio'] ?? ''));
             $modelo->set_descripcion(trim($_POST['descripcion'] ?? ''));
+            $modelo->set_productosServicio($productosServicio);
 
-         
             $res = $modelo->insertar(); 
             
             if ($res['resultado'] === 'exito') {
@@ -67,10 +85,17 @@ if ($accion !== '') {
             break;
 
         case 'modificar':
+            $productosServicio = json_decode((string) ($_POST['productosServicio'] ?? '{}'), true);
+            if (!is_array($productosServicio)) {
+                http_response_code(400);
+                echo json_encode(['ok' => false, 'mensaje' => 'La lista de insumos del servicio no es válida.']);
+                break;
+            }
             $modelo->set_idServicio(trim($_POST['idServicio'] ?? ''));
             $modelo->set_nombreServicio(trim($_POST['nombreServicio'] ?? ''));
             $modelo->set_precio(trim($_POST['precio'] ?? ''));
             $modelo->set_descripcion(trim($_POST['descripcion'] ?? ''));
+            $modelo->set_productosServicio($productosServicio);
 
             $res = $modelo->modificar(); 
 

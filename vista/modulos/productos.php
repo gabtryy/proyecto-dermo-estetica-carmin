@@ -16,6 +16,7 @@
         <div class="card-header border-bottom py-3">
             <span class="fw-semibold">Listado de productos</span>
         </div>
+        <div id="alertaExistencias" class="alert alert-warning mx-3 mt-3 d-none" role="alert" aria-live="polite"></div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table
@@ -27,10 +28,10 @@
                         <tr>
                             <th scope="col">Nombre del producto</th>
                             <th scope="col">Marca</th>
-                            <th scope="col">Precio del producto</th>
+                            <th scope="col">Precio actual (Bs) / Base (USD)</th>
                             <th scope="col">Proveedor</th>
                             <th scope="col">Cantidad actual</th>
-                            <th scope="col">Tipo de producto</th>
+                            <th scope="col">Uso del producto</th>
                             <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
                     </thead>
@@ -79,20 +80,22 @@
                     
                     <div class="row g-3 mt-0">
                         <div class="col-md-4">
-                            <label class="form-label" for="precioProducto">Precio del producto</label>
+                            <label class="form-label" for="precioProducto">Precio del producto (USD)</label>
                             <input class="form-control" type="number" min="0.01" max="99999999.99" step="0.01" id="precioProducto" name="precioProducto" required>
+                            <div class="form-text" id="equivalenciaUSD">Registra la tasa del dólar de hoy para calcular el precio en bolívares.</div>
                             <span class="form-text text-danger" id="sprecioProducto"></span>
                         </div>
                         <div class="col-md-8">
-                            <label class="form-label" for="cantidadActual">Cantidad actual</label>
+                            <label class="form-label" for="cantidadActual">Existencia (unidades)</label>
                             <input class="form-control" type="number" min="0" max="2147483647" step="1" id="cantidadActual" name="cantidadActual" required>
+                            <div class="form-text" id="ayudaCantidadActual">Ingresa unidades enteras. Las fracciones se generan al consumir insumos en servicios.</div>
                             <span class="form-text text-danger" id="scantidadActual"></span>
                         </div>
                     </div>
                     
                     <div class="row g-3 mt-0">
                         <div class="col-md-6">
-                            <label class="form-label" for="tipoProducto">Tipo de producto</label>
+                            <label class="form-label" for="tipoProducto">Uso del producto</label>
                             <select class="form-select" id="tipoProducto" name="tipoProducto" required>
                                 <option value="">Cargando tipos de producto...</option>
                             </select>

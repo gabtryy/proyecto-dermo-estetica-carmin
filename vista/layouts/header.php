@@ -77,7 +77,7 @@ $rolUsuario = $_SESSION['nivel'];
             <li class="nav-item mb-1">
                 <a class="btn btn-outline-purple w-100 text-start" href="index.php?pagina=antecedentes">
                     <i class="fas fa-notes-medical me-2"></i>
-                    Antecedentes
+                    Ficha clínica
                 </a>
             </li>
             <li class="nav-item mb-1">

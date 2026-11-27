@@ -19,7 +19,8 @@
     };
 
     function esTablaDeListado(tabla) {
-        return $(tabla).closest('.modal').length === 0;
+        return $(tabla).closest('.modal').length === 0 &&
+            !$(tabla).hasClass('esteticistas-table');
     }
 
     function opcionesTabla(tabla) {

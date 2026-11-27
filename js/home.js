@@ -45,27 +45,21 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         })
         .then(function (monedas) {
+            var monedasConTasa = monedas.filter(function (moneda) {
+                return normalizar(moneda.nombre_moneda).indexOf('bolivar') === -1;
+            });
             selectMoneda.replaceChildren();
-            monedas.forEach(function (moneda) {
+            monedasConTasa.forEach(function (moneda) {
                 var opcion = document.createElement('option');
                 opcion.value = moneda.id_moneda;
                 opcion.textContent = moneda.nombre_moneda + ' (' + moneda.simbolo + ')';
                 selectMoneda.appendChild(opcion);
             });
-
-            var monedaBolivar = monedas.find(function (moneda) {
-                return normalizar(moneda.simbolo).indexOf('bs') !== -1 ||
-                    normalizar(moneda.nombre_moneda).indexOf('bolivar') !== -1;
-            });
-            if (monedaBolivar) {
-                selectMoneda.value = monedaBolivar.id_moneda;
-            } else if (monedas.length) {
-                mostrarMensaje('No se encontró Bolívar (Bs); selecciona la moneda que corresponda.', 'warning');
-            } else {
+            if (!monedasConTasa.length) {
                 mostrarMensaje('No hay monedas registradas. Agrega una en Configuración.', 'warning');
             }
 
-            selectMoneda.disabled = monedas.length === 0;
+            selectMoneda.disabled = monedasConTasa.length === 0;
         })
         .catch(function (error) {
             selectMoneda.replaceChildren();

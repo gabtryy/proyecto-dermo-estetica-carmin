@@ -58,13 +58,15 @@ $(document).ready(function () {
                 $fila.append($('<td>').text(moneda.simbolo));
                 $fila.append($('<td>').text(
                     moneda.tasa_actual === null
-                        ? 'Sin tasa para hoy'
+                        ? (moneda.es_base ? '1,00 (moneda base)' : 'Sin tasa para hoy')
                         : moneda.simbolo + ' ' + formatoTasa(moneda.tasa_actual)
                 ));
                 $monedas.append($fila);
-                $selector.append(
-                    $('<option>').val(moneda.id_moneda).text(moneda.nombre_moneda + ' (' + moneda.simbolo + ')')
-                );
+                if (Number(moneda.es_base) !== 1) {
+                    $selector.append(
+                        $('<option>').val(moneda.id_moneda).text(moneda.nombre_moneda + ' (' + moneda.simbolo + ')')
+                    );
+                }
             });
 
             if (!metodos.length) {
@@ -123,7 +125,7 @@ $(document).ready(function () {
             }
         } else if (campo === 'monto_tasa') {
             var tasa = Number(valor);
-            if (!/^\d{1,6}(?:\.\d{1,4})?$/.test(valor) || !Number.isFinite(tasa) || tasa <= 0) {
+        if (!/^\d{1,6}(?:\.\d{1,4})?$/.test(valor) || !Number.isFinite(tasa) || tasa <= 0) {
                 error = 'La tasa debe ser mayor que cero y tener hasta 4 decimales.';
             }
         }

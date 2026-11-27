@@ -1,5 +1,7 @@
 $(function () {
     var productos = {};
+    var tasaDolar = 0;
+    var umbralExistenciaBaja = 5;
     var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1'));
 
     function enviaAjax(datos, done, fail) {
@@ -51,13 +53,21 @@ $(function () {
             Number(precio) <= 0 ||
             Number(precio) > 99999999.99
         ) {
-            errores.precioProducto = 'Ingrese un precio mayor que cero, con hasta 2 decimales.';
+            errores.precioProducto = 'Ingrese un precio en USD mayor que cero, con hasta 2 decimales.';
+        } else if (tasaDolar <= 0) {
+            errores.precioProducto = 'Registre la tasa del dólar de hoy para mostrar el precio en bolívares.';
         }
-        if (!/^\d+$/.test(cantidad) || Number(cantidad) > 2147483647) {
-            errores.cantidadActual = 'Ingrese una cantidad entera entre 0 y 2147483647.';
+        var cantidadValida = accion === 'incluir'
+            ? /^\d+$/.test(cantidad)
+            : /^\d+(?:\.\d{1,6})?$/.test(cantidad);
+        var maximoCantidad = accion === 'incluir' ? 2147483647 : 2147483647.999999;
+        if (!cantidadValida || Number(cantidad) > maximoCantidad) {
+            errores.cantidadActual = accion === 'incluir'
+                ? 'La existencia inicial debe ser un número entero entre 0 y 2147483647.'
+                : 'Ingrese una existencia entre 0 y 2147483647.999999 con hasta 6 decimales.';
         }
         if (!/^[1-9]\d*$/.test(tipo) || Number(tipo) > 2147483647 || !tipoExiste) {
-            errores.tipoProducto = 'Seleccione un tipo de producto válido.';
+            errores.tipoProducto = 'Seleccione un uso de producto válido.';
         }
         if (accion === 'modificar' && (!/^[1-9]\d*$/.test(idProducto) || Number(idProducto) > 2147483647)) {
             errores.idProducto = 'El producto seleccionado no es válido.';
@@ -74,6 +84,7 @@ $(function () {
     function validarFormulario() {
         var errores = obtenerErroresFormulario();
         $('#snombreProducto, #smarca, #sidProveedor, #sprecioProducto, #scantidadActual, #stipoProducto').text('');
+        actualizarEquivalenciaUSD();
         $('#formulario_producto .is-invalid').removeClass('is-invalid');
         Object.keys(errores).forEach(function (campo) {
             mostrarErrorCampo(campo, errores[campo]);
@@ -119,6 +130,7 @@ $(function () {
 
     function renderTabla(lista) {
         productos = {};
+        actualizarAlertaExistencias(lista);
 
         actualizarTablaDataTable('#resultadoconsulta', function ($tbody) {
             lista.forEach(function (producto) {
@@ -145,14 +157,66 @@ $(function () {
                 );
                 $fila.append($('<td>').text(producto.nombreProducto || ''));
                 $fila.append($('<td>').text(producto.marca || '—'));
-                $fila.append($('<td>').text(Number(producto.precioProducto).toFixed(2)));
+                var $precio = $('<td>').append(
+                    $('<div>').text(producto.precioBs === null
+                        ? 'Bs — tasa de hoy no registrada'
+                        : 'Bs ' + Number(producto.precioBs).toLocaleString('es-VE', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })
+                    )
+                );
+                $precio.append($('<small>').addClass('text-muted').text(
+                    '$ ' + Number(producto.precioUSD).toLocaleString('es-VE', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })
+                ));
+                $fila.append($precio);
                 $fila.append($('<td>').text(producto.nombreProveedor || ''));
-                $fila.append($('<td>').text(producto.cantidadActual));
+                var cantidadActual = Number(producto.cantidadActual);
+                var $existencia = $('<td>').text(cantidadActual.toLocaleString('es-VE', {
+                    maximumFractionDigits: 6
+                }));
+                if (Number.isFinite(cantidadActual) && cantidadActual <= umbralExistenciaBaja) {
+                    $existencia.append(
+                        $('<span>').addClass('badge bg-warning text-dark ms-2').text('Stock bajo')
+                    );
+                }
+                $fila.append($existencia);
                 $fila.append($('<td>').text(producto.tipoProducto || 'Sin clasificar'));
                 $fila.append($acciones);
                 $tbody.append($fila);
             });
         });
+    }
+
+    function actualizarAlertaExistencias(lista) {
+        var productosBajoStock = lista.filter(function (producto) {
+            var cantidad = Number(producto.cantidadActual);
+            return Number.isFinite(cantidad) && cantidad <= umbralExistenciaBaja;
+        });
+        var $alerta = $('#alertaExistencias').empty();
+
+        if (!productosBajoStock.length) {
+            $alerta.addClass('d-none');
+            return;
+        }
+
+        $alerta.removeClass('d-none');
+        $alerta.append(
+            $('<strong>').text('Alerta de inventario: productos con 5 unidades o menos.')
+        );
+        var $lista = $('<ul>').addClass('mb-0 mt-2');
+        productosBajoStock.forEach(function (producto) {
+            var cantidad = Number(producto.cantidadActual).toLocaleString('es-VE', {
+                maximumFractionDigits: 6
+            });
+            $lista.append(
+                $('<li>').text((producto.nombreProducto || 'Producto') + ': quedan ' + cantidad + ' unidades.')
+            );
+        });
+        $alerta.append($lista);
     }
 
     function cargarCatalogos() {
@@ -163,6 +227,7 @@ $(function () {
                 Swal.fire('Error', respuesta.mensaje || 'No se pudieron cargar los datos.', 'error');
                 return;
             }
+            tasaDolar = Number(respuesta.data.tasaDolar) || 0;
             var $proveedor = $('#idProveedor').empty()
                 .append($('<option>').val('').text('Seleccione proveedor'));
             respuesta.data.proveedores.forEach(function (proveedor) {
@@ -172,7 +237,7 @@ $(function () {
             });
 
             var $tipo = $('#tipoProducto').empty()
-                .append($('<option>').val('').text('Seleccione el tipo de producto'));
+                .append($('<option>').val('').text('Seleccione el uso del producto'));
             respuesta.data.tipos.forEach(function (tipo) {
                 $tipo.append(
                     $('<option>').val(tipo.idTipo).text(tipo.nombreTipo)
@@ -183,7 +248,7 @@ $(function () {
                 respuesta.data.proveedores.length === 0 || respuesta.data.tipos.length === 0
             );
         }, function (xhr) {
-            mostrarError(xhr, 'No se pudieron cargar proveedores y tipos de producto.');
+            mostrarError(xhr, 'No se pudieron cargar proveedores y usos de producto.');
         });
     }
 
@@ -192,6 +257,8 @@ $(function () {
         $('#formulario_producto .is-invalid').removeClass('is-invalid');
         $('#idProducto').val('');
         $('#accion').val('incluir');
+        $('#cantidadActual').attr({step: '1', max: '2147483647'});
+        $('#ayudaCantidadActual').text('Ingresa unidades enteras. Las fracciones se generan al consumir insumos en servicios.');
         $('#proceso').text('REGISTRAR');
         $('#modal1Label').text('Añadir producto');
         $('#snombreProducto, #smarca, #sidProveedor, #sprecioProducto, #scantidadActual, #stipoProducto').text('');
@@ -216,11 +283,14 @@ $(function () {
         $('#marca').val(producto.marca || '');
         $('#idProveedor').val(producto.idProveedor);
         $('#precioProducto').val(producto.precioProducto);
+        $('#cantidadActual').attr({step: '0.000001', max: '2147483647.999999'});
         $('#cantidadActual').val(producto.cantidadActual);
         $('#tipoProducto').val(producto.idTipo || '');
+        actualizarEquivalenciaUSD();
         $('#accion').val('modificar');
         $('#proceso').text('GUARDAR CAMBIOS');
         $('#modal1Label').text('Modificar producto');
+        $('#ayudaCantidadActual').text('Puedes ajustar el remanente fraccionario después del consumo en servicios.');
         modal.show();
     });
 
@@ -280,7 +350,22 @@ $(function () {
         if (this.id) {
             mostrarErrorCampo(this.id, obtenerErroresFormulario()[this.id] || '');
         }
+        actualizarEquivalenciaUSD();
     });
+
+    function actualizarEquivalenciaUSD() {
+        var precioUSD = Number($('#precioProducto').val());
+        var texto = tasaDolar > 0 && precioUSD > 0
+            ? 'Precio actual: Bs ' + (precioUSD * tasaDolar).toLocaleString('es-VE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }) + ' (tasa: Bs ' + tasaDolar.toLocaleString('es-VE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 4
+            }) + ' por USD).'
+            : 'Registra la tasa del dólar de hoy para calcular el precio en bolívares.';
+        $('#equivalenciaUSD').text(texto);
+    }
 
     document.getElementById('modal1').addEventListener('hidden.bs.modal', limpiarFormulario);
     cargarCatalogos();

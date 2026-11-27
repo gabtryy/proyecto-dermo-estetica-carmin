@@ -35,6 +35,24 @@
                     <input class="form-control" type="date" id="fechaFin" name="fechaFin"
                            value="<?= htmlspecialchars($fechaFin, ENT_QUOTES, 'UTF-8') ?>" required>
                 </div>
+                <fieldset class="col-12">
+                    <legend class="form-label fw-semibold">Datos que incluir</legend>
+                    <div class="row g-2">
+                        <?php foreach ($columnasDisponibles as $columna => $etiqueta): ?>
+                            <div class="col-sm-6 col-lg-4 campo-reporte" data-tipo="<?= htmlspecialchars($tipoReporte, ENT_QUOTES, 'UTF-8') ?>">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="columnas[]"
+                                           id="columna-<?= htmlspecialchars($columna, ENT_QUOTES, 'UTF-8') ?>"
+                                           value="<?= htmlspecialchars($columna, ENT_QUOTES, 'UTF-8') ?>"
+                                           <?= in_array($columna, $columnasSeleccionadas, true) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="columna-<?= htmlspecialchars($columna, ENT_QUOTES, 'UTF-8') ?>">
+                                        <?= htmlspecialchars($etiqueta, ENT_QUOTES, 'UTF-8') ?>
+                                    </label>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </fieldset>
                 <div class="col-12">
                     <button class="btn btn-purple" type="submit" name="generar" value="1">
                         <i class="fas fa-file-pdf me-1"></i>Generar reporte

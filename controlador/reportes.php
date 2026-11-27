@@ -6,14 +6,34 @@ if (!in_array((int) ($_SESSION['nivel'] ?? 0), [1, 2], true)) {
     exit('No tienes permiso para generar reportes.');
 }
 
-$tipoReporte = (string) ($_POST['tipo'] ?? 'ventas');
+$tipoReporte = (string) ($_POST['tipo'] ?? $_GET['tipo'] ?? 'ventas');
 $fechaHoy = new DateTimeImmutable('today', new DateTimeZone('America/Caracas'));
 $fechaInicioPredeterminada = $fechaHoy->modify('first day of this month')->format('Y-m-d');
 $fechaFinPredeterminada = $fechaHoy->format('Y-m-d');
-$fechaInicio = (string) ($_POST['fechaInicio'] ?? $fechaInicioPredeterminada);
-$fechaFin = (string) ($_POST['fechaFin'] ?? $fechaFinPredeterminada);
+$fechaInicio = (string) ($_POST['fechaInicio'] ?? $_GET['fechaInicio'] ?? $fechaInicioPredeterminada);
+$fechaFin = (string) ($_POST['fechaFin'] ?? $_GET['fechaFin'] ?? $fechaFinPredeterminada);
 $errorReporte = '';
 $datosReporte = [];
+$columnasPorTipo = [
+    'ventas' => [
+        'idVenta' => 'N.º de venta',
+        'fechaCompra' => 'Fecha',
+        'nombreCliente' => 'Cliente',
+        'productos' => 'Productos',
+        'cantidadProductos' => 'Cantidad de productos',
+        'totalVenta' => 'Total (Bs)',
+        'nom_MetodoPago' => 'Método de pago',
+        'monto_pagado' => 'Monto pagado (Bs)',
+    ],
+    'citas' => [
+        'fecha_cita' => 'Fecha',
+        'hora_cita' => 'Hora',
+        'nombreCliente' => 'Cliente',
+        'nombreEsteticista' => 'Esteticista',
+        'servicios' => 'Servicios',
+        'estado_cita' => 'Estado',
+    ],
+];
 
 if (!in_array($tipoReporte, ['ventas', 'citas'], true)) {
     $tipoReporte = 'ventas';
@@ -21,6 +41,13 @@ if (!in_array($tipoReporte, ['ventas', 'citas'], true)) {
         $errorReporte = 'El tipo de reporte seleccionado no es válido.';
     }
 }
+$columnasDisponibles = $columnasPorTipo[$tipoReporte];
+$columnasSeleccionadas = $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generar'])
+    ? array_values(array_intersect(
+        array_keys($columnasDisponibles),
+        array_map('strval', (array) ($_POST['columnas'] ?? []))
+    ))
+    : array_keys($columnasDisponibles);
 
 $validarFecha = static function (string $fecha): bool {
     $valor = DateTimeImmutable::createFromFormat('!Y-m-d', $fecha);
@@ -32,7 +59,9 @@ $validarFecha = static function (string $fecha): bool {
 };
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generar']) && $errorReporte === '') {
-    if (!$validarFecha($fechaInicio) || !$validarFecha($fechaFin)) {
+    if (!$columnasSeleccionadas) {
+        $errorReporte = 'Selecciona al menos un dato para incluir en el reporte.';
+    } elseif (!$validarFecha($fechaInicio) || !$validarFecha($fechaFin)) {
         $errorReporte = 'Indica fechas válidas para generar el reporte.';
     } elseif ($fechaInicio > $fechaFin) {
         $errorReporte = 'La fecha inicial no puede ser posterior a la fecha final.';
@@ -61,6 +90,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generar']) && $errorR
 
         require_once $autoload;
         $nombreReporte = $tipoReporte === 'ventas' ? 'Ventas' : 'Citas';
+        $columnasReporte = array_intersect_key(
+            $columnasDisponibles,
+            array_flip($columnasSeleccionadas)
+        );
         ob_start();
         require 'vista/reportes_pdf.php';
         $htmlPdf = ob_get_clean();

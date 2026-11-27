@@ -26,7 +26,8 @@
                     <thead>
                         <tr>
                             <th scope="col">Nombre Servicio</th>
-                            <th scope="col">Precio</th>
+                            <th scope="col">Precio actual (Bs) / Base (USD)</th>
+                            <th scope="col">Insumos</th>
                             <th scope="col">Descripción</th>
                             <th scope="col" class="text-nowrap" style="width: 1%">Acciones</th>
                         </tr>
@@ -60,8 +61,9 @@
 
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label class="form-label" for="precio">Precio</label>
+                            <label class="form-label" for="precio">Precio (USD)</label>
                             <input class="form-control" type="number" id="precio" name="precio" min="0.01" max="99999999.99" step="0.01" required>
+                            <div class="form-text" id="equivalenciaUSDServicio">Registra la tasa del dólar de hoy para calcular el precio en bolívares.</div>
                             <span class="form-text text-danger" id="sprecio"></span>
                         </div>
                         <div class="col-md-8">
@@ -70,6 +72,14 @@
                             <span class="form-text text-danger" id="sdescripcion"></span>
                         </div>
                     </div>
+
+                    <fieldset class="mt-4">
+                        <legend class="form-label fw-semibold">Insumos utilizados por servicio</legend>
+                        <p class="form-text">Selecciona los insumos usados por el servicio e indica cuántas sesiones puedes realizar con una unidad. Se descuenta proporcionalmente al finalizar cada cita.</p>
+                        <div id="productosServicio" class="row g-2">
+                            <div class="text-muted">Cargando productos...</div>
+                        </div>
+                    </fieldset>
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cerrar</button>

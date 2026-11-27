@@ -116,14 +116,14 @@ class Configuracion extends Conexion
     {
         $monedas = $this->pdo->query(
             "SELECT m.id_moneda, m.nombre_moneda, m.simbolo,
-                    CASE WHEN m.id_moneda = 1 THEN COALESCE(
-                        (SELECT tm.monto_tasa FROM tasa_moneda tm
-                         WHERE tm.id_moneda = m.id_moneda AND tm.fecha_tasa = CURDATE()
-                         ORDER BY tm.id_tasa DESC LIMIT 1), 1)
-                        ELSE (SELECT tm.monto_tasa FROM tasa_moneda tm
-                              WHERE tm.id_moneda = m.id_moneda AND tm.fecha_tasa = CURDATE()
-                              ORDER BY tm.id_tasa DESC LIMIT 1)
-                    END AS tasa_actual
+                    CASE WHEN LOWER(m.nombre_moneda) IN ('bolívar', 'bolivar') THEN 1
+                         ELSE (SELECT tm.monto_tasa FROM tasa_moneda tm
+                               WHERE tm.id_moneda = m.id_moneda AND tm.fecha_tasa = CURDATE()
+                               ORDER BY tm.id_tasa DESC LIMIT 1)
+                    END AS tasa_actual,
+                    CASE WHEN LOWER(m.nombre_moneda) IN ('bolívar', 'bolivar') THEN 1
+                         ELSE 0
+                    END AS es_base
              FROM moneda m
              ORDER BY m.nombre_moneda"
         )->fetchAll(PDO::FETCH_ASSOC);
@@ -139,6 +139,7 @@ class Configuracion extends Conexion
                     m.nombre_moneda, m.simbolo
              FROM tasa_moneda t
              INNER JOIN moneda m ON m.id_moneda = t.id_moneda
+             WHERE LOWER(m.nombre_moneda) NOT IN ('bolívar', 'bolivar')
              ORDER BY t.fecha_tasa DESC, t.id_tasa DESC
              LIMIT 50"
         )->fetchAll(PDO::FETCH_ASSOC);
@@ -214,8 +215,12 @@ class Configuracion extends Conexion
                 "SELECT id_moneda FROM moneda WHERE id_moneda = :idMoneda FOR UPDATE"
             );
             $moneda->execute([':idMoneda' => $this->get_idMoneda()]);
-            if (!$moneda->fetchColumn()) {
+            $nombreMoneda = $moneda->fetchColumn();
+            if (!$nombreMoneda) {
                 throw new DomainException('La moneda seleccionada ya no está disponible.');
+            }
+            if (in_array(mb_strtolower((string) $nombreMoneda, 'UTF-8'), ['bolívar', 'bolivar'], true)) {
+                throw new DomainException('El bolívar es la moneda base y su tasa es siempre 1.');
             }
 
             $guardar = $this->pdo->prepare(

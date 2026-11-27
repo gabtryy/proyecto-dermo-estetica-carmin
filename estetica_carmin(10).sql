@@ -11,6 +11,11 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+CREATE TABLE `sistema_migraciones` (
+  `clave` varchar(64) NOT NULL,
+  `aplicada_en` datetime NOT NULL,
+  PRIMARY KEY (`clave`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -124,7 +129,8 @@ INSERT INTO `cliente` (`cedulaCliente`, `nombreCliente`, `fechaNacimiento`, `est
 CREATE TABLE `detalleproductoservicio` (
   `idServicio` int(11) NOT NULL,
   `idProducto` int(11) NOT NULL,
-  `cantidad` int(11) NOT NULL
+  `cantidad` int(11) NOT NULL,
+  `rendimiento` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -168,8 +174,8 @@ CREATE TABLE `detalle_venta` (
 --
 
 INSERT INTO `detalle_venta` (`idVenta`, `idProducto`, `cantidad`, `precioUnitario`) VALUES
-(1, 3, 3, 32.00),
-(2, 4, 1, 22.50);
+(1, 3, 3, 19200.00),
+(2, 4, 1, 6727.50);
 
 -- --------------------------------------------------------
 
@@ -348,7 +354,7 @@ CREATE TABLE `producto` (
   `precioCosto` decimal(12,0) NOT NULL,
   `precioProducto` decimal(10,2) NOT NULL,
   `idProveedor` int(11) DEFAULT NULL,
-  `cantidadActual` int(11) NOT NULL,
+  `cantidadActual` decimal(18,6) NOT NULL,
   `id_tipo` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -357,9 +363,12 @@ CREATE TABLE `producto` (
 --
 
 INSERT INTO `producto` (`idProducto`, `nombreProducto`, `marca`, `precioCosto`, `precioProducto`, `idProveedor`, `cantidadActual`, `id_tipo`) VALUES
-(2, 'Sérum de Ácido Hialurónico', 'La Roche-Posay', 0, 38.00, 3, 25, NULL),
-(3, 'Protector Solar FPS 50+ toque seco', 'Isdin', 0, 32.00, 3, 47, NULL),
+(2, 'Sérum de Ácido Hialurónico', 'La Roche-Posay', 0, 38.00, 3, 25, 1),
+(3, 'Protector Solar FPS 50+ toque seco', 'Isdin', 0, 32.00, 3, 47, 1),
 (4, 'Crema Hidratante Intensiva', 'CeraVe', 0, 22.50, 3, 29, 2);
+
+INSERT INTO `sistema_migraciones` (`clave`, `aplicada_en`) VALUES
+('precios_catalogo_usd', NOW());
 
 -- --------------------------------------------------------
 
@@ -554,7 +563,8 @@ CREATE TABLE `tipo_producto` (
 
 INSERT INTO `tipo_producto` (`id_tipo`, `id_categoria`, `nombre_tipo`) VALUES
 (1, 1, 'Venta'),
-(2, 1, 'Insumo');
+(2, 1, 'Insumo'),
+(3, 1, 'Ambos');
 
 -- --------------------------------------------------------
 
@@ -897,7 +907,7 @@ ALTER TABLE `tipo_antecedente`
 -- AUTO_INCREMENT de la tabla `tipo_producto`
 --
 ALTER TABLE `tipo_producto`
-  MODIFY `id_tipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_tipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `venta`

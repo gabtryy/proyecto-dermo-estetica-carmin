@@ -62,8 +62,8 @@
                     <div id="lista-servicios" class="row g-2"></div>
                     <div class="mt-3 small text-muted">Seleccione uno o varios servicios para la cita.</div>
                     <div class="mt-3 d-flex align-items-center gap-2">
-                        <span class="fw-semibold">Total estimado:</span>
-                        <span id="total-cita" class="badge bg-success-subtle text-success fs-6 px-3 py-2">$0.00</span>
+                        <span class="fw-semibold">Total estimado (Bs):</span>
+                        <span id="total-cita" class="badge bg-success-subtle text-success fs-6 px-3 py-2">Bs 0,00</span>
                     </div>
                 </div>
 
@@ -90,6 +90,7 @@
                             <th scope="col">Fecha</th>
                             <th scope="col">Hora</th>
                             <th scope="col">Servicios</th>
+                            <th scope="col">Estado</th>
                             <th scope="col" class="text-nowrap">Acciones</th>
                         </tr>
                     </thead>

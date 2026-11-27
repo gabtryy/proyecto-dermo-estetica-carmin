@@ -385,9 +385,9 @@
                             <span class="form-text text-danger" id="sfecha_tasa"></span>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" for="monto_tasa">Tasa por cada $1</label>
+                            <label class="form-label" for="monto_tasa">Tasa en Bs por 1 unidad</label>
                             <input class="form-control" type="number" id="monto_tasa" name="monto_tasa" min="0.0001" max="999999.9999" step="0.0001" required>
-                            <div class="form-text">Ejemplo: cuántos bolívares equivalen a un dólar. Cada registro conserva el historial y se usará la tasa más reciente de la fecha.</div>
+                            <div class="form-text">Indica cuántos bolívares equivalen a 1 dólar o 1 euro. Bolívar es la moneda base y no requiere tasa.</div>
                             <span class="form-text text-danger" id="smonto_tasa"></span>
                         </div>
                         <button type="submit" class="btn btn-purple">
@@ -413,7 +413,7 @@
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle config-table">
                         <thead>
-                            <tr><th>Moneda</th><th>Símbolo</th><th>Tasa de hoy por $1</th></tr>
+                            <tr><th>Moneda</th><th>Símbolo</th><th>Tasa de hoy en Bs por unidad</th></tr>
                         </thead>
                         <tbody id="listaMonedas">
                             <tr><td colspan="3" class="text-center text-muted">Cargando monedas...</td></tr>
@@ -450,7 +450,7 @@
                 </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle config-table">
-                        <thead><tr><th>Fecha</th><th>Moneda</th><th>Tasa por $1</th></tr></thead>
+                        <thead><tr><th>Fecha</th><th>Moneda</th><th>Tasa en Bs por unidad</th></tr></thead>
                         <tbody id="listaTasas">
                             <tr><td colspan="3" class="text-center text-muted">Cargando tasas...</td></tr>
                         </tbody>

@@ -18,8 +18,13 @@ switch ($accion) {
             echo json_encode(['ok' => true, 'data' => $modelo->listar()]);
         } catch (Throwable $e) {
             error_log('No se pudieron consultar los productos: ' . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(['ok' => false, 'mensaje' => 'No se pudieron consultar los productos.']);
+            http_response_code($e instanceof DomainException ? 400 : 500);
+            echo json_encode([
+                'ok' => false,
+                'mensaje' => $e instanceof DomainException
+                    ? $e->getMessage()
+                    : 'No se pudieron consultar los productos.',
+            ]);
         }
         exit;
 
@@ -28,8 +33,13 @@ switch ($accion) {
             echo json_encode(['ok' => true, 'data' => $modelo->catalogos()]);
         } catch (Throwable $e) {
             error_log('No se pudieron cargar los catálogos de productos: ' . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(['ok' => false, 'mensaje' => 'No se pudieron cargar proveedores y tipos de producto.']);
+            http_response_code($e instanceof DomainException ? 400 : 500);
+            echo json_encode([
+                'ok' => false,
+                'mensaje' => $e instanceof DomainException
+                    ? $e->getMessage()
+                    : 'No se pudieron cargar proveedores y usos de producto.',
+            ]);
         }
         exit;
 
@@ -41,9 +51,13 @@ switch ($accion) {
             'marca' => trim((string) ($_POST['marca'] ?? '')),
             'idProveedor' => filter_var($_POST['idProveedor'] ?? null, FILTER_VALIDATE_INT),
             'precioProducto' => trim((string) ($_POST['precioProducto'] ?? '')),
-            'cantidadActual' => filter_var($_POST['cantidadActual'] ?? null, FILTER_VALIDATE_INT),
+            'cantidadActual' => trim((string) ($_POST['cantidadActual'] ?? '')),
             'idTipo' => filter_var($_POST['tipoProducto'] ?? null, FILTER_VALIDATE_INT),
         ];
+        $patronCantidad = $accion === 'incluir'
+            ? '/^\d+$/'
+            : '/^\d+(?:\.\d{1,6})?$/';
+        $maximoCantidad = $accion === 'incluir' ? 2147483647 : 2147483647.999999;
 
         if (
             $datos['nombreProducto'] === '' ||
@@ -53,14 +67,15 @@ switch ($accion) {
             !preg_match('/^\d+(?:\.\d{1,2})?$/', $datos['precioProducto']) ||
             (float) $datos['precioProducto'] <= 0 ||
             (float) $datos['precioProducto'] > 99999999.99 ||
-            $datos['cantidadActual'] === false ||
-            $datos['cantidadActual'] < 0 ||
+            !preg_match($patronCantidad, $datos['cantidadActual']) ||
+            (float) $datos['cantidadActual'] < 0 ||
+            (float) $datos['cantidadActual'] > $maximoCantidad ||
             $datos['idTipo'] === false ||
             $datos['idTipo'] < 1 ||
             ($accion === 'modificar' && (!$idProducto || $idProducto < 1))
         ) {
             http_response_code(400);
-            echo json_encode(['ok' => false, 'mensaje' => 'Revise nombre, marca, proveedor, precio, cantidad y tipo de producto.']);
+            echo json_encode(['ok' => false, 'mensaje' => 'Revise nombre, marca, proveedor, precio, cantidad y uso del producto.']);
             exit;
         }
 
@@ -68,7 +83,7 @@ switch ($accion) {
         $modelo->set_marca($datos['marca']);
         $modelo->set_idProveedor((int) $datos['idProveedor']);
         $modelo->set_precioProducto($datos['precioProducto']);
-        $modelo->set_cantidadActual((int) $datos['cantidadActual']);
+        $modelo->set_cantidadActual($datos['cantidadActual']);
         $modelo->set_idTipo((int) $datos['idTipo']);
 
         if ($accion === 'modificar') {

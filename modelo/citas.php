@@ -1,5 +1,6 @@
 <?php
 require_once 'modelo/conexion.php';
+require_once 'modelo/productos.php';
 
 class Citas extends Conexion
 {
@@ -55,14 +56,33 @@ class Citas extends Conexion
     public function listarServicios(): array
     {
         try {
+            (new Productos())->asegurarConfiguracionCatalogo();
             $sql = "SELECT idServicio, nombreServicio, precio, descripcion
                     FROM servicio
                     ORDER BY nombreServicio ASC";
 
             $stmt = $this->pdo->query($sql);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
+            $servicios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $tasaStmt = $this->pdo->query(
+                "SELECT tm.monto_tasa
+                 FROM tasa_moneda tm
+                 INNER JOIN moneda m ON m.id_moneda = tm.id_moneda
+                 WHERE LOWER(m.nombre_moneda) IN ('dólar', 'dolar')
+                   AND tm.fecha_tasa = CURDATE()
+                 ORDER BY tm.id_tasa DESC
+                 LIMIT 1"
+            );
+            $tasaDolar = (float) ($tasaStmt->fetchColumn() ?: 0);
+            foreach ($servicios as &$servicio) {
+                $servicio['precioBs'] = $tasaDolar > 0
+                    ? round((float) $servicio['precio'] * $tasaDolar, 2)
+                    : null;
+                $servicio['tasaDolar'] = $tasaDolar;
+            }
+            unset($servicio);
+            return $servicios;
+        } catch (Throwable $e) {
+            throw $e;
         }
     }
 
@@ -84,7 +104,8 @@ class Citas extends Conexion
                     LEFT JOIN esteticista e ON e.cedulaEsteticista = c.cedulaEsteticista
                     LEFT JOIN detalle_citas dc ON dc.idCita = c.idCita
                     LEFT JOIN servicio s ON s.idServicio = dc.idServicio
-                    GROUP BY c.idCita, cl.nombreCliente, e.nombreEsteticista, c.fecha_cita, c.hora_cita
+                    GROUP BY c.idCita, cl.nombreCliente, e.nombreEsteticista, c.fecha_cita,
+                             c.hora_cita, c.estado_cita
                     ORDER BY c.fecha_cita DESC, c.hora_cita DESC";
 
             $stmt = $this->pdo->query($sql);
@@ -147,7 +168,7 @@ class Citas extends Conexion
 
             $this->pdo->beginTransaction();
 
-                $sql = "INSERT INTO citas (cedulaEsteticista, cedulaCliente, hora_cita, fecha_cita, estado_cita)
+            $sql = "INSERT INTO citas (cedulaEsteticista, cedulaCliente, hora_cita, fecha_cita, estado_cita)
                     VALUES (:cedulaEsteticista, :cedulaCliente, :hora, :fecha_cita, :estado_cita)";
             $stmt = $this->pdo->prepare($sql);
             $ok = $stmt->execute([
@@ -217,6 +238,20 @@ class Citas extends Conexion
             }
 
             $this->pdo->beginTransaction();
+            $estadoStmt = $this->pdo->prepare(
+                "SELECT estado_cita FROM citas WHERE idCita = :idCita FOR UPDATE"
+            );
+            $estadoStmt->execute([':idCita' => $idCita]);
+            $estadoActual = $estadoStmt->fetchColumn();
+            if ($estadoActual === false) {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'La cita ya no existe.'];
+            }
+            if (in_array(mb_strtolower(trim((string) $estadoActual), 'UTF-8'), ['finalizada', 'cancelada', 'pagada'], true)) {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'No se puede editar una cita finalizada, cancelada o pagada.'];
+            }
+
             $stmt = $this->pdo->prepare(
                 "UPDATE citas SET cedulaCliente = :cedulaCliente, cedulaEsteticista = :cedulaEsteticista,
                  fecha_cita = :fecha_cita, hora_cita = :hora WHERE idCita = :idCita"
@@ -256,6 +291,19 @@ class Citas extends Conexion
         $idCita = (int) $this->idCita;
         try {
             $this->pdo->beginTransaction();
+            $estadoStmt = $this->pdo->prepare(
+                "SELECT estado_cita FROM citas WHERE idCita = :idCita FOR UPDATE"
+            );
+            $estadoStmt->execute([':idCita' => $idCita]);
+            $estado = $estadoStmt->fetchColumn();
+            if ($estado === false) {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'La cita no existe.'];
+            }
+            if (in_array(mb_strtolower(trim((string) $estado), 'UTF-8'), ['finalizada', 'pagada'], true)) {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'No se puede eliminar una cita finalizada o pagada porque ya consumió insumos.'];
+            }
             $stmtDetalle = $this->pdo->prepare("DELETE FROM detalle_citas WHERE idCita = :idCita");
             $stmtDetalle->execute([':idCita' => $idCita]);
             $stmt = $this->pdo->prepare("DELETE FROM citas WHERE idCita = :idCita");
@@ -272,6 +320,155 @@ class Citas extends Conexion
             }
             return ['ok' => false, 'mensaje' => 'Error al eliminar la cita: ' . $e->getMessage()];
         }
+    }
+
+    public function actualizarEstado(int $idCita, string $nuevoEstado): array
+    {
+        $estadosPermitidos = ['finalizada', 'cancelada', 'pagada'];
+        if ($idCita < 1 || !in_array($nuevoEstado, $estadosPermitidos, true)) {
+            return ['ok' => false, 'mensaje' => 'La cita o el estado indicados no son válidos.'];
+        }
+
+        try {
+            (new Productos())->asegurarConfiguracionCatalogo();
+            $this->pdo->beginTransaction();
+            $consulta = $this->pdo->prepare(
+                "SELECT estado_cita FROM citas WHERE idCita = :idCita FOR UPDATE"
+            );
+            $consulta->execute([':idCita' => $idCita]);
+            $estadoActual = $consulta->fetchColumn();
+            if ($estadoActual === false) {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'La cita ya no existe.'];
+            }
+
+            $estadoActual = mb_strtolower(trim((string) $estadoActual), 'UTF-8');
+            if (in_array($estadoActual, ['cancelada', 'pagada'], true)) {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'La cita ya tiene un estado final y no se puede cambiar.'];
+            }
+            if ($estadoActual === '' || $estadoActual === 'pendiente') {
+                if ($nuevoEstado === 'pagada') {
+                    $this->pdo->rollBack();
+                    return ['ok' => false, 'mensaje' => 'Primero marca la cita como finalizada para poder pagarla.'];
+                }
+                if ($nuevoEstado === 'finalizada') {
+                    $errorInsumos = $this->descontarInsumosCita($idCita);
+                    if ($errorInsumos !== null) {
+                        $this->pdo->rollBack();
+                        return ['ok' => false, 'mensaje' => $errorInsumos];
+                    }
+                }
+            } elseif ($estadoActual === 'finalizada' && $nuevoEstado !== 'pagada') {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'Una cita finalizada solo puede marcarse como pagada.'];
+            } elseif ($estadoActual !== 'finalizada') {
+                $this->pdo->rollBack();
+                return ['ok' => false, 'mensaje' => 'La transición de estado solicitada no es válida.'];
+            }
+
+            $actualizar = $this->pdo->prepare(
+                "UPDATE citas SET estado_cita = :estado WHERE idCita = :idCita"
+            );
+            $actualizar->execute([
+                ':estado' => $nuevoEstado,
+                ':idCita' => $idCita,
+            ]);
+            $this->pdo->commit();
+            return ['ok' => true, 'mensaje' => 'Estado de la cita actualizado correctamente.'];
+        } catch (Throwable $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            error_log('No se pudo actualizar el estado de la cita: ' . $e->getMessage());
+            return [
+                'ok' => false,
+                'mensaje' => $e instanceof DomainException
+                    ? $e->getMessage()
+                    : 'No se pudo actualizar el estado de la cita.',
+            ];
+        }
+    }
+
+    private function descontarInsumosCita(int $idCita): ?string
+    {
+        $insumosStmt = $this->pdo->prepare(
+            "SELECT dps.idProducto, dps.rendimiento, p.nombreProducto
+             FROM detalle_citas dc
+             INNER JOIN detalleproductoservicio dps ON dps.idServicio = dc.idServicio
+             INNER JOIN producto p ON p.idProducto = dps.idProducto
+             WHERE dc.idCita = :idCita
+             ORDER BY dps.idProducto, dps.idServicio
+             FOR UPDATE"
+        );
+        $insumosStmt->execute([':idCita' => $idCita]);
+
+        $consumos = [];
+        foreach ($insumosStmt->fetchAll(PDO::FETCH_ASSOC) as $insumo) {
+            $idProducto = (int) $insumo['idProducto'];
+            $rendimiento = (int) $insumo['rendimiento'];
+            if ($idProducto < 1 || $rendimiento < 1) {
+                throw new DomainException('La configuración de insumos de un servicio no es válida.');
+            }
+            if (!isset($consumos[$idProducto])) {
+                $consumos[$idProducto] = [
+                    'cantidad' => 0.0,
+                    'nombre' => $insumo['nombreProducto'],
+                ];
+            }
+            $consumos[$idProducto]['cantidad'] = round(
+                $consumos[$idProducto]['cantidad'] + round(1 / $rendimiento, 6),
+                6
+            );
+        }
+
+        if (!$consumos) {
+            return null;
+        }
+
+        $idsProducto = array_keys($consumos);
+        sort($idsProducto, SORT_NUMERIC);
+        $marcadores = implode(',', array_fill(0, count($idsProducto), '?'));
+        $stockStmt = $this->pdo->prepare(
+            "SELECT idProducto, cantidadActual
+             FROM producto
+             WHERE idProducto IN ($marcadores)
+             ORDER BY idProducto
+             FOR UPDATE"
+        );
+        $stockStmt->execute($idsProducto);
+        $productos = $stockStmt->fetchAll(PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+        if (count($productos) !== count($consumos)) {
+            return 'No se encontró el inventario de uno o más insumos del servicio.';
+        }
+
+        $actualizarStock = $this->pdo->prepare(
+            "UPDATE producto SET cantidadActual = :cantidad
+             WHERE idProducto = :idProducto"
+        );
+        foreach ($idsProducto as $idProducto) {
+            $disponible = (float) $productos[$idProducto]['cantidadActual'];
+            $requerido = $consumos[$idProducto]['cantidad'];
+            if ($disponible + 0.000001 < $requerido) {
+                return sprintf(
+                    'Inventario insuficiente de %s: se requieren %s unidades y hay %s.',
+                    $consumos[$idProducto]['nombre'],
+                    number_format($requerido, 6, ',', '.'),
+                    number_format($disponible, 6, ',', '.')
+                );
+            }
+
+            $restante = round($disponible - $requerido, 6);
+            if ($restante <= 0.000001) {
+                $restante = 0.0;
+            }
+            $actualizarStock->execute([
+                ':cantidad' => number_format($restante, 6, '.', ''),
+                ':idProducto' => $idProducto,
+            ]);
+        }
+
+        return null;
     }
 }
 ?>

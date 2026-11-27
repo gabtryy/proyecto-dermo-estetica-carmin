@@ -26,7 +26,12 @@ if ($accion !== '') {
             } catch (Throwable $e) {
                 error_log('No se pudieron consultar los datos para ventas: ' . $e->getMessage());
                 http_response_code(500);
-                echo json_encode(['ok' => false, 'mensaje' => 'No se pudieron cargar los datos para registrar ventas.']);
+                echo json_encode([
+                    'ok' => false,
+                    'mensaje' => $e instanceof DomainException
+                        ? $e->getMessage()
+                        : 'No se pudieron cargar los datos para registrar ventas.',
+                ]);
             }
             exit;
 

@@ -56,9 +56,8 @@ function cargarTiposAntecedentes() {
 function renderTiposAntecedentes(lista) {
     var $contenedor = $('#listaTiposAntecedentes');
     $contenedor.empty();
-    console.log('Tipos de antecedentes:', lista);
     if (!lista.length) {
-        $contenedor.append('<div class="text-muted">No hay tipos de antecedentes registrados.</div>');
+        $contenedor.append('<div class="text-muted">No hay categorías clínicas registradas.</div>');
         return;
     }
 
@@ -121,11 +120,11 @@ function renderTabla(lista) {
     }
 
     lista.forEach(function(item) {
-        var $editar = $('<button type="button" title="Modificar antecedentes">')
+        var $editar = $('<button type="button" title="Modificar ficha clínica">')
             .attr('data-cedula-cliente', item.cedulaCliente)
             .addClass('btn btn-sm btn-purple btn-editar')
             .append('<i class="fas fa-edit"></i>');
-        var $eliminar = $('<button type="button" title="Eliminar antecedentes">')
+        var $eliminar = $('<button type="button" title="Eliminar ficha clínica">')
             .attr('data-cedula-cliente', item.cedulaCliente)
             .addClass('btn btn-sm btn-danger btn-eliminar-cliente')
             .append('<i class="fas fa-trash-alt"></i>');
@@ -158,8 +157,8 @@ $(document).ready(function () {
         if (!cedulaCliente) return;
 
         Swal.fire({
-            title: '¿Eliminar todos los antecedentes?',
-            text: 'Se eliminarán todos los antecedentes de este cliente. Esta acción no se puede deshacer.',
+            title: '¿Eliminar la ficha clínica?',
+            text: 'Se eliminará toda la ficha clínica de este cliente. Esta acción no se puede deshacer.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Sí, eliminar',
@@ -174,7 +173,7 @@ $(document).ready(function () {
                     datos: datos,
                     done: function(resp) {
                         if (resp?.ok) {
-                            Swal.fire('Eliminados', resp.mensaje || 'Antecedentes eliminados.', 'success');
+                            Swal.fire('Eliminada', resp.mensaje || 'Ficha clínica eliminada.', 'success');
                             consultar();
                         } else {
                             Swal.fire('Error', resp?.mensaje || 'No se pudo eliminar.', 'error');
@@ -263,7 +262,7 @@ $(document).ready(function () {
                 Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
-                    text: resp.mensaje || 'Antecedentes guardados correctamente.',
+                    text: resp.mensaje || 'Ficha clínica guardada correctamente.',
                     confirmButtonText: 'Aceptar'
                 });
                 bootstrap.Modal.getOrCreateInstance(document.getElementById('modal1')).hide();
@@ -271,7 +270,7 @@ $(document).ready(function () {
                 consultar();
             },
             fail: function (xhr) {
-                var msg = 'Error al guardar antecedentes.';
+                var msg = 'Error al guardar la ficha clínica.';
                 if (xhr.responseJSON && xhr.responseJSON.mensaje) {
                     msg = xhr.responseJSON.mensaje;
                 } else if (xhr.responseText) {

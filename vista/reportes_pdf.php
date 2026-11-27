@@ -19,47 +19,36 @@ $escapar = static function ($valor): string {
     <h2>Reporte de <?= $escapar($nombreReporte) ?></h2>
     <p>Desde <?= $escapar($fechaInicio) ?> hasta <?= $escapar($fechaFin) ?></p>
     <table>
-        <?php if ($tipoReporte === 'ventas'): ?>
-            <thead>
-                <tr>
-                    <th>Venta</th><th>Fecha</th><th>Cliente</th>
-                    <th>Productos</th><th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($datosReporte as $venta): ?>
-                    <tr>
-                        <td><?= (int) $venta['idVenta'] ?></td>
-                        <td><?= $escapar($venta['fechaCompra']) ?></td>
-                        <td><?= $escapar($venta['nombreCliente']) ?></td>
-                        <td><?= $escapar($venta['productos']) ?></td>
-                        <td>$<?= number_format((float) $venta['totalVenta'], 2, ',', '.') ?></td>
-                    </tr>
+        <thead>
+            <tr>
+                <?php foreach ($columnasReporte as $etiqueta): ?>
+                    <th><?= $escapar($etiqueta) ?></th>
                 <?php endforeach; ?>
-            </tbody>
-        <?php else: ?>
-            <thead>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($datosReporte as $registro): ?>
                 <tr>
-                    <th>Fecha</th><th>Hora</th><th>Cliente</th>
-                    <th>Esteticista</th><th>Servicio</th>
+                    <?php foreach ($columnasReporte as $columna => $etiqueta): ?>
+                        <?php
+                        $valor = $registro[$columna] ?? '—';
+                        if (in_array($columna, ['totalVenta', 'monto_pagado'], true)) {
+                            $valor = 'Bs ' . number_format((float) $valor, 2, ',', '.');
+                        } elseif ($columna === 'hora_cita') {
+                            $valor = substr((string) $valor, 0, 5);
+                        } elseif ($columna === 'estado_cita') {
+                            $valor = ucfirst((string) $valor);
+                        }
+                        ?>
+                        <td><?= $escapar($valor) ?></td>
+                    <?php endforeach; ?>
                 </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($datosReporte as $cita): ?>
-                    <tr>
-                        <td><?= $escapar($cita['fecha_cita']) ?></td>
-                        <td><?= $escapar(substr($cita['hora_cita'], 0, 5)) ?></td>
-                        <td><?= $escapar($cita['nombreCliente'] ?? '—') ?></td>
-                        <td><?= $escapar($cita['nombreEsteticista'] ?? '—') ?></td>
-                        <td><?= $escapar($cita['servicios'] ?? '—') ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        <?php endif; ?>
+            <?php endforeach; ?>
+        </tbody>
         <?php if (!$datosReporte): ?>
             <tbody>
                 <tr>
-                    <td colspan="5">No hay registros en el período seleccionado.</td>
+                    <td colspan="<?= max(1, count($columnasReporte)) ?>">No hay registros en el período seleccionado.</td>
                 </tr>
             </tbody>
         <?php endif; ?>

@@ -9,7 +9,8 @@
         <script src="vendor/datatables/js/jquery.dataTables.min.js" defer></script>
         <script src="vendor/datatables/js/dataTables.bootstrap5.min.js" defer></script>
         <script src="vendor/sweetalert2/js/sweetalert2.all.min.js" defer></script>
-        <script src="js/datatables.js" defer></script>
+        <script src="js/datatables.js?v=2" defer></script>
+        <script src="js/confirmacion-registro.js" defer></script>
     <?php endif; ?>
     <?php if ($controladorJS === 'home'): ?>
         <script src="js/home.js" defer></script>
@@ -32,11 +33,13 @@
     <?php elseif ($controladorJS === 'citas'): ?>
         <script src="js/citas.js" defer></script>
     <?php elseif ($controladorJS === 'productos'): ?>
-        <script src="js/productos.js" defer></script>
+        <script src="js/productos.js?v=2" defer></script>
     <?php elseif ($controladorJS === 'ventas'): ?>
         <script src="js/ventas.js" defer></script>
     <?php elseif ($controladorJS === 'configuracion'): ?>
         <script src="js/configuracion.js" defer></script>
+    <?php elseif ($controladorJS === 'reportes'): ?>
+        <script src="js/reportes.js" defer></script>
     <?php elseif ($controladorJS === 'usuarios'): ?>
         <script src="js/usuarios.js" defer></script>
     <?php elseif ($controladorJS === 'diagnostico'): ?>
